@@ -8,7 +8,7 @@ As a **lawyer** and **full-stack developer**, I thrive on blending deep analytic
 ![[main.jpg]]
 I just follow my passion - why not follow yours?
 
-I love my [[family]] <3
+I love my [[Family]] <3
 
 [[Coding]]:
 

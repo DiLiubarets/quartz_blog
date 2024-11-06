@@ -23,4 +23,4 @@ build()
 ```
 And  
 [[Excel]] isn’t just a tool for me; it’s a playground for creativity and problem-solving. 
-I am a data-driven professional with expert-level Excel skills, turning raw data into clear, actionable insights through advanced reporting and automation. From interactive dashboards to complex data analysis, I use Excel to simplify workflows and unlock powerful solutions.
+I am a data-driven professional who turns raw data into clear, actionable insights through advanced reporting and automation. From interactive dashboards to complex data analysis, I use Excel to simplify workflows and unlock powerful solutions.

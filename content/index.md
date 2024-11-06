@@ -17,7 +17,9 @@ future = []
 def add(element):
 	future.append(element)
 def build():
-	print("The future is not a place we're going to, but one we're creating!")
+	for goal in future:
+		print("The future is not a place we're going to, but one we're creating!")
+		print(goal)
 add("optimism")
 build()
 ```
@@ -25,7 +27,7 @@ And
 [[Excel]] isn’t just a tool for me; it’s a playground for creativity and problem-solving. 
 I am a data-driven professional who turns raw data into clear, actionable insights through advanced reporting and automation. From interactive dashboards to complex data analysis, I use Excel to simplify workflows and unlock powerful solutions.
 
-Resume
+# Resume
 <iframe
 	title='resume'
 	src="https://drive.google.com/file/d/1Z1IcHjmnv0UtnsfCmewPqx-1t3xQox6S/preview"
@@ -37,4 +39,3 @@ Resume
 		display: 'block'
 	}}
 ></iframe>
->

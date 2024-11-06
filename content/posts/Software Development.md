@@ -1,4 +1,4 @@
-
+![[coding.jpg]]
 
  # HIVEBASE  ![[Pasted image 20241106160901.png]]
  

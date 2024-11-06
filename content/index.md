@@ -24,3 +24,17 @@ build()
 And  
 [[Excel]] isn’t just a tool for me; it’s a playground for creativity and problem-solving. 
 I am a data-driven professional who turns raw data into clear, actionable insights through advanced reporting and automation. From interactive dashboards to complex data analysis, I use Excel to simplify workflows and unlock powerful solutions.
+
+Resume
+<iframe
+	title='resume'
+	src="https://drive.google.com/file/d/1Z1IcHjmnv0UtnsfCmewPqx-1t3xQox6S/view?usp=sharing"
+	frameBorder="0"
+	scrolling="auto"
+	height="400"
+	width="100%"
+	style={{
+		display: 'block'
+	}}
+></iframe>
+>

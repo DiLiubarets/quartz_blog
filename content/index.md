@@ -10,7 +10,7 @@ I just follow my passion - why not follow yours?
 
 I love my [[Family]] <3
 
-[[Tech Code in Action]]:
+[[Software Development]]:
 
 ```python
 future = []

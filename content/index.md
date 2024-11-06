@@ -26,6 +26,8 @@ And
 I am a data-driven professional who turns raw data into clear, actionable insights through advanced reporting and automation. From interactive dashboards to complex data analysis, I use Excel to simplify workflows and unlock powerful solutions.
 
 **Resume**
+[LinkedIn](https://www.linkedin.com/in/diliubarets/)
+[GitHub](https://github.com/DiLiubarets)
 
 <iframe
 	title='resume'

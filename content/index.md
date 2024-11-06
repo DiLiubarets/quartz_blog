@@ -28,7 +28,7 @@ I am a data-driven professional who turns raw data into clear, actionable insigh
 Resume
 <iframe
 	title='resume'
-	src="https://drive.google.com/file/d/1Z1IcHjmnv0UtnsfCmewPqx-1t3xQox6S/view?usp=sharing"
+	src="https://drive.google.com/file/d/1Z1IcHjmnv0UtnsfCmewPqx-1t3xQox6S/preview"
 	frameBorder="0"
 	scrolling="auto"
 	height="400"

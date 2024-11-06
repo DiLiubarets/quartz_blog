@@ -4,8 +4,7 @@ title: Welcome to my world!
 
 
 
-**About me**
-As both a lawyer and a full-stack developer, I thrive on blending deep analytical thinking with creative problem-solving. My legal expertise allows me to navigate complex issues with precision, while my skills in JavaScript and Python empower me to design innovative, tech-driven solutions. From data analysis to business strategy, I approach every challenge with a logical mindset and a passion for delivering impactful, real-world results.
+As a **lawyer**, a **full-stack developer** and **business owner**, I thrive on blending deep analytical thinking with creative problem-solving. My legal expertise allows me to navigate complex issues with precision, while my skills in JavaScript and Python empower me to design innovative, tech-driven solutions. From data analysis to business strategy, I approach every challenge with a logical mindset and a passion for delivering impactful, real-world results.
 ![[main.jpg]]
 
 I love my [[family]] <3

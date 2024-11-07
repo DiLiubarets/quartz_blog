@@ -1,0 +1,9 @@
+{
+	"nodes":[
+		{"id":"3b699ebe60e5670d","x":-462,"y":-497,"width":400,"height":400,"type":"file","file":"blog/Posts/Excel.md"},
+		{"id":"114d865c867eed61","type":"text","text":"Monthly reporting to Vendor \n","x":-20,"y":-357,"width":250,"height":60}
+	],
+	"edges":[
+		{"id":"dbbb5b90fb9c0958","fromNode":"114d865c867eed61","fromSide":"top","toNode":"3b699ebe60e5670d","toSide":"bottom"}
+	]
+}

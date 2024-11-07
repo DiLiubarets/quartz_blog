@@ -7,7 +7,9 @@ In my role, I regularly prepare a detailed report that tracks inventory and sale
 
 [Excel Vendor Report](https://docs.google.com/spreadsheets/d/1gwy8CGODaQDoYCTxLSq2n1ZZUPMnF1sl/edit?usp=sharing&ouid=108661624230142891935&rtpof=true&sd=true)
 
-![[Untitled video.mp4]]
+
+![[Untitled video 1.mp4]]
+
 
 ![[Vendor upload REPORT.png]]
 [[Vendor upload REPORT.canvas|Vendor upload REPORT]]

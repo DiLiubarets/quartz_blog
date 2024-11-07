@@ -8,6 +8,9 @@ In my role, I regularly prepare a detailed report that tracks inventory and sale
 
 ![[Vendor upload REPORT.png]]
 [[Vendor upload REPORT.canvas|Vendor upload REPORT]]
+[https://docs.google.com/spreadsheets/d/1gwy8CGODaQDoYCTxLSq2n1ZZUPMnF1sl/edit?usp=sharing&ouid=108661624230142891935&rtpof=true&sd=true]
+
+
 
 
 

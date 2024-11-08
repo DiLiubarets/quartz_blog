@@ -6,7 +6,7 @@ As a **lawyer** and **full-stack developer**, I thrive on blending deep analy
 ![[main.jpg]]
 										*I just follow my passion - why not follow yours?*
 
-A deep love for [[Family]] provides strength and inspiration, while software development and mastery of Excel fuel professional growth.
+#### A deep love for [[Family]] provides strength and inspiration, while software development and mastery of Excel fuel professional growth.
 
 ### [[Software Development]]:
 

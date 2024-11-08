@@ -8,7 +8,7 @@ As a **lawyer** and **full-stack developer**, I thrive on blending deep analy
 
 A deep love for [[Family]] provides strength and inspiration, while software development and mastery of Excel fuel professional growth.
 
-[[Software Development]]:
+### [[Software Development]]:
 
 ```python
 future = []
@@ -22,14 +22,13 @@ add("optimism")
 build()
 ```
   
-[[Excel]] isn’t just a tool for me; it’s a playground for creativity and problem-solving. 
+### [[Excel]] isn’t just a tool for me; it’s a playground for creativity and problem-solving. 
 I am a data-driven professional who turns raw data into clear, actionable insights through advanced reporting and automation. From interactive dashboards to complex data analysis, I use Excel to simplify workflows and unlock powerful solutions.
 
-[LinkedIn](https://www.linkedin.com/in/diliubarets/)
-[GitHub](https://github.com/DiLiubarets)
+#### [LinkedIn](https://www.linkedin.com/in/diliubarets/)
+#### [GitHub](https://github.com/DiLiubarets)
 
-
-**Resume**
+#### **Resume**
 
 <iframe
 	title='resume'

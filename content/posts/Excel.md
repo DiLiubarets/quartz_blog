@@ -5,7 +5,8 @@ As a Data Analyst at a tool store, I leveraged my expertise in Excel to manage a
 My passion for Excel goes beyond just numbers—it's a tool that allows me to dive deep into data, uncover insights, and visually present information in a clear, actionable way. From pivot tables and XLOOKUPs to complex formulas and data visualization, I enjoy exploring Excel's full potential to solve problems and drive results for the business.
 
 
-## - Automating Biweekly Vendor Reports with Excel:
+## Automating Biweekly Vendor Reports with Excel:
+
 ![[Untitled video 1.mp4]]
 **3m shipping/invoice Report** is designed to streamline the process of tracking shipments, invoicing, and managing product data. This report leverages advanced formulas to automatically pull and organize essential information from our internal data systems, ensuring accuracy and efficiency for our distribution partners.
 Includes critical data such as:
@@ -17,17 +18,13 @@ This report is automatically generated using advanced formulas to ensure accurat
 
 To dive deeper:   [[Automating Biweekly Vendor Reports with Excel]]
 
+## Daily report Shipment/Picking  
 
+![[shipment video.mp4]]
+coming... 
 
+To dive deeper: [Excel shipment report](https://docs.google.com/spreadsheets/d/13U1SAHIoO-H6_CfcZO4YzGPLDKuFVJ2X/edit?usp=sharing&ouid=108661624230142891935&rtpof=true&sd=true)
 
+## Monthly Inventory report
 
-
-
-
-
-
-
-
-
-
-
+coming .... 

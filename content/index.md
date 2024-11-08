@@ -4,7 +4,8 @@ https://www.linkedin.com/in/diliubarets/: LinkedIn
 ---
 As a **lawyer** and **full-stack developer**, I thrive on blending deep analytical thinking with creative problem-solving. My legal background equips me to tackle complex issues with precision, while my passion for software development stems from the satisfaction of building efficient, innovative solutions. Working with technologies like JavaScript and Python allows me to turn ideas into reality, solving real-world problems in ways that are both impactful and scalable.
 ![[main.jpg]]
-										*I just follow my passion - why not follow yours?*
+										*I just follow my passion - why not follow yours?*^
+
 
 #### A deep love for [[Family]] provides strength and inspiration, while software development and mastery of Excel fuel professional growth.
 

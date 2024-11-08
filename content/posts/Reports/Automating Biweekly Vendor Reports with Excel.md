@@ -162,4 +162,4 @@ Automating the biweekly vendor report using Excel has significantly improved bot
 
 If you’re responsible for generating regular reports that need to meet strict formatting or validation requirements, consider using Excel’s advanced formulas and Conditional Formatting to automate the process. It can save you time and ensure that your reports are always accurate and ready for submission.
 
-## [[Formulas are used]]
+## [[Biweekly Vendor Reports formulas]]

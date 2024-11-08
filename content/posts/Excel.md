@@ -1,18 +1,22 @@
 ### **Excel Automation Playground**
 
 
-
-In my role, I regularly prepare a detailed report that tracks inventory and sales data. This report includes critical metrics like product costs, shipping details, and cost of goods sold (COGS) across multiple customers and products. Initially, this was a manual process that required extensive data extraction, filtering, calculations, and formatting. Each report update was time-consuming and left room for human error. Recognizing these challenges, I aimed to develop an automated solution to streamline the process.
-
-
-[Excel Vendor Report](https://docs.google.com/spreadsheets/d/1gwy8CGODaQDoYCTxLSq2n1ZZUPMnF1sl/edit?usp=sharing&ouid=108661624230142891935&rtpof=true&sd=true)
+As a Data Analyst and Purchase Manager at a tool store, I leveraged my expertise in Excel to manage and optimize the store's inventory. I was responsible for generating detailed reports on a daily, weekly, bi-weekly, and monthly basis, ensuring that inventory levels were accurate and aligned with demand. By using advanced Excel functions, I was able to analyze sales trends, forecast future needs, and streamline purchasing decisions to maintain efficient stock levels. My passion for Excel goes beyond just numbers—it's a tool that allows me to dive deep into data, uncover insights, and visually present information in a clear, actionable way. From pivot tables and LOOKUPs to complex formulas and data visualization, I enjoy exploring Excel's full potential to solve problems and drive results for the business.
 
 
-![[Untitled video 1.mp4]]
+## - Automating Biweekly Vendor Reports with Excel:
 
+Our **Shipping and Invoice Report** is designed to streamline the process of tracking shipments, invoicing, and managing product data. This report leverages advanced formulas to automatically pull and organize essential information from our internal data systems, ensuring accuracy and efficiency for our distribution partners.
+Includes critical data such as:
+- **Shipping Details**: Ship-to ID, name, address, city, province, postal code, and country.
+- **Product Information**: Item ID, product description, quantity shipped, and unit of measure.
+- **Invoice Information**: Invoice date and associated costs, including Cost of Goods Sold (COGS).
 
-![[Vendor upload REPORT.png]]
-[[Vendor upload REPORT.canvas|Vendor upload REPORT]]
+This report is automatically generated using advanced formulas to ensure accurate and up-to-date information, making it easier for distributors and partners to track shipments, manage inventory, and maintain financial records.
+
+To dive deeper: 
+[[Reports/Automating Biweekly Vendor Reports with Excel]]
+
 
 
 

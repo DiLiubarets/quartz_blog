@@ -2,25 +2,25 @@ These formulas are used to populate various fields such as "Ship to ID," "Ship t
 
 #### Below is organized version of the formulas I used:
 
-|**Field**|**Formula**|
-|---|---|
-|**OF**|`=IF(R2<>"", "OF", "")`|
-|**91 (Ship to ID)**|`=IF(R2<>"", "91", "")`|
-|**Ship to Name**|`=XLOOKUP(Q2, 'Data '!E:E, 'Data '!K:K, "No DATA")`|
-|**Ship Address**|`=XLOOKUP(Q2, 'Data '!E:E, 'Data '!L:L, "No DATA")`|
-|**Ship City**|`=XLOOKUP(Q2, 'Data '!E:E, 'Data '!AC:AC, "No DATA")`|
-|**Ship Province**|`=XLOOKUP(Q2, 'Data '!E:E, 'Data '!AF:AF, "No DATA")`|
-|**Ship Postal Code**|`=XLOOKUP(Q2, 'Data '!E:E, 'Data '!AE:AE, "No DATA")`|
-|**Ship Country**|`=XLOOKUP(Q2, 'Data '!E:E, 'Data '!AG:AG, "No DATA")`|
-|**Country Code (CA)**|`=IFERROR(IF(R2<>"", "CA", ""), "NO DATA")`|
-|**Item ID**|`='Data '!E2`|
-|**Product Code**|`=IFERROR(RIGHT('Data '!E2, LEN('Data '!E2)-6), "NO DATA")`|
-|**Product Description**|`=XLOOKUP(Q2, 'Data '!E:E, 'Data '!F:F, "No DATA")`|
-|**Invoice Date**|`=IFERROR(TEXT(DATE(RIGHT('Data '!J2, 4), LEFT('Data '!J2, FIND("/", 'Data '!J2) - 1), MID('Data '!J2, FIND("/", 'Data '!J2) + 1, FIND("/", 'Data '!J2, FIND("/", 'Data '!J2) + 1) - FIND("/", 'Data '!J2) - 1)), "YYYYMMDD"), "NO DATA")`|
-|**Quantity Shipped**|`=XLOOKUP(Q2, 'Data '!E:E, 'Data '!U:U, "No DATA")`|
-|**Unit of Measure**|`=XLOOKUP(Q2, 'Data '!E:E, 'Data '!I:I, "No DATA")`|
-|**COGS (Cost of Goods Sold)**|`=IFERROR(ROUNDUP(AB2/Y2, 2), "NO DATA")`|
-|**COGS Formula**|`=IFERROR(ROUNDUP(XLOOKUP(@Q:Q, 'Data '!E:E, 'Data '!AQ:AQ), 2), "NO DATA")`|
+| **Field**                     | **Formula**                                                                                                                                                                                                                                |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **OF**                        | `=IF(R2<>"", "OF", "")`                                                                                                                                                                                                                    |
+| **91 (Ship to ID)**           | `=IF(R2<>"", "91", "")`                                                                                                                                                                                                                    |
+| **Ship to Name**              | `=XLOOKUP(Q2, 'Data '!E:E, 'Data '!K:K, "No DATA")`                                                                                                                                                                                        |
+| **Ship Address**              | `=XLOOKUP(Q2, 'Data '!E:E, 'Data '!L:L, "No DATA")`                                                                                                                                                                                        |
+| **Ship City**                 | `=XLOOKUP(Q2, 'Data '!E:E, 'Data '!AC:AC, "No DATA")`                                                                                                                                                                                      |
+| **Ship Province**             | `=XLOOKUP(Q2, 'Data '!E:E, 'Data '!AF:AF, "No DATA")`                                                                                                                                                                                      |
+| **Ship Postal Code**          | `=XLOOKUP(Q2, 'Data '!E:E, 'Data '!AE:AE, "No DATA")`                                                                                                                                                                                      |
+| **Ship Country**              | `=XLOOKUP(Q2, 'Data '!E:E, 'Data '!AG:AG, "No DATA")`                                                                                                                                                                                      |
+| **Country Code (CA)**         | `=IFERROR(IF(R2<>"", "CA", ""), "NO DATA")`                                                                                                                                                                                                |
+| **Item ID**                   | `='Data '!E2`                                                                                                                                                                                                                              |
+| **Product Code**              | `=IFERROR(RIGHT('Data '!E2, LEN('Data '!E2)-6), "NO DATA")`                                                                                                                                                                                |
+| **Product Description**       | `=XLOOKUP(Q2, 'Data '!E:E, 'Data '!F:F, "No DATA")`                                                                                                                                                                                        |
+| **Invoice Date**              | `=IFERROR(TEXT(DATE(RIGHT('Data '!J2, 4), LEFT('Data '!J2, FIND("/", 'Data '!J2) - 1), MID('Data '!J2, FIND("/", 'Data '!J2) + 1, FIND("/", 'Data '!J2, FIND("/", 'Data '!J2) + 1) - FIND("/", 'Data '!J2) - 1)), "YYYYMMDD"), "NO DATA")` |
+| **Quantity Shipped**          | `=XLOOKUP(Q2, 'Data '!E:E, 'Data '!U:U, "No DATA")`                                                                                                                                                                                        |
+| **Unit of Measure**           | `=XLOOKUP(Q2, 'Data '!E:E, 'Data '!I:I, "No DATA")`                                                                                                                                                                                        |
+| **COGS (Cost of Goods Sold)** | `=IFERROR(ROUNDUP(AB2/Y2, 2), "NO DATA")`                                                                                                                                                                                                  |
+| **COGS Formula**              | `=IFERROR(ROUNDUP(XLOOKUP(@Q:Q, 'Data '!E:E, 'Data '!AQ:AQ), 2), "NO DATA")`                                                                                                                                                               |
 
 ---
 

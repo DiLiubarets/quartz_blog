@@ -25,7 +25,7 @@ The report needed to be generated every two weeks, and I wanted to ensure that t
     
 - For example, to retrieve product details from the "Data" sheet, I used the following formula:
     
-    excel
+    
     
     ```excel
     =XLOOKUP(
@@ -46,9 +46,9 @@ The report needed to be generated every two weeks, and I wanted to ensure that t
     - **Highlighting Invalid Data in Column AC:**  
         The vendor required certain fields, like product codes, to start with a number. To ensure this, I applied the following Conditional Formatting formula:
         
-        excel
         
-        ```
+        
+        ```excel
         =NOT(
             ISNUMBER(
                 VALUE(
@@ -63,9 +63,9 @@ The report needed to be generated every two weeks, and I wanted to ensure that t
     - **Ensuring Correct Formatting in Column AG:**  
         The vendor required values in column `AG` to be exactly 7 characters long, with a space in the 4th position. To check this, I used:
         
-        excel
         
-        ```
+        
+        ```excel
         =NOT(
             AND(
                 LEN(AG1)=7, 
@@ -79,9 +79,9 @@ The report needed to be generated every two weeks, and I wanted to ensure that t
     - **Highlighting Missing Data in Columns AE and AF:**  
         The vendor’s template required certain fields to be filled out. To ensure that no data was missing in columns `AE` and `AF`, I used the following formulas:
         
-        excel
         
-        ```
+        
+        ```excel
         =OR(
             AE1 = "", 
             ISBLANK(AE1)
@@ -99,9 +99,9 @@ The report needed to be generated every two weeks, and I wanted to ensure that t
 
 - Some fields required specific formatting, such as dates and text fields. I used the **TEXT** and **DATE** functions to ensure that dates were formatted correctly according to the vendor’s template. For example:
     
-    excel
     
-    ```
+    
+    ```excel
     =IFERROR(
         TEXT(
             DATE(

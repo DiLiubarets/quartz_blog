@@ -6,7 +6,7 @@ My passion for Excel goes beyond just numbers—it's a tool that allows me to di
 
 
 ## - Automating Biweekly Vendor Reports with Excel:
-
+![[Untitled video 1.mp4]]
 **3m shipping/invoice Report** is designed to streamline the process of tracking shipments, invoicing, and managing product data. This report leverages advanced formulas to automatically pull and organize essential information from our internal data systems, ensuring accuracy and efficiency for our distribution partners.
 Includes critical data such as:
 - **Shipping Details**: Ship-to ID, name, address, city, province, postal code, and country.

@@ -2,6 +2,8 @@ In my role as a **Data Analyst/Purchase Manager** at a tool store, I am respon
 
 Initially, this process was manual and time-consuming, but by leveraging Excel’s powerful formulas and Conditional Formatting, I was able to automate the report generation and validation process. In this article, I’ll explain how I streamlined this task.
 
+link to excel DOC [Excel 3m shipping/invoicing Report](https://docs.google.com/spreadsheets/d/1gwy8CGODaQDoYCTxLSq2n1ZZUPMnF1sl/edit?usp=sharing&ouid=108661624230142891935&rtpof=true&sd=true)
+
 ---
 
 The vendor requires a biweekly report from our tool store, which must be uploaded to their website in a specific format. This report includes key data such as product orders, stock levels, and other relevant metrics. The vendor’s template is strict, and any deviation from the required format or missing data could result in the report being rejected.

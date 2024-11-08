@@ -16,7 +16,8 @@ This report is automatically generated using advanced formulas to ensure accurat
 
 To dive deeper: 
 
-[[Automating Biweekly Vendor Reports with Excel]]
+## [[Automating Biweekly Vendor Reports with Excel]]
+
 
 
 

@@ -4,15 +4,9 @@ Initially, this process was manual and time-consuming, but by leveraging Excel�
 
 ---
 
-### **Situation:**
-
 The vendor requires a biweekly report from our tool store, which must be uploaded to their website in a specific format. This report includes key data such as product orders, stock levels, and other relevant metrics. The vendor’s template is strict, and any deviation from the required format or missing data could result in the report being rejected.
 
 As the **Data Analyst/Purchase Manager**, I was responsible for ensuring that the report was accurate, complete, and ready for validation before submission. Initially, the process involved manually entering data, checking for errors, and formatting the report to meet the vendor’s template. This was time-consuming and prone to human error, especially when handling large datasets.
-
----
-
-### **My Goal**
 
 My goal was to automate the report generation process to:
 
@@ -23,9 +17,7 @@ My goal was to automate the report generation process to:
 
 The report needed to be generated every two weeks, and I wanted to ensure that the process was as efficient and error-free as possible.
 
----
-
-### **Here’s how I approached automating the biweekly vendor report using Excel:**
+#### **Here’s how I approached automating the biweekly vendor report using Excel:**
 
 #### 1. **Data Extraction and Transformation:**
 
@@ -136,7 +128,7 @@ The report needed to be generated every two weeks, and I wanted to ensure that t
 
 ---
 
-### **Key Benefits of Automating the Biweekly Report Using Excel:**
+#### **Key Benefits of Automating the Biweekly Report Using Excel:**
 
 1. **Time Savings:**  
     The automation significantly reduced the time spent on generating the report. What used to take hours of manual data entry and formatting now updates automatically whenever new data is added to the "Data" sheet.
@@ -154,7 +146,6 @@ The report needed to be generated every two weeks, and I wanted to ensure that t
     Since the report was already formatted according to the vendor’s template, it was easy to upload to the vendor’s website without additional adjustments.
     
 
----
 
 ### **Conclusion:**
 

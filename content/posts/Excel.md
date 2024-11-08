@@ -15,7 +15,9 @@ Includes critical data such as:
 This report is automatically generated using advanced formulas to ensure accurate and up-to-date information, making it easier for distributors and partners to track shipments, manage inventory, and maintain financial records.
 
 To dive deeper: 
-[Automating Biweekly Vendor Reports with Excel]
+
+[[Automating Biweekly Vendor Reports with Excel]]
+
 
 
 

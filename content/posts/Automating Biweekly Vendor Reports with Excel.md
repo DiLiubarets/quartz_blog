@@ -26,7 +26,7 @@ The report needed to be generated every two weeks, and I wanted to ensure that t
 
 - I used **XLOOKUP** to pull relevant data from our internal systems (stored in the "Data" sheet) into the report template. This allowed me to automatically retrieve product information, stock levels, and order statuses based on product IDs.
 - For example, to retrieve product details from the "Data" sheet, I used the following formula:
-    
+
     ```excel
 =XLOOKUP(
     Q2, 
@@ -35,17 +35,17 @@ The report needed to be generated every two weeks, and I wanted to ensure that t
     "No DATA"
 )
 ```
-    
-    This formula looks up the value in `Q2` (the product ID) in column `E` of the "Data" sheet and returns the corresponding data from column `K`. If no match is found, it returns "No DATA" to indicate missing information.
+
+This formula looks up the value in `Q2` (the product ID) in column `E` of the "Data" sheet and returns the corresponding data from column `K`. If no match is found, it returns "No DATA" to indicate missing information.
 
 ###### 2. **Conditional Formatting for Data Validation:**
 
 - To ensure that the report met the vendor’s strict formatting requirements, I used **Conditional Formatting** with custom formulas to highlight any data inconsistencies or missing values.
-    
-    - **Highlighting Invalid Data in Column AC**:  
-        The vendor required certain fields, like product codes, to start with a number. To ensure this, I applied the following Conditional Formatting formula: 
-        
-        ``` excel
+
+ - **Highlighting Invalid Data in Column AC**:  
+ The vendor required certain fields, like product codes, to start with a number. To ensure this, I applied the following Conditional Formatting formula: 
+
+ ```excel
         =NOT(
 	        ISNUMBER(
 		        VALUE(
@@ -53,25 +53,26 @@ The report needed to be generated every two weeks, and I wanted to ensure that t
 			        )
 			    )
 			)
-        ```
-        
-        This formula checks if the first character of the value in `AC1` is not a number. If the condition is true, the cell is highlighted, indicating that the data needs to be corrected before submission.
-        
-    - **Ensuring Correct Formatting in Column AG**:  
-        The vendor required values in column `AG` to be exactly 7 characters long, with a space in the 4th position. To check this, I used: 
-        ```excel
+```
+
+This formula checks if the first character of the value in `AC1` is not a number. If the condition is true, the cell is highlighted, indicating that the data needs to be corrected before submission.
+- **Ensuring Correct Formatting in Column AG**:  
+ The vendor required values in column `AG` to be exactly 7 characters long, with a space in the 4th position. To check this, I used: 
+
+```excel
         =NOT(
 	        AND(
 		        LEN(AG1)=7, 
 		        MID(AG1,4,1)=" ")
 		    )
         ```
-        
-        This formula ensures that the length of the value is exactly 7 characters and that the 4th character is a space. If the condition is not met, the cell is highlighted, signaling that the data needs to be reformatted.
-        
-    - **Highlighting Missing Data in Columns AE and AF**:  
-        The vendor’s template required certain fields to be filled out. To ensure that no data was missing in columns `AE` and `AF`, I used the following formulas:
-        ```excel
+
+This formula ensures that the length of the value is exactly 7 characters and that the 4th character is a space. If the condition is not met, the cell is highlighted, signaling that the data needs to be reformatted.
+
+ - **Highlighting Missing Data in Columns AE and AF**:  
+ The vendor’s template required certain fields to be filled out. To ensure that no data was missing in columns `AE` and `AF`, I used the following formulas:
+
+```excel
         =OR(
 		    AE1 = "", 
 		    ISBLANK(AE1)
@@ -81,9 +82,10 @@ The report needed to be generated every two weeks, and I wanted to ensure that t
 	        ISBLANK(AF1)
 	        )
         ```
-        
-        These formulas check if the cells in `AE` or `AF` are either empty or blank. If so, the cells are highlighted, indicating that the missing data needs to be filled in.
-        
+   
+
+These formulas check if the cells in `AE` or `AF` are either empty or blank. If so, the cells are highlighted, indicating that the missing data needs to be filled in.
+
 ###### 3. **Text Manipulation and Date Formatting:**
 
 - Some fields required specific formatting, such as dates and text fields. I used the **TEXT** and **DATE** functions to ensure that dates were formatted correctly according to the vendor’s template. For example:    
@@ -104,8 +106,8 @@ The report needed to be generated every two weeks, and I wanted to ensure that t
     "NO DATA"
 )
     ```
-    
-    This formula converts a date stored as text in a non-standard format into the vendor’s required `YYYYMMDD` format. If the operation fails, the formula returns "NO DATA."
+
+This formula converts a date stored as text in a non-standard format into the vendor’s required `YYYYMMDD` format. If the operation fails, the formula returns "NO DATA."
 
 ###### 4. **Final Report Preparation:**
 

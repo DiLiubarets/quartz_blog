@@ -27,7 +27,7 @@ The report needed to be generated every two weeks, and I wanted to ensure that t
     
     excel
     
-    ```
+    ```excel
     =XLOOKUP(
         Q2, 
         'Data '!E:E, 
@@ -146,8 +146,6 @@ The report needed to be generated every two weeks, and I wanted to ensure that t
     Since the report was already formatted according to the vendor’s template, it was easy to upload to the vendor’s website without additional adjustments.
     
 
-
-### **Conclusion:**
 
 Automating the biweekly vendor report using Excel has significantly improved both efficiency and accuracy. By ensuring that the report meets the vendor’s strict template and validation requirements, I’ve been able to streamline the process and reduce the risk of errors. This automation not only saves time but also ensures that the report is ready for submission with minimal manual intervention.
 

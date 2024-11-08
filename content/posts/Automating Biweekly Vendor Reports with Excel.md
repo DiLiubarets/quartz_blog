@@ -1,12 +1,8 @@
-
-##### **Introduction:**
-
 In my role as a **Data Analyst/Purchase Manager** at a tool store, I am responsible for generating a biweekly report that must be uploaded to a vendor’s website. The report follows a specific template provided by the vendor and must be validated before submission to ensure that all data is correct and properly formatted.
 
 Initially, this process was manual and time-consuming, but by leveraging Excel’s powerful formulas and Conditional Formatting, I was able to automate the report generation and validation process. In this article, I’ll explain how I streamlined this task.
 
 ---
-
 #### **Situation:**
 
 The vendor requires a biweekly report from our tool store, which must be uploaded to their website in a specific format. This report includes key data such as product orders, stock levels, and other relevant metrics. The vendor’s template is strict, and any deviation from the required format or missing data could result in the report being rejected.
@@ -47,9 +43,7 @@ The report needed to be generated every two weeks, and I wanted to ensure that t
 - To ensure that the report met the vendor’s strict formatting requirements, I used **Conditional Formatting** with custom formulas to highlight any data inconsistencies or missing values.
     
     - **Highlighting Invalid Data in Column AC**:  
-        The vendor required certain fields, like product codes, to start with a number. To ensure this, I applied the following Conditional Formatting formula:
-        
-        
+        The vendor required certain fields, like product codes, to start with a number. To ensure this, I applied the following Conditional Formatting formula: 
         
         ``` excel
         =NOT(
@@ -64,8 +58,7 @@ The report needed to be generated every two weeks, and I wanted to ensure that t
         This formula checks if the first character of the value in `AC1` is not a number. If the condition is true, the cell is highlighted, indicating that the data needs to be corrected before submission.
         
     - **Ensuring Correct Formatting in Column AG**:  
-        The vendor required values in column `AG` to be exactly 7 characters long, with a space in the 4th position. To check this, I used:
-        
+        The vendor required values in column `AG` to be exactly 7 characters long, with a space in the 4th position. To check this, I used: 
         ```excel
         =NOT(
 	        AND(
@@ -78,7 +71,6 @@ The report needed to be generated every two weeks, and I wanted to ensure that t
         
     - **Highlighting Missing Data in Columns AE and AF**:  
         The vendor’s template required certain fields to be filled out. To ensure that no data was missing in columns `AE` and `AF`, I used the following formulas:
-        
         ```excel
         =OR(
 		    AE1 = "", 
@@ -129,7 +121,6 @@ The report needed to be generated every two weeks, and I wanted to ensure that t
 5. **Efficient Upload:** Since the report was already formatted according to the vendor’s template, it was easy to upload to the vendor’s website without additional adjustments.
 
 ---
-
 ### **Conclusion:**
 Automating the biweekly vendor report using Excel has significantly improved both efficiency and accuracy. By ensuring that the report meets the vendor’s strict template and validation requirements, I’ve been able to streamline the process and reduce the risk of errors. This automation not only saves time but also ensures that the report is ready for submission with minimal manual intervention.
 

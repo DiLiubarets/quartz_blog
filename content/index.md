@@ -30,8 +30,6 @@ I am a data-driven professional who turns raw data into clear, actionable insigh
 #### [GitHub](https://github.com/DiLiubarets)
 
 #### [Resume]
-
-
 <iframe
 	title='resume'
 	src="https://drive.google.com/file/d/1Z1IcHjmnv0UtnsfCmewPqx-1t3xQox6S/preview"
@@ -43,3 +41,4 @@ I am a data-driven professional who turns raw data into clear, actionable insigh
 		display: 'block'
 	}}
 ></iframe>
+>

@@ -56,6 +56,36 @@ Excel is a powerful tool for data management and analysis, but it's even more ef
   =XLOOKUP(1, (J2:J8=O12)*(P2:P8=P12), Q2:Q8, "not found")
   ```
 
+This formula looks up a value from the range `Q2:Q8` based on **two conditions**:
+1. The value in `J2:J8` must match the value in `O12`.
+2. The value in `P2:P8` must match the value in `P12`.
+If both conditions are met in the same row, it returns the corresponding value from `Q2:Q8`. If no match is found, it returns `"not found"`.
+### **Explanation:**
+
+1. **`(J2:J8=O12)*(P2:P8=P12)`**:
+- This creates an array of `1`s and `0`s (True = 1, False = 0) by checking both conditions.
+- The multiplication (`*`) ensures that only rows where **both conditions** are `TRUE` will return `1`.
+2. **`XLOOKUP(1, ...)`**:
+- `XLOOKUP` looks for the first `1` (where both conditions are `TRUE`) in the array created by the multiplication.
+3. **`Q2:Q8`**:
+- Once a match is found, it returns the corresponding value from the range `Q2:Q8`.
+4. **`"not found"`**:
+ - If no match is found, the formula returns `"not found"`.
+
+### **Example:**
+If `O12 = "C"` and `P12 = 3`, and your data is:
+
+|**J**|**P**|**Q**|
+|---|---|---|
+|A|1|100|
+|B|2|200|
+|C|3|300|
+|D|4|400|
+
+The formula will return **`300`**, since both conditions are met in the third row.
+
+---
+
 **Remove Duplicates:**
   - Use the `UNIQUE` function to find unique values in a range:
 ``` excel
@@ -67,12 +97,6 @@ Excel is a powerful tool for data management and analysis, but it's even more ef
 
  **Delete Empty Rows:**
 - Select the data, press `CTRL + G`, choose "Special", select "Blanks", and then press `CTRL + -` to delete the empty rows.
-
-**Conditional Formatting to Highlight Active Row:**
-- Use this formula in Conditional Formatting to highlight the active row:
-``` excel
-=CELL("row")=ROW()
-```
 
 **Look for a Specific Word in a Cell:**
    - To check if a cell contains a specific word and return a value based on that:
@@ -90,7 +114,7 @@ Excel is a powerful tool for data management and analysis, but it's even more ef
    - Use the `OFFSET` function to create a dynamic named range:   
    ``` excel
    = OFFSET('Intro to Dynamic Array'!$B$3, 0, 0, 
-   COUNTA('Intro to Dynamic Arrays'!$B:$B) - 1, 1)
+		   COUNTA('Intro to Dynamic Arrays'!$B:$B) - 1, 1)
   ```
 
 **Separate Data into Rows:**
@@ -114,8 +138,15 @@ Excel is a powerful tool for data management and analysis, but it's even more ef
 ---
 ### **Additional Tips & Tricks:**
 
+1. **Open the VBA Editor**: Press `Alt + F11` in Excel.
+2. **Insert a Module**: In the VBA editor, go to **Insert > Module**.
+3. **Paste the Code**: Copy and paste the desired VBA code into the module.
+4. **Run the Macro**: Press `F5` to run the macro, or go back to Excel and run it from the **Macros** menu (`Alt + F8`).
 ##### **Activate a Row Based on Conditions:**
 - Use Conditional Formatting and a formula to highlight rows based on conditions.
+``` excel
+=CELL("row")=ROW()
+```
 - Right-click the sheet tab, choose "View Code," and use this VBA code to calculate the active cell:
 vba
 ``` vba
@@ -134,7 +165,7 @@ Cells.EntireColumn.AutoFit
 - `AutoFit`: Automatically adjusts the width of the columns based on the content.
 
 ##### **Loop Through All Worksheets**
-If you need to perform the same operation on every worksheet in your workbook (e.g., formatting, data cleanup, etc.), you can use this loop:
+If there is a need to perform the same operation on every worksheet in the workbook (e.g., formatting, data cleanup, etc.), the following loop can be used:
 
 vba
 ```

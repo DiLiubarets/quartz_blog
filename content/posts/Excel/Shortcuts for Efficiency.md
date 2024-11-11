@@ -149,7 +149,7 @@ Cells.EntireColumn.AutoFit
 
 ---
 
- ^ Help you get the job done faster and more accurately.
+ > Help you get the job done faster and more accurately.
 
 
 ---

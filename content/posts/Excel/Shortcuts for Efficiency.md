@@ -114,7 +114,7 @@ The formula will return **`300`**, since both conditions are met in the third r
    - Use the `OFFSET` function to create a dynamic named range:   
    ``` excel
    = OFFSET('Intro to Dynamic Array'!$B$3, 0, 0, 
-		   COUNTA('Intro to Dynamic Arrays'!$B:$B) - 1, 1)
+   	   COUNTA('Intro to Dynamic Arrays'!$B:$B) - 1, 1)
   ```
 
 **Separate Data into Rows:**

@@ -34,7 +34,7 @@ Excel is a powerful tool for data management and analysis, but it's even more ef
 |Insert the SUM function|`Alt + =`|
 |Add or remove filter|`Ctrl + Shift + L`|
 
-#### ** Data and Row Management Shortcuts:**
+#### Data and Row Management Shortcuts:
 
 |**Action**|**Shortcut**|
 |---|---|

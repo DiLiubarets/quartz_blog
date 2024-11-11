@@ -1,10 +1,7 @@
 Excel is a powerful tool for data management and analysis, but it's even more effective when you know how to use shortcuts and formulas to speed up your workflow. Below are some of my favorite Excel shortcuts, formulas, and tips that help me work efficiently and solve common problems in Excel.
 
 ---
-
-
-
-#### **1. Navigation and Selection Shortcuts:**
+#### **Navigation and Selection Shortcuts:**
 
 |**Action**|**Shortcut**|
 |---|---|
@@ -20,7 +17,7 @@ Excel is a powerful tool for data management and analysis, but it's even more ef
 |Go to the beginning of a worksheet|`Ctrl + Home`|
 |Go to a specific cell|`Ctrl + G` or `F5`|
 
-#### **2. Editing and Formatting Shortcuts:**
+#### **Editing and Formatting Shortcuts:**
 
 |**Action**|**Shortcut**|
 |---|---|
@@ -37,7 +34,7 @@ Excel is a powerful tool for data management and analysis, but it's even more ef
 |Insert the SUM function|`Alt + =`|
 |Add or remove filter|`Ctrl + Shift + L`|
 
-#### **3. Data and Row Management Shortcuts:**
+#### ** Data and Row Management Shortcuts:**
 
 |**Action**|**Shortcut**|
 |---|---|
@@ -52,117 +49,93 @@ Excel is a powerful tool for data management and analysis, but it's even more ef
 
 ### **Favorite Formulas:**
 
-1. **XLOOKUP with Two Criteria:**
-    
-    - This formula looks up a value based on two criteria:
-    
-    excel
-    
-    ```
-    =XLOOKUP(1, (J2:J8=O12)*(P2:P8=P12), Q2:Q8, "not found")
-    ```
-    
-2. **Remove Duplicates:**
-    
-    - Use the `UNIQUE` function to find unique values in a range:
-    
-    excel
-    
-    ```
-    =UNIQUE(SELECT ARRAY)
-    ```
-    
-3. **Find and Replace Non-breaking Spaces:**
-    
-    - Use `CTRL + H` to find and replace non-breaking spaces. In the "Find" field, enter `Alt + 0160` to find non-breaking spaces and replace them with regular spaces.
-4. **Delete Empty Rows:**
-    
-    - Select the data, press `CTRL + G`, choose "Special", select "Blanks", and then press `CTRL + -` to delete the empty rows.
-5. **Conditional Formatting to Highlight Active Row:**
-    
-    - Use this formula in Conditional Formatting to highlight the active row:
-    
-    excel
-    
-    ```
-    =CELL("row")=ROW()
-    ```
-    
-6. **Look for a Specific Word in a Cell:**
-    
-    - To check if a cell contains a specific word and return a value based on that:
-    
-    excel
-    
-    ```
-    =IF(ISNUMBER(SEARCH("disp", A2)), "display", "other")
-    ```
-    
-7. **Extract Text After a Specific Character (e.g., after @ in an email):**
-    
-    - Use the `RIGHT` and `SEARCH` functions to extract text after the "@" symbol:
-    
-    excel
-    
-    ```
-    =RIGHT(N2, LEN(N2) - SEARCH("@", N2))
-    ```
-    
-8. **Define a Dynamic Named Range:**
-    
-    - Use the `OFFSET` function to create a dynamic named range:
-    
-    excel
-    
-    ```
-    =OFFSET('Intro to Dynamic Array'!$B$3, 0, 0, COUNTA('Intro to Dynamic Arrays'!$B:$B) - 1, 1)
-    ```
-    
-9. **Separate Data into Rows:**
-    
-    - Use the `WRAPROW` function to split data into rows:
-    
-    excel
-    
-    ```
-    =WRAPROW(SELECT DATA, HOW MANY ROWS)
-    ```
-    
-10. **Remove Everything After a Space:**
-    
-    - Use `CTRL + H` to find and replace everything after a space:
-    - **Find**: Enter `*` after a space.
-    - **Replace**: Leave blank or add your desired replacement.
-11. **LOOKUP Function:**
-    
-    - Use the `LOOKUP` function to find a value within a range:
-    
-    excel
-    
-    ```
-    =LOOKUP(B2, $E$2:$F$2)
-    ```
-    
+**XLOOKUP with Two Criteria:**
+   - This formula looks up a value based on two criteria:
+
+``` excel
+  =XLOOKUP(1, (J2:J8=O12)*(P2:P8=P12), Q2:Q8, "not found")
+  ```
+**Remove Duplicates:**
+  - Use the `UNIQUE` function to find unique values in a range:
+   
+``` excel
+ =UNIQUE(SELECT ARRAY)
+```
+
+ **Find and Replace Non-breaking Spaces:**
+
+- Use `CTRL + H` to find and replace non-breaking spaces. In the "Find" field, enter `Alt + 0160` to find non-breaking spaces and replace them with regular spaces.
+
+ **Delete Empty Rows:**
+- Select the data, press `CTRL + G`, choose "Special", select "Blanks", and then press `CTRL + -` to delete the empty rows.
+
+**Conditional Formatting to Highlight Active Row:**
+
+- Use this formula in Conditional Formatting to highlight the active row:
+
+``` excel
+=CELL("row")=ROW()
+```
+
+**Look for a Specific Word in a Cell:**
+   - To check if a cell contains a specific word and return a value based on that:
+   
+
+``` excel
+  =IF(ISNUMBER(SEARCH("disp", A2)), "display", "other")
+  ```
+
+ **Extract Text After a Specific Character (e.g., after @ in an email):**
+   - Use the `RIGHT` and `SEARCH` functions to extract text after the "@" symbol:
+   
+
+``` excel
+   =RIGHT(N2, LEN(N2) - SEARCH("@", N2))
+   ```
+
+ **Define a Dynamic Named Range:**
+   - Use the `OFFSET` function to create a dynamic named range:
+   
+   ``` excel
+   = OFFSET('Intro to Dynamic Array'!$B$3, 0, 0, 
+   COUNTA('Intro to Dynamic Arrays'!$B:$B) - 1, 1)
+  ```
+
+**Separate Data into Rows:**
+   - Use the `WRAPROW` function to split data into rows:
+   
+   ``` excel
+  =WRAPROW(SELECT DATA, HOW MANY ROWS)
+  ```
+ 
+ **Remove Everything After a Space:**
+   - Use `CTRL + H` to find and replace everything after a space:
+   - **Find**: Enter `*` after a space.
+   - **Replace**: Leave blank or add your desired replacement.
+ **LOOKUP Function:**
+   - Use the `LOOKUP` function to find a value within a range:
+   
+``` excel
+  =LOOKUP(B2, $E$2:$F$2)
+ ```
+
 
 ---
-
 ### **Additional Tips & Tricks:**
 
-1. **Activate a Row Based on Conditions:**
-    
-    - Use Conditional Formatting and a formula to highlight rows based on conditions.
-    - Right-click the sheet tab, choose "View Code," and use this VBA code to calculate the active cell:
-    
-    vba
-    
-    ```
-    ActiveCell.Calculate
-    ```
-2. **`Cells.EntireColumn.AutoFit`**  
-	- The `AutoFit` method automatically resizes the width of the columns to fit the longest entry in each column. It adjusts the column width based on the content of the cells, ensuring that all data is fully visible without having to manually adjust each column.
-    vba
+##### **Activate a Row Based on Conditions:**
+- Use Conditional Formatting and a formula to highlight rows based on conditions.
+- Right-click the sheet tab, choose "View Code," and use this VBA code to calculate the active cell:
 
-```
+vba
+``` vba
+   ActiveCell.Calculate
+   ```
+##### **`Cells.EntireColumn.AutoFit`**  
+- The `AutoFit` method automatically resizes the width of the columns to fit the longest entry in each column. It adjusts the column width based on the content of the cells, ensuring that all data is fully visible without having to manually adjust each column.
+vba
+
+``` vba
 Cells.EntireColumn.AutoFit
 ```
 
@@ -171,9 +144,8 @@ Cells.EntireColumn.AutoFit
 - `AutoFit`: Automatically adjusts the width of the columns based on the content.
 
 
-2. **Formula to Move Text to the End of a Cell:**
-    
-    - As mentioned earlier, you can use `CTRL + 1` to open the Format Cells dialog and customize the format to move text to the end of the cell. For example, use `@* :` to add a colon at the end of the cell content.
+ **Formula to Move Text to the End of a Cell:**
+   - As mentioned earlier, you can use `CTRL + 1` to open the Format Cells dialog and customize the format to move text to the end of the cell. For example, use `@* :` to add a colon at the end of the cell content.
 
 ---
 

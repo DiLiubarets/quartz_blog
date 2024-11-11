@@ -55,47 +55,39 @@ Excel is a powerful tool for data management and analysis, but it's even more ef
 ``` excel
   =XLOOKUP(1, (J2:J8=O12)*(P2:P8=P12), Q2:Q8, "not found")
   ```
+
 **Remove Duplicates:**
   - Use the `UNIQUE` function to find unique values in a range:
-   
 ``` excel
  =UNIQUE(SELECT ARRAY)
 ```
 
  **Find and Replace Non-breaking Spaces:**
-
 - Use `CTRL + H` to find and replace non-breaking spaces. In the "Find" field, enter `Alt + 0160` to find non-breaking spaces and replace them with regular spaces.
 
  **Delete Empty Rows:**
 - Select the data, press `CTRL + G`, choose "Special", select "Blanks", and then press `CTRL + -` to delete the empty rows.
 
 **Conditional Formatting to Highlight Active Row:**
-
 - Use this formula in Conditional Formatting to highlight the active row:
-
 ``` excel
 =CELL("row")=ROW()
 ```
 
 **Look for a Specific Word in a Cell:**
    - To check if a cell contains a specific word and return a value based on that:
-   
-
 ``` excel
   =IF(ISNUMBER(SEARCH("disp", A2)), "display", "other")
   ```
 
  **Extract Text After a Specific Character (e.g., after @ in an email):**
    - Use the `RIGHT` and `SEARCH` functions to extract text after the "@" symbol:
-   
-
 ``` excel
    =RIGHT(N2, LEN(N2) - SEARCH("@", N2))
    ```
 
  **Define a Dynamic Named Range:**
-   - Use the `OFFSET` function to create a dynamic named range:
-   
+   - Use the `OFFSET` function to create a dynamic named range:   
    ``` excel
    = OFFSET('Intro to Dynamic Array'!$B$3, 0, 0, 
    COUNTA('Intro to Dynamic Arrays'!$B:$B) - 1, 1)
@@ -103,8 +95,7 @@ Excel is a powerful tool for data management and analysis, but it's even more ef
 
 **Separate Data into Rows:**
    - Use the `WRAPROW` function to split data into rows:
-   
-   ``` excel
+      ``` excel
   =WRAPROW(SELECT DATA, HOW MANY ROWS)
   ```
  
@@ -112,9 +103,9 @@ Excel is a powerful tool for data management and analysis, but it's even more ef
    - Use `CTRL + H` to find and replace everything after a space:
    - **Find**: Enter `*` after a space.
    - **Replace**: Leave blank or add your desired replacement.
+   
  **LOOKUP Function:**
    - Use the `LOOKUP` function to find a value within a range:
-   
 ``` excel
   =LOOKUP(B2, $E$2:$F$2)
  ```
@@ -126,15 +117,14 @@ Excel is a powerful tool for data management and analysis, but it's even more ef
 ##### **Activate a Row Based on Conditions:**
 - Use Conditional Formatting and a formula to highlight rows based on conditions.
 - Right-click the sheet tab, choose "View Code," and use this VBA code to calculate the active cell:
-
 vba
 ``` vba
    ActiveCell.Calculate
    ```
-##### **`Cells.EntireColumn.AutoFit`**  
+
+##### **Cells.EntireColumn.AutoFit**
 - The `AutoFit` method automatically resizes the width of the columns to fit the longest entry in each column. It adjusts the column width based on the content of the cells, ensuring that all data is fully visible without having to manually adjust each column.
 vba
-
 ``` vba
 Cells.EntireColumn.AutoFit
 ```
@@ -143,7 +133,51 @@ Cells.EntireColumn.AutoFit
 - `EntireColumn`: Refers to all the columns in the worksheet.
 - `AutoFit`: Automatically adjusts the width of the columns based on the content.
 
+##### **Loop Through All Worksheets**
+If you need to perform the same operation on every worksheet in your workbook (e.g., formatting, data cleanup, etc.), you can use this loop:
 
+vba
+```
+Sub LoopThroughWorksheets()
+    Dim ws As Worksheet
+    For Each ws In ThisWorkbook.Worksheets
+        ' Perform your actions here
+        ws.Cells.EntireColumn.AutoFit ' Example: Auto-fit columns on each sheet
+    Next ws
+End Sub
+```
+
+##### **Delete Blank Rows**
+This macro will delete all blank rows in the active worksheet.
+
+vba
+```
+Sub DeleteBlankRows()
+    Dim rng As Range
+    On Error Resume Next
+    Set rng = ActiveSheet.UsedRange.SpecialCells(xlCellTypeBlanks)
+    On Error GoTo 0
+    If Not rng Is Nothing Then rng.EntireRow.Delete
+End Sub
+```
+
+##### **Highlight Duplicates in a Range**
+This code will highlight duplicate values in a selected range.
+
+vba
+```
+Sub HighlightDuplicates()
+    Dim rng As Range
+    Dim cell As Range
+    Set rng = Selection ' Set the range to the current selection
+    
+    For Each cell In rng
+        If WorksheetFunction.CountIf(rng, cell.Value) > 1 Then
+            cell.Interior.Color = RGB(255, 0, 0) ' Highlight in red
+        End If
+    Next cell
+End Sub
+```
  **Formula to Move Text to the End of a Cell:**
    - As mentioned earlier, you can use `CTRL + 1` to open the Format Cells dialog and customize the format to move text to the end of the cell. For example, use `@* :` to add a colon at the end of the cell content.
 

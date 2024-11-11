@@ -119,7 +119,8 @@ The formula will return **`300`**, since both conditions are met in the third r
 
 **Separate Data into Rows:**
    - Use the `WRAPROW` function to split data into rows:
-      ``` excel
+   
+``` excel
   =WRAPROW(SELECT DATA, HOW MANY ROWS)
   ```
  

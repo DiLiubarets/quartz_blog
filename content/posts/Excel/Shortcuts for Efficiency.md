@@ -204,8 +204,8 @@ End Sub
 
 ---
 
- > Help you get the job done faster and more accurately.
+ > Help yourself get the job done faster and more accurately.
 
 
 ---
-Excel has many more advanced functions and tools that can further enhance productivity.
+Remember excel has many more advanced functions and tools that can further enhance productivity.

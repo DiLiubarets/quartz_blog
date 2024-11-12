@@ -143,17 +143,6 @@ The formula will return **`300`**, since both conditions are met in the third r
 2. **Insert a Module**: In the VBA editor, go to **Insert > Module**.
 3. **Paste the Code**: Copy and paste the desired VBA code into the module.
 4. **Run the Macro**: Press `F5` to run the macro, or go back to Excel and run it from the **Macros** menu (`Alt + F8`).
-##### **Activate a Row Based on Conditions:**
-- Use Conditional Formatting and a formula to highlight rows based on conditions.
-``` excel
-=CELL("row")=ROW()
-```
-- Right-click the sheet tab, choose "View Code," and use this VBA code to calculate the active cell:
-vba
-``` vba
-   ActiveCell.Calculate
-   ```
-
 ##### **Cells.EntireColumn.AutoFit**
 - The `AutoFit` method automatically resizes the width of the columns to fit the longest entry in each column. It adjusts the column width based on the content of the cells, ensuring that all data is fully visible without having to manually adjust each column.
 vba

@@ -29,7 +29,7 @@ I am a data-driven professional who turns raw data into clear, actionable insigh
 #### [LinkedIn](https://www.linkedin.com/in/diliubarets/)
 #### [GitHub](https://github.com/DiLiubarets)
 
-#### [Resume]
+#### Resume
 <iframe
 	title='resume'
 	src="https://drive.google.com/file/d/1Z1IcHjmnv0UtnsfCmewPqx-1t3xQox6S/preview"

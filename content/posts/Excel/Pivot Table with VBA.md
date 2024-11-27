@@ -315,11 +315,9 @@ Sub CreatePivotTable()
     Dim pivotRange As Range
     Dim pivotDestination As Range
 
-    ' Set the data range
     Set wsData = ThisWorkbook.Worksheets("Vacashing Data")
     Set pivotRange = wsData.Range("A1").CurrentRegion
 
-    ' Create or use the PivotTable sheet
     On Error Resume Next
     Set wsPivot = ThisWorkbook.Worksheets("PivotTable")
     If wsPivot Is Nothing Then
@@ -328,42 +326,34 @@ Sub CreatePivotTable()
     End If
     On Error GoTo 0
 
-    ' Set the destination for the Pivot Table
+    wsPivot.Cells.Clear
     Set pivotDestination = wsPivot.Range("A3")
-
-    ' Create the Pivot Cache and the Pivot Table
     Set pivotCache = ThisWorkbook.PivotCaches.Create(SourceType:=xlDatabase, SourceData:=pivotRange)
     Set pivotTable = pivotCache.CreatePivotTable(TableDestination:=pivotDestination, TableName:="MyPivotTable")
 
-    ' Configure the Pivot Table
     With pivotTable
-        ' Add fields
         .PivotFields("Primary Manager").Orientation = xlRowField
         .PivotFields("Work center").Orientation = xlRowField
         .PivotFields("EID").Orientation = xlRowField
         .PivotFields("Name of Employee").Orientation = xlRowField
         .PivotFields("Hours").Orientation = xlDataField
         .PivotFields("Hours").Function = xlSum
-
-        ' Set to Tabular Form
+        On Error Resume Next
         .RowAxisLayout xlTabularRow
-
-        ' Repeat all item labels
+        On Error GoTo 0
         .RepeatAllLabels xlRepeatLabels
 
-        ' Remove Subtotals for all row fields
         Dim pf As PivotField
         For Each pf In .RowFields
             pf.Subtotals = Array(False, False, False, False, False, False, False, False, False, False, False, False)
             pf.LayoutBlankLine = False
         Next pf
 
-        ' Disable Grand Totals
         .ColumnGrand = False
         .RowGrand = False
     End With
 
-    MsgBox "Pivot Table created successfully!", vbInformation
+    MsgBox "Pivot Table created successfully in Tabular Form!", vbInformation
 
 End Sub
 ```

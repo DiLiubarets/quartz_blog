@@ -258,3 +258,83 @@ Sub CreatePivotTablesWithSlicer()
 
 End Sub
 ```
+
+
+```vb
+Sub CreatePivotTablesWithSlicer()
+    Dim wsData As Worksheet
+    Dim wsPivot As Worksheet
+    Dim pivotCache As PivotCache
+    Dim pivotTable1 As PivotTable
+    Dim pivotTable2 As PivotTable
+    Dim pivotRange As Range
+    Dim pivotDestination1 As Range
+    Dim pivotDestination2 As Range
+    
+    'New slicer declarations
+    Dim pSlicers As Slicers
+    Dim sSlicer As Slicer
+    Dim pSlicersCaches As SlicerCaches
+    Dim sSlicerCache As SlicerCache
+    Dim wb As Workbook
+
+    Set wb = ThisWorkbook
+    Set wsData = ThisWorkbook.Worksheets("Sheet1")
+    Set pivotRange = wsData.Range("A1").CurrentRegion
+    Debug.Print "Pivot Range: " & pivotRange.Address
+
+    On Error Resume Next
+    Set wsPivot = ThisWorkbook.Worksheets("PivotTable")
+    If wsPivot Is Nothing Then
+        Set wsPivot = ThisWorkbook.Worksheets.Add
+        wsPivot.Name = "PivotTable"
+    End If
+    wsPivot.Cells.Clear
+    On Error GoTo 0
+
+    Set pivotDestination1 = wsPivot.Range("A5")
+    Set pivotDestination2 = wsPivot.Range("G5")
+
+    Set pivotCache = ThisWorkbook.PivotCaches.Create(SourceType:=xlDatabase, SourceData:=pivotRange)
+
+    Set pivotTable1 = pivotCache.CreatePivotTable(TableDestination:=pivotDestination1, TableName:="MyPivotTable1")
+    With pivotTable1
+        .PivotFields("Assignee").Orientation = xlRowField
+        On Error Resume Next
+        .PivotFields("Story Points").Orientation = xlDataField
+        .PivotFields("Story Points").Function = xlSum
+        On Error GoTo 0
+    End With
+
+    Set pivotTable2 = pivotCache.CreatePivotTable(TableDestination:=pivotDestination2, TableName:="MyPivotTable2")
+    With pivotTable2
+        .PivotFields("Assignee").Orientation = xlRowField
+        .PivotFields("Project").Orientation = xlRowField
+        .PivotFields("Summary").Orientation = xlRowField
+        On Error Resume Next
+        .PivotFields("Story Points").Orientation = xlDataField
+        .PivotFields("Story Points").Function = xlSum
+        On Error GoTo 0
+    End With
+
+    'Create Slicer using new structure
+    Set pSlicersCaches = wb.SlicerCaches
+    Set sSlicerCache = pSlicersCaches.Add2(pivotTable1, "Status", "Status")
+    Set sSlicer = sSlicerCache.Slicers.Add(SlicerDestination:=wsPivot.Name, _
+                                           Name:="StatusSlicer", _
+                                           Caption:="Status", _
+                                           Top:=6, _
+                                           Left:=6, _
+                                           Width:=254, _
+                                           Height:=109)
+
+    'Modify Slicer
+    sSlicer.NumberOfColumns = 3
+    sSlicer.RowHeight = 28.8
+    
+    'Connect to second pivot table
+    sSlicerCache.PivotTables.AddPivotTable pivotTable2
+
+    MsgBox "Two Pivot Tables and a Slicer created successfully!", vbInformation
+End Sub
+```

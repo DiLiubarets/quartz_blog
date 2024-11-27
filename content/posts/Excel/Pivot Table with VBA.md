@@ -210,45 +210,25 @@ Sub CreatePivotTablesWithSlicer()
         On Error GoTo 0
     End With
 
-    'Clear any existing slicers
-    On Error Resume Next
-    For Each slicer In ActiveWorkbook.Slicers
-        If slicer.Name = "StatusSlicer" Then slicer.Delete
-    Next slicer
-    On Error GoTo 0
-
-    'Create new slicer
     On Error Resume Next
     Set slicerCache = ActiveWorkbook.SlicerCaches.Add2(pivotTable1, "Status")
-    If Err.Number <> 0 Then
-        MsgBox "Error creating slicer cache: " & Err.Description, vbCritical
-        Exit Sub
+    If Not slicerCache Is Nothing Then
+        Set slicer = slicerCache.Slicers.Add( _
+            SlicerDestination:=wsPivot, _
+            Name:="StatusSlicer", _
+            Caption:="Status", _
+            Top:=wsPivot.Range("A1").Top, _
+            Left:=wsPivot.Range("A1").Left, _
+            Width:=254, _
+            Height:=109)
+            
+        If Not slicer Is Nothing Then
+            slicer.NumberOfColumns = 3
+            
+            slicerCache.PivotTables.AddPivotTable pivotTable2
+        End If
     End If
     On Error GoTo 0
-
-    If Not slicerCache Is Nothing Then
-        wsPivot.Shapes.AddSlicer _
-            SlicerCache:=slicerCache, _
-            Left:=wsPivot.Range("A1").Left, _
-            Top:=wsPivot.Range("A1").Top, _
-            Width:=254, _
-            Height:=109
-
-        
-        Set slicer = slicerCache.Slicers(1)
-        
-
-        With slicer
-            .NumberOfColumns = 3
-            .Style = "SlicerStyleLight1" 
-            .Caption = "Status"
-        End With
-
-        slicerCache.PivotTables.AddPivotTable pivotTable2
-    Else
-        MsgBox "Failed to create slicer cache", vbCritical
-        Exit Sub
-    End If
 
     MsgBox "Two Pivot Tables and a Slicer created successfully!", vbInformation
 End Sub

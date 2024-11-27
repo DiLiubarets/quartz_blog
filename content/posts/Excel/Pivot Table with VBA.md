@@ -43,3 +43,20 @@ Sub CreatePivotTable()
     MsgBox "Pivot Table created successfully!", vbInformation
 End Sub
 ```
+
+Update pivot table with new Data 
+```vb
+Sub RefreshAllPivotTables()
+    Dim ws As Worksheet
+    Dim pt As PivotTable
+
+    ' refresh Pivot Tables
+    For Each ws In ThisWorkbook.Worksheets
+        For Each pt In ws.PivotTables
+            pt.RefreshTable
+        Next pt
+    Next ws
+
+    MsgBox "All Pivot Tables have been refreshed!", vbInformation
+End Sub
+```

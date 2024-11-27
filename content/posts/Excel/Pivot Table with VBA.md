@@ -304,3 +304,52 @@ Sub CreatePivotTablesWithSlicer()
 
 End Sub
 ```
+
+```vb
+Sub CreatePivotTable()
+
+    Dim wsData As Worksheet
+    Dim wsPivot As Worksheet
+    Dim pivotCache As PivotCache
+    Dim pivotTable As PivotTable
+    Dim pivotRange As Range
+    Dim pivotDestination As Range
+
+    Set wsData = ThisWorkbook.Worksheets("Vacashing Data")
+    Set pivotRange = wsData.Range("A1").CurrentRegion
+
+    On Error Resume Next
+    Set wsPivot = ThisWorkbook.Worksheets("PivotTable")
+    If wsPivot Is Nothing Then
+        Set wsPivot = ThisWorkbook.Worksheets.Add
+        wsPivot.Name = "PivotTable"
+    End If
+    On Error GoTo 0
+
+    Set pivotDestination = wsPivot.Range("A3")
+    Set pivotCache = ThisWorkbook.PivotCaches.Create(SourceType:=xlDatabase, SourceData:=pivotRange)
+    Set pivotTable = pivotCache.CreatePivotTable(TableDestination:=pivotDestination, TableName:="MyPivotTable")
+
+    With pivotTable
+        .PivotFields("Primary Manager").Orientation = xlRowField
+        .PivotFields("Work center").Orientation = xlRowField
+        .PivotFields("EID").Orientation = xlRowField
+        .PivotFields("Name of Employee").Orientation = xlRowField
+        .PivotFields("Hours").Orientation = xlDataField
+        .PivotFields("Hours").Function = xlSum
+        .RowAxisLayout xlTabularRow
+
+        Dim pf As PivotField
+        For Each pf In .RowFields
+            pf.Subtotals = Array(False, False, False, False, False, False, False, False, False, False, False, False)
+            pf.LayoutBlankLine = False
+        Next pf
+
+        .ColumnGrand = False
+        .RowGrand = False
+    End With
+
+    MsgBox "Pivot Table created successfully!", vbInformation
+
+End Sub
+```

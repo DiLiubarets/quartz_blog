@@ -366,11 +366,14 @@ Sub CreatePivotTableWithSlicers()
     Dim pivotTable As PivotTable
     Dim pivotRange As Range
     Dim pivotDestination As Range
-    Dim slicerCache1 As SlicerCache
-    Dim slicerCache2 As SlicerCache
+    Dim pSlicersCaches As SlicerCaches
+    Dim sSlicerCache1 As SlicerCache
+    Dim sSlicerCache2 As SlicerCache
+    Dim sSlicer1 As Slicer
+    Dim sSlicer2 As Slicer
+    Dim wb As Workbook
     
-    On Error Resume Next
-    
+    Set wb = ThisWorkbook
     Set wsData = ThisWorkbook.Worksheets("Vacashing Data")
     If wsData Is Nothing Then
         MsgBox "Source data worksheet not found!", vbCritical
@@ -379,14 +382,14 @@ Sub CreatePivotTableWithSlicers()
     
     Set pivotRange = wsData.Range("A1").CurrentRegion
     
+    On Error Resume Next
     Set wsPivot = ThisWorkbook.Worksheets("PivotTable")
     If wsPivot Is Nothing Then
         Set wsPivot = ThisWorkbook.Worksheets.Add
         wsPivot.Name = "PivotTable"
     End If
-    On Error GoTo 0
-    
     wsPivot.Cells.Clear
+    On Error GoTo 0
     
     Set pivotDestination = wsPivot.Range("A3")
     
@@ -415,19 +418,34 @@ Sub CreatePivotTableWithSlicers()
         Next pf
     End With
     
-    On Error Resume Next
+    Set pSlicersCaches = wb.SlicerCaches
     
-    Set slicerCache1 = ThisWorkbook.SlicerCaches.Add2(pivotTable, "Primary Manager")
-    If Not slicerCache1 Is Nothing Then
-        With slicerCache1.Slicers.Add(wsPivot, , "Primary Manager", "Primary Manager", 10, 10, 180, 200)
-        End With
-    End If
+    'Create Primary Manager slicer
+    Set sSlicerCache1 = pSlicersCaches.Add2(pivotTable, "Primary Manager", "Primary Manager")
+    Set sSlicer1 = sSlicerCache1.Slicers.Add(SlicerDestination:=wsPivot.Name, _
+                                           Name:="PrimaryManagerSlicer", _
+                                           Caption:="Primary Manager", _
+                                           Top:=6, _
+                                           Left:=6, _
+                                           Width:=180, _
+                                           Height:=200)
     
-    Set slicerCache2 = ThisWorkbook.SlicerCaches.Add2(pivotTable, "Work center")
-    If Not slicerCache2 Is Nothing Then
-        With slicerCache2.Slicers.Add(wsPivot, , "Work center", "Work center", 200, 10, 180, 200)
-        End With
-    End If
+    'Create Work Center slicer
+    Set sSlicerCache2 = pSlicersCaches.Add2(pivotTable, "Work center", "Work center")
+    Set sSlicer2 = sSlicerCache2.Slicers.Add(SlicerDestination:=wsPivot.Name, _
+                                           Name:="WorkCenterSlicer", _
+                                           Caption:="Work Center", _
+                                           Top:=6, _
+                                           Left:=200, _
+                                           Width:=180, _
+                                           Height:=200)
+    
+    'Format slicers
+    sSlicer1.NumberOfColumns = 1
+    sSlicer1.RowHeight = 28.8
+    
+    sSlicer2.NumberOfColumns = 1
+    sSlicer2.RowHeight = 28.8
     
     With pivotTable
         .ShowTableStyleRowStripes = True

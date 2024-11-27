@@ -407,9 +407,6 @@ Sub CreatePivotTableWithSlicers()
     
     'Configure pivot table
     With pivotTable
-        'Set layout type first
-        .LayoutForm = xlTabular
-        
         'Add fields to the pivot table
         .PivotFields("Primary Manager").Orientation = xlRowField
         .PivotFields("Work center").Orientation = xlRowField
@@ -421,35 +418,19 @@ Sub CreatePivotTableWithSlicers()
         .PivotFields("Hours").Function = xlSum
         
         'Set tabular layout
-        .RowAxisLayout = xlTabularRow
-        
-        'Turn off grand totals
-        .ColumnGrand = False
-        .RowGrand = False
-        
-        'Remove subtotals and format each field
-        Dim pf As PivotField
-        For Each pf In .RowFields
-            pf.Subtotals(1) = False
-            pf.LayoutForm = xlTabular
-            pf.RepeatLabels = True
-            pf.LayoutBlankLine = False
-            
-            'Turn off all subtotals
-            On Error Resume Next
-            pf.Subtotals = Array(False, False, False, False, False, False, _
-                                False, False, False, False, False, False)
-            On Error GoTo 0
-        Next pf
-        
-        'Additional layout settings
-        .DisplayFieldCaptions = True
-        .ShowTableStyleRowStripes = True
-        .ShowTableStyleColumnStripes = False
-        .TableStyle2 = "PivotStyleMedium9"
+        On Error Resume Next
+        .RowAxisLayout xlTabularRow
+        On Error GoTo 0
         
         'Repeat all labels
         .RepeatAllLabels xlRepeatLabels
+        
+        'Remove subtotals for all row fields
+        Dim pf As PivotField
+        For Each pf In .RowFields
+            pf.Subtotals = Array(False, False, False, False, False, False, False, False, False, False, False, False)
+            pf.LayoutBlankLine = False
+        Next pf
     End With
     
     'Create Slicers
@@ -473,10 +454,11 @@ Sub CreatePivotTableWithSlicers()
         End With
     End If
     
-    'Format the Sum of Hours column header
-    On Error Resume Next
-    With pivotTable.PivotFields("Sum of Hours")
-        .Caption = "Total Hours"
+    'Format pivot table
+    With pivotTable
+        .ShowTableStyleRowStripes = True
+        .ShowTableStyleColumnStripes = False
+        .TableStyle2 = "PivotStyleMedium9"
     End With
     
     'Adjust columns to fit content

@@ -407,6 +407,9 @@ Sub CreatePivotTableWithSlicers()
     
     'Configure pivot table
     With pivotTable
+        'Set to Tabular form first
+        .LayoutForm = xlTabular
+        
         'Add fields to the pivot table
         .PivotFields("Primary Manager").Orientation = xlRowField
         .PivotFields("Work center").Orientation = xlRowField
@@ -417,20 +420,24 @@ Sub CreatePivotTableWithSlicers()
         'Set the calculation method for Hours
         .PivotFields("Hours").Function = xlSum
         
-        'Set tabular layout
-        On Error Resume Next
-        .RowAxisLayout xlTabularRow
-        On Error GoTo 0
-        
-        'Repeat all labels
+        'Additional tabular layout settings
+        .RowAxisLayout = xlTabularRow
         .RepeatAllLabels xlRepeatLabels
         
-        'Remove subtotals for all row fields
+        'Remove subtotals and format row fields
         Dim pf As PivotField
         For Each pf In .RowFields
-            pf.Subtotals = Array(False, False, False, False, False, False, False, False, False, False, False, False)
+            pf.Subtotals(1) = False 'Turn off subtotals
             pf.LayoutBlankLine = False
+            pf.LayoutForm = xlTabular
+            pf.RepeatLabels = True
         Next pf
+        
+        'Additional formatting
+        .DisplayFieldCaptions = True
+        .InGridDropZones = False
+        .RowGrand = False
+        .ColumnGrand = False
     End With
     
     'Create Slicers
@@ -463,6 +470,11 @@ Sub CreatePivotTableWithSlicers()
     
     'Adjust columns to fit content
     wsPivot.Cells.EntireColumn.AutoFit
+    
+    'Format the Sum of Hours column header
+    With pivotTable.PivotFields("Sum of Hours")
+        .Caption = "Total Hours"
+    End With
     
     MsgBox "Pivot Table and Slicers created successfully!", vbInformation
     

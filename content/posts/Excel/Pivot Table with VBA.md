@@ -304,7 +304,7 @@ Sub CreatePivotTablesWithSlicer()
 
 End Sub
 ```
-
+Tabular form and repeat all item Labels
 ```vb
 Sub CreatePivotTable()
 
@@ -339,11 +339,12 @@ Sub CreatePivotTable()
         .PivotFields("Hours").Function = xlSum
         .RowAxisLayout xlTabularRow
 
+        .RepeatAllLabels xlRepeatLabels
+
         Dim pf As PivotField
         For Each pf In .RowFields
             pf.Subtotals = Array(False, False, False, False, False, False, False, False, False, False, False, False)
             pf.LayoutBlankLine = False
-            pf.RepeatLabels = True
         Next pf
 
         .ColumnGrand = False

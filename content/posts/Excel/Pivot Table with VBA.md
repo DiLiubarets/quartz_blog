@@ -343,6 +343,7 @@ Sub CreatePivotTable()
         For Each pf In .RowFields
             pf.Subtotals = Array(False, False, False, False, False, False, False, False, False, False, False, False)
             pf.LayoutBlankLine = False
+            pf.RepeatLabels = True
         Next pf
 
         .ColumnGrand = False

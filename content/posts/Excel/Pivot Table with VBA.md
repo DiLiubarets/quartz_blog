@@ -132,7 +132,17 @@ Sub CreatePivotTables()
         End If
         On Error GoTo 0
     End With
+    
 
     MsgBox "Two Pivot Tables created successfully!", vbInformation
 End Sub
+```
+Add slicer
+```vb 
+    Set slicerCache = ThisWorkbook.SlicerCaches.Add(pivotTable1, "Status") 
+    Set slicer = slicerCache.Slicers.Add(SlicerDestination:=wsPivot, _
+                                         Top:=wsPivot.Range("M3").Top, _
+                                         Left:=wsPivot.Range("M3").Left, _
+                                         Width:=144, Height:=144)
+    On Error GoTo 0
 ```

@@ -366,117 +366,83 @@ Sub CreatePivotTableWithSlicers()
     Dim pivotCache As PivotCache
     Dim pivotTable As PivotTable
     Dim pivotRange As Range
-    Dim pivotDestination As Range
-    Dim slicerCache1 As SlicerCache
-    Dim slicerCache2 As SlicerCache
     
-    'Error handling
-    On Error Resume Next
+    'Turn off screen updating to improve performance
+    Application.ScreenUpdating = False
     
     'Set the source data worksheet
     Set wsData = ThisWorkbook.Worksheets("Vacashing Data")
-    If wsData Is Nothing Then
-        MsgBox "Source data worksheet not found!", vbCritical
-        Exit Sub
-    End If
     
     'Set the data range
     Set pivotRange = wsData.Range("A1").CurrentRegion
     
-    'Create or activate pivot table worksheet
-    Set wsPivot = ThisWorkbook.Worksheets("PivotTable")
-    If wsPivot Is Nothing Then
-        Set wsPivot = ThisWorkbook.Worksheets.Add
-        wsPivot.Name = "PivotTable"
-    End If
+    'Delete existing PivotTable sheet if it exists
+    On Error Resume Next
+    Application.DisplayAlerts = False
+    ThisWorkbook.Sheets("PivotTable").Delete
+    Application.DisplayAlerts = True
     On Error GoTo 0
     
-    'Clear existing content
-    wsPivot.Cells.Clear
+    'Add new worksheet for PivotTable
+    Set wsPivot = ThisWorkbook.Worksheets.Add
+    wsPivot.Name = "PivotTable"
     
-    'Set pivot table destination
-    Set pivotDestination = wsPivot.Range("A3")
-    
-    'Create pivot cache and pivot table
+    'Create PivotCache
     Set pivotCache = ThisWorkbook.PivotCaches.Create( _
         SourceType:=xlDatabase, _
         SourceData:=pivotRange)
+    
+    'Create PivotTable
     Set pivotTable = pivotCache.CreatePivotTable( _
-        TableDestination:=pivotDestination, _
+        TableDestination:=wsPivot.Range("A3"), _
         TableName:="MyPivotTable")
     
-    'Configure pivot table
+    'Build the PivotTable
     With pivotTable
-        'Set to Tabular form first
-        .LayoutForm = xlTabular
+        'Add fields
+        .AddField "Primary Manager", xlRowField
+        .AddField "Work center", xlRowField
+        .AddField "EID", xlRowField
+        .AddField "Name of Employee", xlRowField
         
-        'Add fields to the pivot table
-        .PivotFields("Primary Manager").Orientation = xlRowField
-        .PivotFields("Work center").Orientation = xlRowField
-        .PivotFields("EID").Orientation = xlRowField
-        .PivotFields("Name of Employee").Orientation = xlRowField
-        .PivotFields("Hours").Orientation = xlDataField
+        'Add data field
+        With .AddDataField(.PivotFields("Hours"))
+            .Function = xlSum
+            .Caption = "Total Hours"
+        End With
         
-        'Set the calculation method for Hours
-        .PivotFields("Hours").Function = xlSum
-        
-        'Additional tabular layout settings
+        'Set layout to tabular
         .RowAxisLayout = xlTabularRow
-        .RepeatAllLabels xlRepeatLabels
         
-        'Remove subtotals and format row fields
+        'Remove subtotals
         Dim pf As PivotField
         For Each pf In .RowFields
-            pf.Subtotals(1) = False 'Turn off subtotals
-            pf.LayoutBlankLine = False
-            pf.LayoutForm = xlTabular
-            pf.RepeatLabels = True
+            pf.Subtotals(1) = False
         Next pf
         
-        'Additional formatting
-        .DisplayFieldCaptions = True
-        .InGridDropZones = False
-        .RowGrand = False
-        .ColumnGrand = False
-    End With
-    
-    'Create Slicers
-    On Error Resume Next
-    
-    'Create first slicer for Primary Manager
-    Set slicerCache1 = ThisWorkbook.SlicerCaches.Add2( _
-        pivotTable, "Primary Manager")
-    If Not slicerCache1 Is Nothing Then
-        With slicerCache1.Slicers.Add( _
-            wsPivot, , "Primary Manager", "Primary Manager", 10, 10, 180, 200)
-        End With
-    End If
-    
-    'Create second slicer for Work center
-    Set slicerCache2 = ThisWorkbook.SlicerCaches.Add2( _
-        pivotTable, "Work center")
-    If Not slicerCache2 Is Nothing Then
-        With slicerCache2.Slicers.Add( _
-            wsPivot, , "Work center", "Work center", 200, 10, 180, 200)
-        End With
-    End If
-    
-    'Format pivot table
-    With pivotTable
+        'Format
         .ShowTableStyleRowStripes = True
-        .ShowTableStyleColumnStripes = False
         .TableStyle2 = "PivotStyleMedium9"
     End With
     
-    'Adjust columns to fit content
+    'Add slicers
+    On Error Resume Next
+    
+    'Primary Manager slicer
+    ThisWorkbook.SlicerCaches.Add2(pivotTable, "Primary Manager"). _
+        Slicers.Add wsPivot, , "Primary Manager", "Primary Manager", 10, 10, 180, 200
+    
+    'Work center slicer
+    ThisWorkbook.SlicerCaches.Add2(pivotTable, "Work center"). _
+        Slicers.Add wsPivot, , "Work center", "Work center", 200, 10, 180, 200
+    
+    'Autofit columns
     wsPivot.Cells.EntireColumn.AutoFit
     
-    'Format the Sum of Hours column header
-    With pivotTable.PivotFields("Sum of Hours")
-        .Caption = "Total Hours"
-    End With
+    'Turn screen updating back on
+    Application.ScreenUpdating = True
     
-    MsgBox "Pivot Table and Slicers created successfully!", vbInformation
-    
+    MsgBox "Pivot Table created successfully!", vbInformation
+
 End Sub
 ```

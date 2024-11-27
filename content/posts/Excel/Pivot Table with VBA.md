@@ -160,11 +160,9 @@ Sub CreatePivotTablesWithSlicer()
     Dim slicer As Slicer
     Dim slicerCache As SlicerCache
 
-   
-    Set wsData = ThisWorkbook.Worksheets("Sheet1") 
-    Set pivotRange = wsData.Range("A1").CurrentRegion 
+    Set wsData = ThisWorkbook.Worksheets("Sheet1")
+    Set pivotRange = wsData.Range("A1").CurrentRegion
     Debug.Print "Pivot Range: " & pivotRange.Address
-
 
     On Error Resume Next
     Set wsPivot = ThisWorkbook.Worksheets("PivotTable")
@@ -172,56 +170,70 @@ Sub CreatePivotTablesWithSlicer()
         Set wsPivot = ThisWorkbook.Worksheets.Add
         wsPivot.Name = "PivotTable"
     End If
-    wsPivot.Cells.Clear 
+    wsPivot.Cells.Clear
     On Error GoTo 0
 
-    
-    Set pivotDestination1 = wsPivot.Range("A3") 
-    Set pivotDestination2 = wsPivot.Range("G3") 
+    Set pivotDestination1 = wsPivot.Range("A5")
+    Set pivotDestination2 = wsPivot.Range("G5")
 
-    
     Set pivotCache = ThisWorkbook.PivotCaches.Create(SourceType:=xlDatabase, SourceData:=pivotRange)
 
-    
     Debug.Print "Pivot Cache Source: " & pivotCache.SourceData
 
-    
     Set pivotTable1 = pivotCache.CreatePivotTable(TableDestination:=pivotDestination1, TableName:="MyPivotTable1")
     With pivotTable1
-        .PivotFields("Category").Orientation = xlRowField 
-        .PivotFields("Region").Orientation = xlColumnField 
+        .PivotFields("Assignee").Orientation = xlRowField
 
         On Error Resume Next
-        .PivotFields("Sales").Orientation = xlDataField 
-        .PivotFields("Sales").Function = xlSum 
+        .PivotFields("Story Points").Orientation = xlDataField
+        .PivotFields("Story Points").Function = xlSum
         If Err.Number <> 0 Then
-            Debug.Print "Error with 'Sales': " & Err.Description
-            .PivotFields("Sales").Function = xlCount 
+            Debug.Print "Error with 'Story Points': " & Err.Description
+            .PivotFields("Story Points").Function = xlCount
         End If
         On Error GoTo 0
     End With
 
     Set pivotTable2 = pivotCache.CreatePivotTable(TableDestination:=pivotDestination2, TableName:="MyPivotTable2")
     With pivotTable2
-        .PivotFields("Region").Orientation = xlRowField 
-        .PivotFields("Category").Orientation = xlColumnField 
+        .PivotFields("Assignee").Orientation = xlRowField
+        .PivotFields("Project").Orientation = xlRowField
+        .PivotFields("Summary").Orientation = xlRowField
+       
         On Error Resume Next
-        .PivotFields("Profit").Orientation = xlDataField 
-        .PivotFields("Profit").Function = xlSum 
+        .PivotFields("Story Points").Orientation = xlDataField
+        .PivotFields("Story Points").Function = xlSum
         If Err.Number <> 0 Then
-            Debug.Print "Error with 'Profit': " & Err.Description
-            .PivotFields("Profit").Function = xlCount 
+            Debug.Print "Error with 'Story Points': " & Err.Description
+            .PivotFields("Story Points").Function = xlCount
         End If
         On Error GoTo 0
     End With
 
-    
+    'Modified Slicer Creation
     On Error Resume Next
-    Set slicerCache = ThisWorkbook.SlicerCaches.Add(pivotTable1, "Status") 
-    Set slicer = slicerCache.Slicers.Add(SlicerDestination:=wsPivot, _
-                                         Top:=wsPivot.Range("A1").Top, _
-                                         Left:=wsPivot.Range("A1").Left, _
-                                         Width:=144, Height:=144)
+    Set slicerCache = ActiveWorkbook.SlicerCaches.Add2(pivotTable1, "Status")
+    If Err.Number <> 0 Then
+        Debug.Print "Error creating slicer cache: " & Err.Description
+        Exit Sub
+    End If
+
+    If Not slicerCache Is Nothing Then
+        Set slicer = slicerCache.Slicers.Add( _
+            SlicerDestination:=wsPivot, _
+            Name:="StatusSlicer", _
+            Caption:="Status", _
+            Top:=wsPivot.Range("A1").Top, _
+            Left:=wsPivot.Range("A1").Left, _
+            Width:=254, _
+            Height:=109)
+            
+        'Set number of columns to 3
+        slicer.NumberOfColumns = 3
+        
+        'Connect slicer to second pivot table
+        slicerCache.PivotTables.AddPivotTable (pivotTable2)
+    End If
     On Error GoTo 0
 
     MsgBox "Two Pivot Tables and a Slicer created successfully!", vbInformation

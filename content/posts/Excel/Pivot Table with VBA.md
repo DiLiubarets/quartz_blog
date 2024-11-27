@@ -213,3 +213,94 @@ Sub CreatePivotTablesWithSlicer()
 
     MsgBox "Two Pivot Tables and a Slicer created successfully!", vbInformation
 End Sub
+```
+
+Dynamic pivot table positioning
+
+```vb
+Sub CreatePivotTablesWithSlicer()
+    Dim wsData As Worksheet
+    Dim wsPivot As Worksheet
+    Dim pivotCache As PivotCache
+    Dim pivotTable1 As PivotTable
+    Dim pivotTable2 As PivotTable
+    Dim pivotTable3 As PivotTable
+    Dim pivotRange As Range
+    Dim pivotDestination1 As Range
+    Dim pivotDestination2 As Range
+    Dim pivotDestination3 As Range
+    Dim pSlicers As Slicers
+    Dim sSlicer As Slicer
+    Dim pSlicersCaches As SlicerCaches
+    Dim sSlicerCache As SlicerCache
+    Dim wb As Workbook
+    Dim lastRow As Long
+
+    Set wb = ThisWorkbook
+    Set wsData = ThisWorkbook.Worksheets("Sheet1")
+    Set pivotRange = wsData.Range("A1").CurrentRegion
+    Debug.Print "Pivot Range: " & pivotRange.Address
+
+    On Error Resume Next
+    Set wsPivot = ThisWorkbook.Worksheets("PivotTable")
+    If wsPivot Is Nothing Then
+        Set wsPivot = ThisWorkbook.Worksheets.Add
+        wsPivot.Name = "PivotTable"
+    End If
+    wsPivot.Cells.Clear
+    On Error GoTo 0
+   
+    Set pivotDestination3 = wsPivot.Range("A7")
+    Set pivotDestination2 = wsPivot.Range("E2")
+
+    Set pivotCache = ThisWorkbook.PivotCaches.Create(SourceType:=xlDatabase, SourceData:=pivotRange)
+
+    Set pivotTable3 = pivotCache.CreatePivotTable(TableDestination:=pivotDestination3, TableName:="MyPivotTable3")
+    With pivotTable3
+        .PivotFields("Project").Orientation = xlRowField
+        On Error Resume Next
+        .PivotFields("Story Points").Orientation = xlDataField
+        .PivotFields("Story Points").Function = xlSum
+        On Error GoTo 0
+    End With
+
+    lastRow = wsPivot.Cells(wsPivot.Rows.Count, "A").End(xlUp).Row + 2
+    Set pivotDestination1 = wsPivot.Range("A" & lastRow)
+
+    Set pivotTable1 = pivotCache.CreatePivotTable(TableDestination:=pivotDestination1, TableName:="MyPivotTable1")
+    With pivotTable1
+        .PivotFields("Assignee").Orientation = xlRowField
+        On Error Resume Next
+        .PivotFields("Story Points").Orientation = xlDataField
+        .PivotFields("Story Points").Function = xlSum
+        On Error GoTo 0
+    End With
+
+    Set pivotTable2 = pivotCache.CreatePivotTable(TableDestination:=pivotDestination2, TableName:="MyPivotTable2")
+    With pivotTable2
+        .PivotFields("Assignee").Orientation = xlRowField
+        .PivotFields("Project").Orientation = xlRowField
+        .PivotFields("Summary").Orientation = xlRowField
+        On Error Resume Next
+        .PivotFields("Story Points").Orientation = xlDataField
+        .PivotFields("Story Points").Function = xlSum
+        On Error GoTo 0
+    End With
+
+    Set pSlicersCaches = wb.SlicerCaches
+    Set sSlicerCache = pSlicersCaches.Add2(pivotTable1, "Status", "Status")
+    Set sSlicer = sSlicerCache.Slicers.Add(SlicerDestination:=wsPivot.Name, _
+                                           Name:="StatusSlicer", _
+                                           Caption:="Status", _
+                                           Top:=6, _
+                                           Left:=6, _
+                                           Width:=254, _
+                                           Height:=50)
+
+    sSlicer.NumberOfColumns = 3
+    sSlicer.RowHeight = 21.7
+   
+    sSlicerCache.PivotTables.AddPivotTable pivotTable2
+
+End Sub
+```

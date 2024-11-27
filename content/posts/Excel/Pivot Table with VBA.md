@@ -73,63 +73,62 @@ Sub CreatePivotTables()
     Dim pivotDestination1 As Range
     Dim pivotDestination2 As Range
 
-    ' Set the data sheet and range
-    Set wsData = ThisWorkbook.Worksheets("Sheet1") ' Replace "Sheet1" with your data sheet name
-    Set pivotRange = wsData.Range("A1").CurrentRegion ' Adjust range if needed
-
-    ' Debug: Check the range
+    
+    Set wsData = ThisWorkbook.Worksheets("Sheet1") 
+    Set pivotRange = wsData.Range("A1").CurrentRegion 
+    
     Debug.Print "Pivot Range: " & pivotRange.Address
 
-    ' Add a new sheet for the Pivot Tables
+    
     On Error Resume Next
     Set wsPivot = ThisWorkbook.Worksheets("PivotTable")
     If wsPivot Is Nothing Then
         Set wsPivot = ThisWorkbook.Worksheets.Add
         wsPivot.Name = "PivotTable"
     End If
-    wsPivot.Cells.Clear ' Clear the sheet to avoid conflicts
+    wsPivot.Cells.Clear 
     On Error GoTo 0
 
-    ' Set the destinations for the Pivot Tables
-    Set pivotDestination1 = wsPivot.Range("A3") ' First Pivot Table starts at A3
-    Set pivotDestination2 = wsPivot.Range("G3") ' Second Pivot Table starts at G3 (adjust as needed)
+    
+    Set pivotDestination1 = wsPivot.Range("A3") 
+    Set pivotDestination2 = wsPivot.Range("G3") 
 
-    ' Create the Pivot Cache (shared for both Pivot Tables)
+   
     Set pivotCache = ThisWorkbook.PivotCaches.Create(SourceType:=xlDatabase, SourceData:=pivotRange)
 
-    ' Debug: Check the cache source
+    
     Debug.Print "Pivot Cache Source: " & pivotCache.SourceData
 
-    ' Create the First Pivot Table
+    
     Set pivotTable1 = pivotCache.CreatePivotTable(TableDestination:=pivotDestination1, TableName:="MyPivotTable1")
     With pivotTable1
-        .PivotFields("Category").Orientation = xlRowField ' Replace "Category" with your column name
-        .PivotFields("Region").Orientation = xlColumnField ' Replace "Region" with your column name
+        .PivotFields("Category").Orientation = xlRowField 
+        .PivotFields("Region").Orientation = xlColumnField 
 
-        ' Check if "Sales" is numeric before applying xlSum
+       
         On Error Resume Next
-        .PivotFields("Sales").Orientation = xlDataField ' Replace "Sales" with your column name
-        .PivotFields("Sales").Function = xlSum ' Summarize as SUM
+        .PivotFields("Sales").Orientation = xlDataField 
+        .PivotFields("Sales").Function = xlSum 
         If Err.Number <> 0 Then
             Debug.Print "Error with 'Sales': " & Err.Description
-            .PivotFields("Sales").Function = xlCount ' Use Count as fallback
+            .PivotFields("Sales").Function = xlCount
         End If
         On Error GoTo 0
     End With
 
-    ' Create the Second Pivot Table
+    
     Set pivotTable2 = pivotCache.CreatePivotTable(TableDestination:=pivotDestination2, TableName:="MyPivotTable2")
     With pivotTable2
-        .PivotFields("Region").Orientation = xlRowField ' Replace "Region" with your column name
-        .PivotFields("Category").Orientation = xlColumnField ' Replace "Category" with your column name
+        .PivotFields("Region").Orientation = xlRowField 
+        .PivotFields("Category").Orientation = xlColumnField 
 
-        ' Check if "Profit" is numeric before applying xlSum
+       
         On Error Resume Next
-        .PivotFields("Profit").Orientation = xlDataField ' Replace "Profit" with your column name
-        .PivotFields("Profit").Function = xlSum ' Summarize as SUM
+        .PivotFields("Profit").Orientation = xlDataField 
+        .PivotFields("Profit").Function = xlSum 
         If Err.Number <> 0 Then
             Debug.Print "Error with 'Profit': " & Err.Description
-            .PivotFields("Profit").Function = xlCount ' Use Count as fallback
+            .PivotFields("Profit").Function = xlCount 
         End If
         On Error GoTo 0
     End With

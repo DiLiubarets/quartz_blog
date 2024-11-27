@@ -137,128 +137,9 @@ Sub CreatePivotTables()
     MsgBox "Two Pivot Tables created successfully!", vbInformation
 End Sub
 ```
-Add slicer
-```vb 
-    Set slicerCache = ThisWorkbook.SlicerCaches.Add(pivotTable1, "Status") 
-    Set slicer = slicerCache.Slicers.Add(SlicerDestination:=wsPivot, _
-                                         Top:=wsPivot.Range("M3").Top, _
-                                         Left:=wsPivot.Range("M3").Left, _
-                                         Width:=144, Height:=144)
-    On Error GoTo 0
-```
 
-```vb 
-Sub CreatePivotTablesWithSlicer()
-    Dim wsData As Worksheet
-    Dim wsPivot As Worksheet
-    Dim pivotCache As PivotCache
-    Dim pivotTable1 As PivotTable
-    Dim pivotTable2 As PivotTable
-    Dim pivotRange As Range
-    Dim pivotDestination1 As Range
-    Dim pivotDestination2 As Range
-    Dim slicer As Slicer
-    Dim slicerCache As SlicerCache
 
-    'Delete existing slicers first
-    On Error Resume Next
-    For Each slicer In ActiveWorkbook.Slicers
-        slicer.Delete
-    Next slicer
-    On Error GoTo 0
-
-    Set wsData = ThisWorkbook.Worksheets("Sheet1")
-    Set pivotRange = wsData.Range("A1").CurrentRegion
-    Debug.Print "Pivot Range: " & pivotRange.Address
-
-    On Error Resume Next
-    Set wsPivot = ThisWorkbook.Worksheets("PivotTable")
-    If wsPivot Is Nothing Then
-        Set wsPivot = ThisWorkbook.Worksheets.Add
-        wsPivot.Name = "PivotTable"
-    End If
-    wsPivot.Cells.Clear
-    On Error GoTo 0
-
-    Set pivotDestination1 = wsPivot.Range("A5")
-    Set pivotDestination2 = wsPivot.Range("G5")
-
-    Set pivotCache = ThisWorkbook.PivotCaches.Create(SourceType:=xlDatabase, SourceData:=pivotRange)
-
-    Set pivotTable1 = pivotCache.CreatePivotTable(TableDestination:=pivotDestination1, TableName:="MyPivotTable1")
-    With pivotTable1
-        .PivotFields("Assignee").Orientation = xlRowField
-        On Error Resume Next
-        .PivotFields("Story Points").Orientation = xlDataField
-        .PivotFields("Story Points").Function = xlSum
-        On Error GoTo 0
-    End With
-
-    Set pivotTable2 = pivotCache.CreatePivotTable(TableDestination:=pivotDestination2, TableName:="MyPivotTable2")
-    With pivotTable2
-        .PivotFields("Assignee").Orientation = xlRowField
-        .PivotFields("Project").Orientation = xlRowField
-        .PivotFields("Summary").Orientation = xlRowField
-        On Error Resume Next
-        .PivotFields("Story Points").Orientation = xlDataField
-        .PivotFields("Story Points").Function = xlSum
-        On Error GoTo 0
-    End With
-
-    'Create Slicer with error checking
-    On Error Resume Next
-    Set slicerCache = Nothing
-    Set slicerCache = ActiveWorkbook.SlicerCaches.Add2(pivotTable1, "Status")
-    
-    If Err.Number <> 0 Then
-        MsgBox "Error creating slicer cache: " & Err.Description, vbCritical
-        Exit Sub
-    End If
-    
-    If slicerCache Is Nothing Then
-        MsgBox "Failed to create slicer cache", vbCritical
-        Exit Sub
-    End If
-    
-    Set slicer = slicerCache.Slicers.Add( _
-        SlicerDestination:=wsPivot, _
-        Name:="StatusSlicer", _
-        Caption:="Status", _
-        Top:=0, _
-        Left:=0, _
-        Width:=254, _
-        Height:=109)
-    
-    If Err.Number <> 0 Then
-        MsgBox "Error creating slicer: " & Err.Description, vbCritical
-        Exit Sub
-    End If
-    On Error GoTo 0
-
-    If Not slicer Is Nothing Then
-        With slicer
-            .NumberOfColumns = 3
-            .Style = "SlicerStyleLight1"
-            .DisplayHeader = True
-            .Caption = "Status"
-            .Visible = True
-        End With
-        
-        'Connect to second pivot table
-        slicerCache.PivotTables.AddPivotTable pivotTable2
-        
-        'Activate the worksheet and scroll to top
-        wsPivot.Activate
-        wsPivot.Range("A1").Select
-        
-        MsgBox "Slicer created at position: " & slicer.Left & "," & slicer.Top, vbInformation
-    Else
-        MsgBox "Failed to create slicer", vbCritical
-    End If
-
-End Sub
-```
-
+Pivot tables with slicer
 
 ```vb
 Sub CreatePivotTablesWithSlicer()
@@ -270,8 +151,6 @@ Sub CreatePivotTablesWithSlicer()
     Dim pivotRange As Range
     Dim pivotDestination1 As Range
     Dim pivotDestination2 As Range
-    
-    'New slicer declarations
     Dim pSlicers As Slicers
     Dim sSlicer As Slicer
     Dim pSlicersCaches As SlicerCaches
@@ -317,7 +196,6 @@ Sub CreatePivotTablesWithSlicer()
         On Error GoTo 0
     End With
 
-    'Create Slicer using new structure
     Set pSlicersCaches = wb.SlicerCaches
     Set sSlicerCache = pSlicersCaches.Add2(pivotTable1, "Status", "Status")
     Set sSlicer = sSlicerCache.Slicers.Add(SlicerDestination:=wsPivot.Name, _
@@ -328,13 +206,10 @@ Sub CreatePivotTablesWithSlicer()
                                            Width:=254, _
                                            Height:=109)
 
-    'Modify Slicer
     sSlicer.NumberOfColumns = 3
     sSlicer.RowHeight = 28.8
     
-    'Connect to second pivot table
     sSlicerCache.PivotTables.AddPivotTable pivotTable2
 
     MsgBox "Two Pivot Tables and a Slicer created successfully!", vbInformation
 End Sub
-```

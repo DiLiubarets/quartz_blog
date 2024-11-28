@@ -570,8 +570,6 @@ Sub CreatePivotTableWithSlicers()
         .PivotFields("Name of Employee").Orientation = xlRowField
         .PivotFields("Hours").Orientation = xlDataField
         .PivotFields("Hours").Function = xlSum
-        .ColumnGrand = False
-        .RowGrand = False
     End With
     
     'Create Slicers

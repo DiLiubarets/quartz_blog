@@ -360,101 +360,64 @@ End Sub
 
 ```vb 
 Sub CreatePivotTableWithSlicers()
+
     Dim wsData As Worksheet
     Dim wsPivot As Worksheet
     Dim pivotCache As PivotCache
     Dim pivotTable As PivotTable
     Dim pivotRange As Range
     Dim pivotDestination As Range
-    Dim pSlicersCaches As SlicerCaches
-    Dim sSlicerCache1 As SlicerCache
-    Dim sSlicerCache2 As SlicerCache
-    Dim sSlicer1 As Slicer
-    Dim sSlicer2 As Slicer
-    Dim wb As Workbook
-    
-    Set wb = ThisWorkbook
+    Dim slicerCache1 As SlicerCache
+    Dim slicerCache2 As SlicerCache
+
     Set wsData = ThisWorkbook.Worksheets("Vacashing Data")
-    If wsData Is Nothing Then
-        MsgBox "Source data worksheet not found!", vbCritical
-        Exit Sub
-    End If
-    
     Set pivotRange = wsData.Range("A1").CurrentRegion
-    
+
     On Error Resume Next
     Set wsPivot = ThisWorkbook.Worksheets("PivotTable")
     If wsPivot Is Nothing Then
         Set wsPivot = ThisWorkbook.Worksheets.Add
         wsPivot.Name = "PivotTable"
     End If
-    wsPivot.Cells.Clear
     On Error GoTo 0
-    
+
+    wsPivot.Cells.Clear
     Set pivotDestination = wsPivot.Range("A3")
-    
     Set pivotCache = ThisWorkbook.PivotCaches.Create(SourceType:=xlDatabase, SourceData:=pivotRange)
     Set pivotTable = pivotCache.CreatePivotTable(TableDestination:=pivotDestination, TableName:="MyPivotTable")
-    
+
     With pivotTable
         .PivotFields("Primary Manager").Orientation = xlRowField
         .PivotFields("Work center").Orientation = xlRowField
         .PivotFields("EID").Orientation = xlRowField
         .PivotFields("Name of Employee").Orientation = xlRowField
         .PivotFields("Hours").Orientation = xlDataField
-        
         .PivotFields("Hours").Function = xlSum
-        
         On Error Resume Next
         .RowAxisLayout xlTabularRow
         On Error GoTo 0
-        
         .RepeatAllLabels xlRepeatLabels
-        
+
         Dim pf As PivotField
         For Each pf In .RowFields
             pf.Subtotals = Array(False, False, False, False, False, False, False, False, False, False, False, False)
             pf.LayoutBlankLine = False
         Next pf
+
+        .ColumnGrand = False
+        .RowGrand = False
     End With
-    
-    Set pSlicersCaches = wb.SlicerCaches
-    
-    'Create Primary Manager slicer
-    Set sSlicerCache1 = pSlicersCaches.Add2(pivotTable, "Primary Manager", "Primary Manager")
-    Set sSlicer1 = sSlicerCache1.Slicers.Add(SlicerDestination:=wsPivot.Name, _
-                                           Name:="PrimaryManagerSlicer", _
-                                           Caption:="Primary Manager", _
-                                           Top:=6, _
-                                           Left:=6, _
-                                           Width:=180, _
-                                           Height:=200)
-    
-    'Create Work Center slicer
-    Set sSlicerCache2 = pSlicersCaches.Add2(pivotTable, "Work center", "Work center")
-    Set sSlicer2 = sSlicerCache2.Slicers.Add(SlicerDestination:=wsPivot.Name, _
-                                           Name:="WorkCenterSlicer", _
-                                           Caption:="Work Center", _
-                                           Top:=6, _
-                                           Left:=200, _
-                                           Width:=180, _
-                                           Height:=200)
-    
-    'Format slicers
-    sSlicer1.NumberOfColumns = 1
-    sSlicer1.RowHeight = 28.8
-    
-    sSlicer2.NumberOfColumns = 1
-    sSlicer2.RowHeight = 28.8
-    
-    With pivotTable
-        .ShowTableStyleRowStripes = True
-        .ShowTableStyleColumnStripes = False
-        .TableStyle2 = "PivotStyleMedium9"
-    End With
-    
-    wsPivot.Cells.EntireColumn.AutoFit
-    
-    MsgBox "Pivot Table and Slicers created successfully!", vbInformation
+
+    ' Add Slicers
+    On Error Resume Next
+    Set slicerCache1 = ThisWorkbook.SlicerCaches.Add(pivotTable, "Time off Description")
+    slicerCache1.Slicers.Add wsPivot, , "Time off Description Slicer", wsPivot.Range("H3"), 150, 200, 100, 200
+
+    Set slicerCache2 = ThisWorkbook.SlicerCaches.Add(pivotTable, "Indirect/Direct")
+    slicerCache2.Slicers.Add wsPivot, , "Indirect/Direct Slicer", wsPivot.Range("H10"), 150, 200, 100, 200
+    On Error GoTo 0
+
+    MsgBox "Pivot Table with Slicers created successfully!", vbInformation
+
 End Sub
 ```

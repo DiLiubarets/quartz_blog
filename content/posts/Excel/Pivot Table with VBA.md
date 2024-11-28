@@ -630,3 +630,84 @@ Sub CreatePivotTableWithSlicers()
     MsgBox "Pivot Table with Slicers created successfully!", vbInformation
 End Sub
 ```
+
+chart 
+```vb 
+Sub CreatePivotTable()
+    Dim wsData As Worksheet
+    Dim wsPivot As Worksheet
+    Dim pivotCache As PivotCache
+    Dim pivotTable As PivotTable
+    Dim pivotRange As Range
+    Dim pivotDestination As Range
+    Dim pvtChart As Shape
+    
+    Set wsData = ThisWorkbook.Worksheets("Vacation Data")
+    Set pivotRange = wsData.Range("A1").CurrentRegion
+
+    On Error Resume Next
+    Set wsPivot = ThisWorkbook.Worksheets("VAC-HOL-BANKED Chart")
+    If wsPivot Is Nothing Then
+        Set wsPivot = ThisWorkbook.Worksheets.Add
+        wsPivot.Name = "VAC-HOL-BANKED Chart"
+    End If
+    On Error GoTo 0
+    
+    Set pivotDestination = wsPivot.Range("F16")
+
+    Set pivotCache = ThisWorkbook.PivotCaches.Create(SourceType:=xlDatabase, SourceData:=pivotRange)
+    Set pivotTable = pivotCache.CreatePivotTable(TableDestination:=pivotDestination, TableName:="MyPivotTable")
+
+    With pivotTable
+        .PivotFields("Week#").Orientation = xlRowField
+        .PivotFields("Name of Employee").Orientation = xlColumnField
+        .PivotFields("Month").Orientation = xlPageField    'Changed to Page Field (Filter)
+        .PivotFields("Hours").Orientation = xlDataField
+        .PivotFields("Hours").Function = xlSum
+    End With
+
+    'Add Chart
+    wsPivot.Activate
+    Set pvtChart = wsPivot.Shapes.AddChart2
+    
+    With pvtChart.Chart
+        .SetSourceData Source:=pivotTable.TableRange1
+        .ChartType = xlColumnClustered
+        
+        'Customize chart
+        With .Parent
+            .Left = pivotTable.TableRange1.Left
+            .Top = pivotTable.TableRange1.Top - 200
+            .Width = 800    'Increased width to accommodate employee names
+            .Height = 400
+        End With
+        
+        'Add titles
+        .HasTitle = True
+        .ChartTitle.Text = "Hours by Employee and Week"
+        
+        'Customize axes
+        With .Axes(xlValue, xlPrimary)
+            .HasTitle = True
+            .AxisTitle.Text = "Hours"
+        End With
+        
+        With .Axes(xlCategory, xlPrimary)
+            .HasTitle = True
+            .AxisTitle.Text = "Week#"
+        End With
+        
+        'Format legend
+        .HasLegend = True
+        .Legend.Position = xlLegendPositionBottom
+        
+        'Rotate category labels if needed
+        .Axes(xlCategory).TickLabels.Orientation = 0
+    End With
+
+    'Auto-fit the pivot table columns
+    pivotTable.TableRange1.Columns.AutoFit
+
+    MsgBox "Pivot Table and Chart created successfully!", vbInformation
+End Sub
+```

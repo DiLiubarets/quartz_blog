@@ -873,3 +873,77 @@ Chart added
 
 End Sub
 ```
+
+from two data sheets
+```vb
+Sub CreatePivotTableFromTwoSheets()
+    Dim ws1 As Worksheet
+    Dim ws2 As Worksheet
+    Dim wsPivot As Worksheet
+    Dim LastRow1 As Long, LastRow2 As Long
+    Dim PvtCache As PivotCache
+    Dim PvtTable As PivotTable
+    Dim TempSheet As Worksheet
+    
+    'Define worksheets
+    Set ws1 = ThisWorkbook.Sheets("Sheet1") 'Change to your first sheet name
+    Set ws2 = ThisWorkbook.Sheets("Sheet2") 'Change to your second sheet name
+    
+    'Create a new sheet for the pivot table
+    On Error Resume Next
+    Application.DisplayAlerts = False
+    ThisWorkbook.Sheets("PivotTable").Delete
+    Set wsPivot = ThisWorkbook.Sheets.Add
+    wsPivot.Name = "PivotTable"
+    Application.DisplayAlerts = True
+    
+    'Create temporary sheet to combine data
+    Set TempSheet = ThisWorkbook.Sheets.Add
+    TempSheet.Name = "TempData"
+    
+    'Find last rows of both sheets
+    LastRow1 = ws1.Cells(ws1.Rows.Count, "A").End(xlUp).Row
+    LastRow2 = ws2.Cells(ws2.Rows.Count, "A").End(xlUp).Row
+    
+    'Copy headers from first sheet
+    ws1.Range("A1:D1").Copy TempSheet.Range("A1") 'Adjust range as needed
+    
+    'Copy data from first sheet
+    ws1.Range("A2:D" & LastRow1).Copy TempSheet.Range("A2") 'Adjust range as needed
+    
+    'Copy data from second sheet (excluding headers)
+    ws2.Range("A2:D" & LastRow2).Copy _
+        TempSheet.Range("A" & LastRow1 + 1) 'Adjust range as needed
+    
+    'Create Pivot Cache
+    Set PvtCache = ThisWorkbook.PivotCaches.Create( _
+        SourceType:=xlDatabase, _
+        SourceData:=TempSheet.UsedRange)
+    
+    'Create Pivot Table
+    Set PvtTable = PvtCache.CreatePivotTable( _
+        TableDestination:=wsPivot.Range("A3"), _
+        TableName:="CombinedPivotTable")
+    
+    'Add fields to pivot table (adjust field names as needed)
+    With PvtTable
+        .PivotFields("Category").Orientation = xlRowField
+        .PivotFields("Category").Position = 1
+        
+        .PivotFields("Sales").Orientation = xlDataField
+        .PivotFields("Sales").Position = 1
+        .PivotFields("Sales").Function = xlSum
+    End With
+    
+    'Delete temporary sheet
+    Application.DisplayAlerts = False
+    TempSheet.Delete
+    Application.DisplayAlerts = True
+    
+    'Format pivot table
+    wsPivot.Cells.EntireColumn.AutoFit
+    
+    MsgBox "Pivot Table created successfully!", vbInformation
+    
+End Sub
+```

@@ -1025,3 +1025,44 @@ Sub JoinTwoSheets()
     MsgBox "Sheets joined successfully!", vbInformation
 End Sub
 ```
+
+```vb
+Sub JoinSheetsWithVLOOKUP()
+    Dim ws1 As Worksheet, ws2 As Worksheet, wsNew As Worksheet
+    Dim lastRow1 As Long, lastRow2 As Long
+    Dim i As Long, matchCol As Long
+    
+    'Set your worksheets
+    Set ws1 = ThisWorkbook.Sheets("Sheet1") 'Change to your first sheet name
+    Set ws2 = ThisWorkbook.Sheets("Sheet2") 'Change to your second sheet name
+    
+    'Create new sheet
+    On Error Resume Next
+    ThisWorkbook.Sheets("Combined").Delete
+    Set wsNew = ThisWorkbook.Sheets.Add
+    wsNew.Name = "Combined"
+    On Error GoTo 0
+    
+    'Copy first sheet as base
+    ws1.UsedRange.Copy wsNew.Range("A1")
+    
+    'Find last rows
+    lastRow1 = wsNew.Cells(wsNew.Rows.Count, "A").End(xlUp).Row
+    lastRow2 = ws2.Cells(ws2.Rows.Count, "A").End(xlUp).Row
+    
+    'Assuming matching column is column A, adjust as needed
+    matchCol = 1
+    
+    'Add VLOOKUP formula
+    For i = 2 To lastRow1
+        wsNew.Cells(i, wsNew.Cells(1, Columns.Count).End(xlToLeft).Column + 1).Formula = _
+            "=VLOOKUP(" & wsNew.Cells(i, matchCol).Address & _
+            ",Sheet2!$A$1:$Z$" & lastRow2 & ",2,FALSE)"
+    Next i
+    
+    'Convert formulas to values
+    wsNew.UsedRange.Value = wsNew.UsedRange.Value
+    
+    MsgBox "Sheets joined successfully!", vbInformation
+End Sub
+```

@@ -1144,3 +1144,91 @@ Sub CombineAllData()
     MsgBox "All data combined successfully!", vbInformation
 End Sub
 ```
+
+```vb 
+Sub CombineAllData()
+    Dim ws1 As Worksheet, ws2 As Worksheet, wsNew As Worksheet
+    Dim lastRow1 As Long, lastRow2 As Long
+    Dim lastCol1 As Long, lastCol2 As Long
+    Dim i As Long, j As Long
+    Dim columnDict As Object
+    Dim colName1 As String, colName2 As String
+    Dim maxRows As Long
+    
+    Set columnDict = CreateObject("Scripting.Dictionary")
+
+    ' Set your worksheets
+    Set ws1 = ThisWorkbook.Sheets("Vacation Data")
+    Set ws2 = ThisWorkbook.Sheets("Quota RPT")
+   
+    ' Create new sheet for combined data
+    On Error Resume Next
+    ThisWorkbook.Sheets("Combined").Delete
+    On Error GoTo 0
+    Set wsNew = ThisWorkbook.Sheets.Add
+    wsNew.Name = "Combined"
+
+    ' Find last rows and columns
+    lastRow1 = ws1.Cells(ws1.Rows.Count, "A").End(xlUp).Row
+    lastCol1 = ws1.Cells(1, ws1.Columns.Count).End(xlToLeft).Column
+    lastRow2 = ws2.Cells(ws2.Rows.Count, "A").End(xlUp).Row
+    lastCol2 = ws2.Cells(1, ws2.Columns.Count).End(xlToLeft).Column
+
+    ' Find the maximum number of rows between the two sheets
+    maxRows = IIf(lastRow1 > lastRow2, lastRow1, lastRow2)
+
+    ' Create headers and build column dictionary
+    For i = 1 To lastCol1
+        colName1 = ws1.Cells(1, i).Value
+        If Not columnDict.Exists(colName1) And colName1 <> "" Then
+            columnDict.Add colName1, columnDict.Count + 1
+            wsNew.Cells(1, columnDict(colName1)).Value = colName1
+        End If
+    Next i
+
+    For i = 1 To lastCol2
+        colName2 = ws2.Cells(1, i).Value
+        If Not columnDict.Exists(colName2) And colName2 <> "" Then
+            columnDict.Add colName2, columnDict.Count + 1
+            wsNew.Cells(1, columnDict(colName2)).Value = colName2
+        End If
+    Next i
+
+    ' Copy data from both sheets simultaneously
+    For i = 2 To maxRows
+        ' Copy data from first sheet if row exists
+        If i <= lastRow1 Then
+            For j = 1 To lastCol1
+                colName1 = ws1.Cells(1, j).Value
+                If columnDict.Exists(colName1) Then
+                    wsNew.Cells(i, columnDict(colName1)).Value = ws1.Cells(i, j).Value
+                End If
+            Next j
+        End If
+        
+        ' Copy data from second sheet if row exists
+        If i <= lastRow2 Then
+            For j = 1 To lastCol2
+                colName2 = ws2.Cells(1, j).Value
+                If columnDict.Exists(colName2) Then
+                    wsNew.Cells(i, columnDict(colName2)).Value = ws2.Cells(i, j).Value
+                End If
+            Next j
+        End If
+    Next i
+
+    ' AutoFit columns
+    wsNew.Columns.AutoFit
+
+    ' Debug information
+    Debug.Print "Last Row Sheet 1: " & lastRow1
+    Debug.Print "Last Row Sheet 2: " & lastRow2
+    Debug.Print "Max Rows: " & maxRows
+
+    MsgBox "All data combined successfully!" & vbNewLine & _
+           "Sheet 1 Rows: " & (lastRow1 - 1) & vbNewLine & _
+           "Sheet 2 Rows: " & (lastRow2 - 1) & vbNewLine & _
+           "Total Combined Rows: " & (maxRows - 1), vbInformation
+
+End Sub
+```

@@ -930,3 +930,62 @@ Sub CreatePivotTable_Day_Hours_Available1()
 End Sub
 
 ```
+
+```vb  
+Sub CreatePivotTable_Day_Hours_Available1()
+    ' ... (keep your existing variable declarations)
+    
+    ' Create a combined range from multiple sheets
+    Dim wsData2 As Worksheet
+    Dim combinedRange As Range
+    
+    ' First data range (your existing one)
+    Set wsData = ThisWorkbook.Worksheets("Quota RPT")
+    Set pivotRange = wsData.Range("A1").CurrentRegion
+    
+    ' Second data range (from different sheet)
+    Set wsData2 = ThisWorkbook.Worksheets("Your_Second_Sheet_Name") ' Change this to your second sheet name
+    Dim secondRange As Range
+    Set secondRange = wsData2.Range("A1").CurrentRegion
+    
+    ' Create a temporary sheet to combine data
+    Dim wsCombined As Worksheet
+    Set wsCombined = ThisWorkbook.Worksheets.Add
+    
+    ' Copy both ranges to the temporary sheet
+    pivotRange.Copy wsCombined.Range("A1")
+    secondRange.Copy wsCombined.Range("A" & pivotRange.Rows.Count + 2)
+    
+    ' Set the combined range
+    Set combinedRange = wsCombined.Range("A1").CurrentRegion
+    
+    ' Create pivot cache using combined range
+    Set pivotCache = ThisWorkbook.PivotCaches.Create(SourceType:=xlDatabase, SourceData:=combinedRange)
+    
+    ' ... (keep your existing pivot table creation code)
+    
+    ' Add additional fields from the second dataset
+    With pivotTable
+        ' Existing fields
+        .PivotFields("Personnel Number").Orientation = xlRowField
+        .PivotFields("Name (Last, First)").Orientation = xlRowField
+        .PivotFields("Quota Description").Orientation = xlColumnField
+        .PivotFields("Requested").Orientation = xlDataField
+        
+        ' Add new fields from second dataset
+        ' Example (modify field names as needed):
+        '.PivotFields("New_Column1").Orientation = xlRowField
+        '.PivotFields("New_Column2").Orientation = xlColumnField
+        '.PivotFields("New_Column3").Orientation = xlDataField
+        
+        ' ... (rest of your existing pivot table formatting)
+    End With
+    
+    ' Clean up - delete temporary sheet
+    Application.DisplayAlerts = False
+    wsCombined.Delete
+    Application.DisplayAlerts = True
+    
+    ' ... (rest of your existing code)
+End Sub
+```

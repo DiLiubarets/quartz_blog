@@ -1066,3 +1066,81 @@ Sub JoinSheetsWithVLOOKUP()
     MsgBox "Sheets joined successfully!", vbInformation
 End Sub
 ```
+
+
+```vb
+Sub CombineAllData()
+    Dim ws1 As Worksheet, ws2 As Worksheet, wsNew As Worksheet
+    Dim lastRow1 As Long, lastRow2 As Long
+    Dim lastCol1 As Long, lastCol2 As Long
+    Dim i As Long
+    Dim j As Long
+    Dim combinedRow As Long
+    Dim columnDict As Object
+    
+    Set columnDict = CreateObject("Scripting.Dictionary")
+
+    ' Set your worksheets
+    Set ws1 = ThisWorkbook.Sheets("Vacation Data") ' Change to your first sheet name
+    Set ws2 = ThisWorkbook.Sheets("Quota RPT") ' Change to your second sheet name
+   
+    ' Create new sheet for combined data
+    On Error Resume Next
+    ThisWorkbook.Sheets("Combined").Delete
+    On Error GoTo 0
+    Set wsNew = ThisWorkbook.Sheets.Add
+    wsNew.Name = "Combined"
+
+    ' Find last rows and columns
+    lastRow1 = ws1.Cells(ws1.Rows.Count, "A").End(xlUp).Row
+    lastCol1 = ws1.Cells(1, ws1.Columns.Count).End(xlToLeft).Column
+    lastRow2 = ws2.Cells(ws2.Rows.Count, "A").End(xlUp).Row
+    lastCol2 = ws2.Cells(1, ws2.Columns.Count).End(xlToLeft).Column
+
+    ' Create a header row in the new sheet
+    combinedRow = 1
+
+    ' Read columns from both sheets and create headers
+    For i = 1 To lastCol1
+        colName1 = ws1.Cells(1, i).Value
+        If Not columnDict.Exists(colName1) Then
+            columnDict.Add colName1, columnDict.Count + 1
+            wsNew.Cells(1, columnDict(colName1)).Value = colName1
+        End If
+    Next i
+
+    For j = 1 To lastCol2
+        colName2 = ws2.Cells(1, j).Value
+        If Not columnDict.Exists(colName2) Then
+            columnDict.Add colName2, columnDict.Count + 1
+            wsNew.Cells(1, columnDict(colName2)).Value = colName2
+        End If
+    Next j
+
+    ' Populate data from the first sheet
+    combinedRow = 1
+    For i = 2 To lastRow1
+        combinedRow = combinedRow + 1
+        For j = 1 To lastCol1
+            colName1 = ws1.Cells(1, j).Value
+            wsNew.Cells(combinedRow, columnDict(colName1)).Value = ws1.Cells(i, j).Value
+        Next j
+    Next i
+
+    ' Populate data from the second sheet
+    For i = 2 To lastRow2
+        combinedRow = combinedRow + 1
+        For j = 1 To lastCol2
+            colName2 = ws2.Cells(1, j).Value
+            If columnDict.Exists(colName2) Then
+                wsNew.Cells(combinedRow, columnDict(colName2)).Value = ws2.Cells(i, j).Value
+            End If
+        Next j
+    Next i
+
+    ' AutoFit the columns in the new sheet
+    wsNew.Columns.AutoFit
+
+    MsgBox "All data combined successfully!", vbInformation
+End Sub
+```

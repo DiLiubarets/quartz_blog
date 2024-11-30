@@ -427,7 +427,7 @@ Sub CreatePivotTable()
     With pivotTable
         .PivotFields("Week#").Orientation = xlRowField
         .PivotFields("Name of Employee").Orientation = xlColumnField
-        .PivotFields("Month").Orientation = xlPageField    'Changed to Page Field (Filter)
+        .PivotFields("Month").Orientation = xlPageField    
         .PivotFields("Hours").Orientation = xlDataField
         .PivotFields("Hours").Function = xlSum
     End With
@@ -444,10 +444,10 @@ Sub CreatePivotTable()
         With .Parent
             .Left = pivotTable.TableRange1.Left
             .Top = pivotTable.TableRange1.Top - 200
-            .Width = 800    'Increased width to accommodate employee names
+            .Width = 800    
             .Height = 400
         End With
-        
+       
         'Add titles
         .HasTitle = True
         .ChartTitle.Text = "Hours by Employee and Week"
@@ -463,17 +463,12 @@ Sub CreatePivotTable()
             .AxisTitle.Text = "Week#"
         End With
         
-        'Format legend
         .HasLegend = True
         .Legend.Position = xlLegendPositionBottom
-        
-        'Rotate category labels if needed
-        .Axes(xlCategory).TickLabels.Orientation = 0
+          .Axes(xlCategory).TickLabels.Orientation = 0
     End With
-
     'Auto-fit the pivot table columns
     pivotTable.TableRange1.Columns.AutoFit
-
     MsgBox "Pivot Table and Chart created successfully!", vbInformation
 End Sub
 ```
@@ -631,303 +626,156 @@ End Sub
 ```
 Chart added 
 ```vb Sub CreatePivotTableWithSlicers_VACHOL_BANKED_Chart()
-
     On Error Resume Next
-
     Dim wsData As Worksheet
-
     Dim wsPivot As Worksheet
-
     Dim pivotCache As pivotCache
-
     Dim pivotTable As pivotTable
-
     Dim pivotRange As Range
-
     Dim pivotDestination As Range
-
     Dim pSlicersCaches As SlicerCaches
-
     Dim sSlicerCache1 As SlicerCache
-
     Dim sSlicerCache2 As SlicerCache
-
     Dim sSlicerCache3 As SlicerCache
-
     Dim sSlicerCache4 As SlicerCache
-
     Dim sSlicer1 As Slicer
-
     Dim sSlicer2 As Slicer
-
     Dim sSlicer3 As Slicer
-
     Dim sSlicer4 As Slicer
-
     Dim pvtChart As Shape
-
     Dim wb As Workbook
-
     Dim targetCell As Range
-
     Set wb = ThisWorkbook
-
     Set wsData = ThisWorkbook.Worksheets("Vacation Data")
-
     Set pivotRange = wsData.Range("A1").CurrentRegion
-
     Application.DisplayAlerts = False
-
     On Error Resume Next
-
     ThisWorkbook.Sheets("VAC-HOL-BANKED Chart").Delete
-
     On Error GoTo 0
-
     Set wsPivot = ThisWorkbook.Sheets.Add
-
     wsPivot.Name = "VAC-HOL-BANKED Chart"
-
     Application.DisplayAlerts = True
-
     'Create pivot table
-
     Set pivotDestination = wsPivot.Range("W22")
-
     Set pivotCache = ThisWorkbook.PivotCaches.Create(SourceType:=xlDatabase, SourceData:=pivotRange)
-
     Set pivotTable = pivotCache.CreatePivotTable(TableDestination:=pivotDestination, TableName:="MyPivotTableTable")
-
     With pivotTable
-
         .PivotFields("Name of Employee").Orientation = xlColumnField
-
         .PivotFields("Week#").Orientation = xlRowField
-
         .PivotFields("Month").Orientation = xlRowField
-
         .PivotFields("Hours").Orientation = xlDataField
-
         'Sum check
-
         On Error Resume Next
-
         .PivotFields("Hours").Function = xlSum
-
         If Err.Number <> 0 Then
-
             Debug.Print
-
                 .PivotFields("Hours").Function = xlCount
-
             Err.Clear
-
         End If
-
         On Error GoTo 0
-
         'xlTabularRow
-
         .RowAxisLayout xlTabularRow
-
         .RowGrand = False
-
         .ColumnGrand = False
-
         .SubtotalHiddenPageItems = False
-
          Dim pf As PivotField
-
          'Subtotals
-
         For Each pf In .RowFields
-
             pf.Subtotals = Array(False, False, False, False, False, False, False, False, False, False, False, False)
-
             pf.LayoutBlankLine = False
-
         Next pf
-
     End With
-
     'Create Slicers
-
     If Err.Number = 0 Then
-
         Set sSlicerCache1 = ActiveWorkbook.SlicerCaches.Add2(pivotTable, "Cost Center")
-
         If Err.Number = 0 Then
-
             Set sSlicer1 = sSlicerCache1.Slicers.Add(wsPivot.Name, , "CostCenterChart", "Cost Center", 80, 25)
-
             With sSlicer1
-
                 .Width = 900
-
                 .Height = 70
-
                 .NumberOfColumns = 8
-
                 .RowHeight = 20
-
             End With
-
         Else
-
             MsgBox "Error creating first slicer: " & Err.Description
-
         End If
-
     End If
-
     Err.Clear
-
     If Err.Number = 0 Then
-
         Set sSlicerCache2 = ActiveWorkbook.SlicerCaches.Add2(pivotTable, "Indirect/Direct")
-
         If Err.Number = 0 Then
-
             Set sSlicer2 = sSlicerCache2.Slicers.Add(wsPivot.Name, , "IndirectSlicerChart", "Indirect/Direct", 20, 25)
-
             With sSlicer2
-
                 .Width = 130
-
                 .Height = 50
-
                 .NumberOfColumns = 2
-
                 .RowHeight = 15
-
             End With
-
         Else
-
             MsgBox "Error creating second slicer: " & Err.Description
-
         End If
-
     End If
-
     Err.Clear
-
     If Err.Number = 0 Then
-
         Set sSlicerCache3 = ActiveWorkbook.SlicerCaches.Add2(pivotTable, "Primary Manager")
-
         If Err.Number = 0 Then
-
             Set sSlicer3 = sSlicerCache3.Slicers.Add(wsPivot.Name, , "ManagerSlicerChart", "Primary Manager", 150, 25)
-
             With sSlicer3
-
                 .Width = 900
-
                 .Height = 50
-
                 .NumberOfColumns = 8
-
                 .RowHeight = 20
-
             End With
-
         Else
-
             MsgBox "Error creating third slicer: " & Err.Description
-
         End If
-
     End If
-
         Err.Clear
-
     If Err.Number = 0 Then
-
         Set sSlicerCache4 = ActiveWorkbook.SlicerCaches.Add2(pivotTable, "Month")
-
         If Err.Number = 0 Then
-
             Set sSlicer4 = sSlicerCache4.Slicers.Add(wsPivot.Name, , "MonthChart", "Month", 200, 25)
-
             With sSlicer4
-
                 .Width = 900
-
                 .Height = 50
-
                 .NumberOfColumns = 12
-
                 .RowHeight = 20
-
             End With
-
         Else
-
             MsgBox "Error creating second slicer: " & Err.Description
-
         End If
-
     End If
-
     On Error GoTo 0
 
-     'Add Chart
-
     wsPivot.Activate
-
     Set pvtChart = wsPivot.Shapes.AddChart2
-
     With pvtChart.Chart
-
         .SetSourceData Source:=pivotTable.TableRange1
-
         .ChartType = xlColumnClustered
-
         With .Parent
-
             .Left = pivotTable.TableRange1.Left
-
             .Top = pivotTable.TableRange1.Top
-
-            .Width = 1000    'Increased width to accommodate employee names
-
+            .Width = 1000    
             .Height = 800
-
         End With
-
-        '
-
+ 
         .HasTitle = True
-
         .ChartTitle.Text = "SATCOM Vacation by Primary Manager"
 
-        'Customize axes
-
         With .Axes(xlValue, xlPrimary)
-
             .HasTitle = False
-
         End With
-
         With .Axes(xlCategory, xlPrimary)
-
             .HasTitle = True
-
             .AxisTitle.Text = "Week#"
-
         End With
-
         .HasLegend = True
-
         .Legend.Position = xlLegendPositionBottom
-
         .Axes(xlCategory).TickLabels.Orientation = 0
 
     End With
 
     'Auto-fit the pivot table columns
-
     pivotTable.TableRange1.Columns.AutoFit
 
     MsgBox "VAC-HOL-BANKED Table created!", vbInformation
@@ -945,49 +793,40 @@ Sub CreatePivotTableFromTwoSheets()
     Dim PvtCache As PivotCache
     Dim PvtTable As PivotTable
     Dim TempSheet As Worksheet
+  
+    Set ws1 = ThisWorkbook.Sheets("Sheet1") 
+    Set ws2 = ThisWorkbook.Sheets("Sheet2") 
     
-    'Define worksheets
-    Set ws1 = ThisWorkbook.Sheets("Sheet1") 'Change to your first sheet name
-    Set ws2 = ThisWorkbook.Sheets("Sheet2") 'Change to your second sheet name
-    
-    'Create a new sheet for the pivot table
     On Error Resume Next
     Application.DisplayAlerts = False
     ThisWorkbook.Sheets("PivotTable").Delete
     Set wsPivot = ThisWorkbook.Sheets.Add
     wsPivot.Name = "PivotTable"
     Application.DisplayAlerts = True
-    
-    'Create temporary sheet to combine data
+  
     Set TempSheet = ThisWorkbook.Sheets.Add
     TempSheet.Name = "TempData"
     
-    'Find last rows of both sheets
-    LastRow1 = ws1.Cells(ws1.Rows.Count, "A").End(xlUp).Row
+       LastRow1 = ws1.Cells(ws1.Rows.Count, "A").End(xlUp).Row
     LastRow2 = ws2.Cells(ws2.Rows.Count, "A").End(xlUp).Row
+ 
+    ws1.Range("A1:D1").Copy TempSheet.Range("A1") 
     
-    'Copy headers from first sheet
-    ws1.Range("A1:D1").Copy TempSheet.Range("A1") 'Adjust range as needed
+     ws1.Range("A2:D" & LastRow1).Copy TempSheet.Range("A2") 
     
-    'Copy data from first sheet
-    ws1.Range("A2:D" & LastRow1).Copy TempSheet.Range("A2") 'Adjust range as needed
-    
-    'Copy data from second sheet (excluding headers)
+  
     ws2.Range("A2:D" & LastRow2).Copy _
-        TempSheet.Range("A" & LastRow1 + 1) 'Adjust range as needed
-    
-    'Create Pivot Cache
+        TempSheet.Range("A" & LastRow1 + 1) '    
+   
     Set PvtCache = ThisWorkbook.PivotCaches.Create( _
         SourceType:=xlDatabase, _
         SourceData:=TempSheet.UsedRange)
     
-    'Create Pivot Table
     Set PvtTable = PvtCache.CreatePivotTable( _
         TableDestination:=wsPivot.Range("A3"), _
         TableName:="CombinedPivotTable")
     
-    'Add fields to pivot table (adjust field names as needed)
-    With PvtTable
+    '    With PvtTable
         .PivotFields("Category").Orientation = xlRowField
         .PivotFields("Category").Position = 1
         
@@ -1007,4 +846,87 @@ Sub CreatePivotTableFromTwoSheets()
     MsgBox "Pivot Table created successfully!", vbInformation
     
 End Sub
+```
+Pivot with Slicer and Conditional formatting 
+```vb
+Sub CreatePivotTable_Day_Hours_Available1()
+    Dim wsData As Worksheet
+    Dim wsPivot As Worksheet
+    Dim pivotCache As pivotCache
+    Dim pivotTable As pivotTable
+    Dim pivotRange As Range
+    Dim pivotDestination As Range
+    Dim pSlicersCaches As SlicerCaches
+    Dim sSlicerCache As SlicerCache
+    Dim sSlicer As Slicer
+ 
+    Set wsData = ThisWorkbook.Worksheets("Quota RPT")
+    Set pivotRange = wsData.Range("A1").CurrentRegion
+
+    On Error Resume Next
+    Set wsPivot = ThisWorkbook.Worksheets("Days-Hours1")
+    If wsPivot Is Nothing Then
+        Set wsPivot = ThisWorkbook.Worksheets.Add
+        wsPivot.Name = "Days-Hours1"
+    End If
+    On Error GoTo 0
+    Set pivotDestination = wsPivot.Range("D6")
+    Set pivotCache = ThisWorkbook.PivotCaches.Create(SourceType:=xlDatabase, SourceData:=pivotRange)
+
+    ' Pivot Table
+    Set pivotTable = pivotCache.CreatePivotTable(TableDestination:=pivotDestination, TableName:="Days-Hours1")
+    ' Fields
+    With pivotTable
+        .PivotFields("Personnel Number").Orientation = xlRowField
+        .PivotFields("Name (Last, First)").Orientation = xlRowField
+        .PivotFields("Quota Description").Orientation = xlColumnField
+        .PivotFields("Requested").Orientation = xlDataField
+        If Err.Number <> 0 Then
+
+         .PivotFields("Requested").Function = xlSum
+            Debug.Print "Error with 'Requested': " & Err.Description
+            .PivotFields("Requested").Function = xlCount
+        End If
+        On Error GoTo 0
+        .PivotFields("Total Remaining").Orientation = xlDataField
+        If Err.Number <> 0 Then
+         .PivotFields("Total Remaining").Function = xlSum
+            Debug.Print "Error with 'Total Remaining': " & Err.Description
+            .PivotFields("Total Remaining").Function = xlCount
+        End If
+        On Error GoTo 0
+            .RowAxisLayout xlTabularRow
+            .RowGrand = False
+            .ColumnGrand = False
+            .SubtotalHiddenPageItems = False
+         Dim pf As PivotField
+   
+
+        For Each pf In .RowFields
+            pf.Subtotals = Array(False, False, False, False, False, False, False, False, False, False, False, False)
+            pf.LayoutBlankLine = False
+        Next pf
+    End With
+    If Err.Number = 0 Then
+        Set sSlicerCache = ActiveWorkbook.SlicerCaches.Add2(pivotTable, "Quota Description")
+        If Err.Number = 0 Then
+            Set sSlicer = sSlicerCache.Slicers.Add(wsPivot.Name, , "Quota Description", "Quota Description", 15, 140)
+            With sSlicer
+                .Width = 350
+                .Height = 50
+                .NumberOfColumns = 3
+                .RowHeight = 20
+            End With
+        Else
+            MsgBox "Error creating slicer: " & Err.Description
+        End If
+    End If
+    Set DataRange = pivotTable.DataBodyRange
+    With DataRange.FormatConditions.Add(Type:=xlCellValue, Operator:=xlGreater, Formula1:=20)
+        .Interior.Color = RGB(255, 192, 203) 
+        .Font.Bold = True  
+    End With
+    MsgBox "Pivot Table created successfully!", vbInformation
+End Sub
+
 ```

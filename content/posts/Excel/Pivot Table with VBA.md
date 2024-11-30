@@ -989,3 +989,39 @@ Sub CreatePivotTable_Day_Hours_Available1()
     ' ... (rest of your existing code)
 End Sub
 ```
+
+```vb 
+Sub JoinTwoSheets()
+    Dim ws1 As Worksheet, ws2 As Worksheet, wsNew As Worksheet
+    Dim lastRow1 As Long, lastRow2 As Long
+    Dim lastCol1 As Long, lastCol2 As Long
+    
+    'Set your worksheets
+    Set ws1 = ThisWorkbook.Sheets("Sheet1") 'Change to your first sheet name
+    Set ws2 = ThisWorkbook.Sheets("Sheet2") 'Change to your second sheet name
+    
+    'Create new sheet for combined data
+    On Error Resume Next
+    ThisWorkbook.Sheets("Combined").Delete
+    Set wsNew = ThisWorkbook.Sheets.Add
+    wsNew.Name = "Combined"
+    On Error GoTo 0
+    
+    'Find last rows and columns
+    lastRow1 = ws1.Cells(ws1.Rows.Count, "A").End(xlUp).Row
+    lastCol1 = ws1.Cells(1, ws1.Columns.Count).End(xlToLeft).Column
+    
+    lastRow2 = ws2.Cells(ws2.Rows.Count, "A").End(xlUp).Row
+    lastCol2 = ws2.Cells(1, ws2.Columns.Count).End(xlToLeft).Column
+    
+    'Copy first sheet data
+    ws1.Range(ws1.Cells(1, 1), ws1.Cells(lastRow1, lastCol1)).Copy _
+        wsNew.Range("A1")
+    
+    'Copy second sheet data (excluding headers)
+    ws2.Range(ws2.Cells(2, 1), ws2.Cells(lastRow2, lastCol2)).Copy _
+        wsNew.Cells(lastRow1 + 1, 1)
+        
+    MsgBox "Sheets joined successfully!", vbInformation
+End Sub
+```

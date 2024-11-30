@@ -990,161 +990,8 @@ Sub CreatePivotTable_Day_Hours_Available1()
 End Sub
 ```
 
-```vb 
-Sub JoinTwoSheets()
-    Dim ws1 As Worksheet, ws2 As Worksheet, wsNew As Worksheet
-    Dim lastRow1 As Long, lastRow2 As Long
-    Dim lastCol1 As Long, lastCol2 As Long
-    
-    'Set your worksheets
-    Set ws1 = ThisWorkbook.Sheets("Sheet1") 'Change to your first sheet name
-    Set ws2 = ThisWorkbook.Sheets("Sheet2") 'Change to your second sheet name
-    
-    'Create new sheet for combined data
-    On Error Resume Next
-    ThisWorkbook.Sheets("Combined").Delete
-    Set wsNew = ThisWorkbook.Sheets.Add
-    wsNew.Name = "Combined"
-    On Error GoTo 0
-    
-    'Find last rows and columns
-    lastRow1 = ws1.Cells(ws1.Rows.Count, "A").End(xlUp).Row
-    lastCol1 = ws1.Cells(1, ws1.Columns.Count).End(xlToLeft).Column
-    
-    lastRow2 = ws2.Cells(ws2.Rows.Count, "A").End(xlUp).Row
-    lastCol2 = ws2.Cells(1, ws2.Columns.Count).End(xlToLeft).Column
-    
-    'Copy first sheet data
-    ws1.Range(ws1.Cells(1, 1), ws1.Cells(lastRow1, lastCol1)).Copy _
-        wsNew.Range("A1")
-    
-    'Copy second sheet data (excluding headers)
-    ws2.Range(ws2.Cells(2, 1), ws2.Cells(lastRow2, lastCol2)).Copy _
-        wsNew.Cells(lastRow1 + 1, 1)
-        
-    MsgBox "Sheets joined successfully!", vbInformation
-End Sub
-```
 
-```vb
-Sub JoinSheetsWithVLOOKUP()
-    Dim ws1 As Worksheet, ws2 As Worksheet, wsNew As Worksheet
-    Dim lastRow1 As Long, lastRow2 As Long
-    Dim i As Long, matchCol As Long
-    
-    'Set your worksheets
-    Set ws1 = ThisWorkbook.Sheets("Sheet1") 'Change to your first sheet name
-    Set ws2 = ThisWorkbook.Sheets("Sheet2") 'Change to your second sheet name
-    
-    'Create new sheet
-    On Error Resume Next
-    ThisWorkbook.Sheets("Combined").Delete
-    Set wsNew = ThisWorkbook.Sheets.Add
-    wsNew.Name = "Combined"
-    On Error GoTo 0
-    
-    'Copy first sheet as base
-    ws1.UsedRange.Copy wsNew.Range("A1")
-    
-    'Find last rows
-    lastRow1 = wsNew.Cells(wsNew.Rows.Count, "A").End(xlUp).Row
-    lastRow2 = ws2.Cells(ws2.Rows.Count, "A").End(xlUp).Row
-    
-    'Assuming matching column is column A, adjust as needed
-    matchCol = 1
-    
-    'Add VLOOKUP formula
-    For i = 2 To lastRow1
-        wsNew.Cells(i, wsNew.Cells(1, Columns.Count).End(xlToLeft).Column + 1).Formula = _
-            "=VLOOKUP(" & wsNew.Cells(i, matchCol).Address & _
-            ",Sheet2!$A$1:$Z$" & lastRow2 & ",2,FALSE)"
-    Next i
-    
-    'Convert formulas to values
-    wsNew.UsedRange.Value = wsNew.UsedRange.Value
-    
-    MsgBox "Sheets joined successfully!", vbInformation
-End Sub
-```
-
-
-```vb
-Sub CombineAllData()
-    Dim ws1 As Worksheet, ws2 As Worksheet, wsNew As Worksheet
-    Dim lastRow1 As Long, lastRow2 As Long
-    Dim lastCol1 As Long, lastCol2 As Long
-    Dim i As Long
-    Dim j As Long
-    Dim combinedRow As Long
-    Dim columnDict As Object
-    
-    Set columnDict = CreateObject("Scripting.Dictionary")
-
-    ' Set your worksheets
-    Set ws1 = ThisWorkbook.Sheets("Vacation Data") ' Change to your first sheet name
-    Set ws2 = ThisWorkbook.Sheets("Quota RPT") ' Change to your second sheet name
-   
-    ' Create new sheet for combined data
-    On Error Resume Next
-    ThisWorkbook.Sheets("Combined").Delete
-    On Error GoTo 0
-    Set wsNew = ThisWorkbook.Sheets.Add
-    wsNew.Name = "Combined"
-
-    ' Find last rows and columns
-    lastRow1 = ws1.Cells(ws1.Rows.Count, "A").End(xlUp).Row
-    lastCol1 = ws1.Cells(1, ws1.Columns.Count).End(xlToLeft).Column
-    lastRow2 = ws2.Cells(ws2.Rows.Count, "A").End(xlUp).Row
-    lastCol2 = ws2.Cells(1, ws2.Columns.Count).End(xlToLeft).Column
-
-    ' Create a header row in the new sheet
-    combinedRow = 1
-
-    ' Read columns from both sheets and create headers
-    For i = 1 To lastCol1
-        colName1 = ws1.Cells(1, i).Value
-        If Not columnDict.Exists(colName1) Then
-            columnDict.Add colName1, columnDict.Count + 1
-            wsNew.Cells(1, columnDict(colName1)).Value = colName1
-        End If
-    Next i
-
-    For j = 1 To lastCol2
-        colName2 = ws2.Cells(1, j).Value
-        If Not columnDict.Exists(colName2) Then
-            columnDict.Add colName2, columnDict.Count + 1
-            wsNew.Cells(1, columnDict(colName2)).Value = colName2
-        End If
-    Next j
-
-    ' Populate data from the first sheet
-    combinedRow = 1
-    For i = 2 To lastRow1
-        combinedRow = combinedRow + 1
-        For j = 1 To lastCol1
-            colName1 = ws1.Cells(1, j).Value
-            wsNew.Cells(combinedRow, columnDict(colName1)).Value = ws1.Cells(i, j).Value
-        Next j
-    Next i
-
-    ' Populate data from the second sheet
-    For i = 2 To lastRow2
-        combinedRow = combinedRow + 1
-        For j = 1 To lastCol2
-            colName2 = ws2.Cells(1, j).Value
-            If columnDict.Exists(colName2) Then
-                wsNew.Cells(combinedRow, columnDict(colName2)).Value = ws2.Cells(i, j).Value
-            End If
-        Next j
-    Next i
-
-    ' AutoFit the columns in the new sheet
-    wsNew.Columns.AutoFit
-
-    MsgBox "All data combined successfully!", vbInformation
-End Sub
-```
-
+Combine All Data from two sheets 
 ```vb 
 Sub CombineAllData()
     Dim ws1 As Worksheet, ws2 As Worksheet, wsNew As Worksheet
@@ -1230,5 +1077,166 @@ Sub CombineAllData()
            "Sheet 2 Rows: " & (lastRow2 - 1) & vbNewLine & _
            "Total Combined Rows: " & (maxRows - 1), vbInformation
 
+End Sub
+```
+
+```vb
+Sub CombineAllData()
+    Dim ws1 As Worksheet, ws2 As Worksheet, wsNew As Worksheet, wsPivot As Worksheet
+    Dim lastRow1 As Long, lastRow2 As Long, lastColNew As Long
+    Dim lastCol1 As Long, lastCol2 As Long
+    Dim i As Long, j As Long
+    Dim columnDict As Object
+    Dim colName1 As String, colName2 As String
+    Dim maxRows As Long
+    Dim pivotCache As PivotCache
+    Dim pivotTable As PivotTable
+    Dim pivotRange As Range
+    Dim pivotDestination As Range
+    Dim sSlicerCache As SlicerCache
+    Dim sSlicer As Slicer
+    Dim DataRange As Range
+    
+    Set columnDict = CreateObject("Scripting.Dictionary")
+
+    ' Set your worksheets
+    Set ws1 = ThisWorkbook.Sheets("Vacation Data")
+    Set ws2 = ThisWorkbook.Sheets("Quota RPT")
+   
+    ' Create new sheet for combined data
+    On Error Resume Next
+    ThisWorkbook.Sheets("TempCombined").Delete
+    On Error GoTo 0
+    Set wsNew = ThisWorkbook.Sheets.Add
+    wsNew.Name = "TempCombined"
+
+    ' Find last rows and columns
+    lastRow1 = ws1.Cells(ws1.Rows.Count, "A").End(xlUp).Row
+    lastCol1 = ws1.Cells(1, ws1.Columns.Count).End(xlToLeft).Column
+    lastRow2 = ws2.Cells(ws2.Rows.Count, "A").End(xlUp).Row
+    lastCol2 = ws2.Cells(1, ws2.Columns.Count).End(xlToLeft).Column
+
+    maxRows = IIf(lastRow1 > lastRow2, lastRow1, lastRow2)
+
+    ' Create headers and build column dictionary
+    For i = 1 To lastCol1
+        colName1 = ws1.Cells(1, i).Value
+        If Not columnDict.Exists(colName1) And colName1 <> "" Then
+            columnDict.Add colName1, columnDict.Count + 1
+            wsNew.Cells(1, columnDict(colName1)).Value = colName1
+        End If
+    Next i
+
+    For i = 1 To lastCol2
+        colName2 = ws2.Cells(1, i).Value
+        If Not columnDict.Exists(colName2) And colName2 <> "" Then
+            columnDict.Add colName2, columnDict.Count + 1
+            wsNew.Cells(1, columnDict(colName2)).Value = colName2
+        End If
+    Next i
+
+    ' Copy data from both sheets simultaneously
+    For i = 2 To maxRows
+        If i <= lastRow1 Then
+            For j = 1 To lastCol1
+                colName1 = ws1.Cells(1, j).Value
+                If columnDict.Exists(colName1) Then
+                    wsNew.Cells(i, columnDict(colName1)).Value = ws1.Cells(i, j).Value
+                End If
+            Next j
+        End If
+        
+        If i <= lastRow2 Then
+            For j = 1 To lastCol2
+                colName2 = ws2.Cells(1, j).Value
+                If columnDict.Exists(colName2) Then
+                    wsNew.Cells(i, columnDict(colName2)).Value = ws2.Cells(i, j).Value
+                End If
+            Next j
+        End If
+    Next i
+
+    ' Get the last column in the new sheet
+    lastColNew = wsNew.Cells(1, wsNew.Columns.Count).End(xlToLeft).Column
+    
+    ' Set the range for pivot table source
+    Set pivotRange = wsNew.Range(wsNew.Cells(1, 1), wsNew.Cells(maxRows, lastColNew))
+
+    ' Create or activate pivot sheet
+    On Error Resume Next
+    Set wsPivot = ThisWorkbook.Worksheets("Days-Hours1")
+    If wsPivot Is Nothing Then
+        Set wsPivot = ThisWorkbook.Worksheets.Add
+        wsPivot.Name = "Days-Hours1"
+    End If
+    On Error GoTo 0
+
+    ' Set pivot table destination
+    Set pivotDestination = wsPivot.Range("D6")
+    
+    ' Create pivot cache and table
+    Set pivotCache = ThisWorkbook.PivotCaches.Create(SourceType:=xlDatabase, SourceData:=pivotRange)
+    Set pivotTable = pivotCache.CreatePivotTable(TableDestination:=pivotDestination, TableName:="Days-Hours1")
+
+    ' Configure pivot table
+    With pivotTable
+        .PivotFields("Personnel Number").Orientation = xlRowField
+        .PivotFields("Name (Last, First)").Orientation = xlRowField
+        .PivotFields("Quota Description").Orientation = xlColumnField
+        
+        On Error Resume Next
+        .PivotFields("Requested").Orientation = xlDataField
+        If Err.Number = 0 Then
+            .PivotFields("Requested").Function = xlSum
+        End If
+        On Error GoTo 0
+
+        On Error Resume Next
+        .PivotFields("Total Remaining").Orientation = xlDataField
+        If Err.Number = 0 Then
+            .PivotFields("Total Remaining").Function = xlSum
+        End If
+        On Error GoTo 0
+
+        .RowAxisLayout = xlTabularRow
+        .RowGrand = False
+        .ColumnGrand = False
+        .SubtotalHiddenPageItems = False
+
+        ' Remove subtotals
+        Dim pf As PivotField
+        For Each pf In .RowFields
+            pf.Subtotals = Array(False, False, False, False, False, False, False, False, False, False, False, False)
+            pf.LayoutBlankLine = False
+        Next pf
+    End With
+
+    ' Add slicer
+    On Error Resume Next
+    Set sSlicerCache = ActiveWorkbook.SlicerCaches.Add2(pivotTable, "Quota Description")
+    If Err.Number = 0 Then
+        Set sSlicer = sSlicerCache.Slicers.Add(wsPivot.Name, , "Quota Description", "Quota Description", 15, 140)
+        With sSlicer
+            .Width = 350
+            .Height = 50
+            .NumberOfColumns = 3
+            .RowHeight = 20
+        End With
+    End If
+    On Error GoTo 0
+
+    ' Add conditional formatting
+    Set DataRange = pivotTable.DataBodyRange
+    With DataRange.FormatConditions.Add(Type:=xlCellValue, Operator:=xlGreater, Formula1:="20")
+        .Interior.Color = RGB(255, 192, 203)
+        .Font.Bold = True
+    End With
+
+    ' Delete the temporary combined data sheet
+    Application.DisplayAlerts = False
+    wsNew.Delete
+    Application.DisplayAlerts = True
+
+    MsgBox "Process completed successfully!", vbInformation
 End Sub
 ```

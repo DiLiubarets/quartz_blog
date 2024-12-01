@@ -1240,3 +1240,32 @@ Sub CombineAllData()
     MsgBox "Process completed successfully!", vbInformation
 End Sub
 ```
+
+```vb
+With pivotTable
+    .PivotFields("Personnel Number").Orientation = xlRowField
+    .PivotFields("Name (Last, First)").Orientation = xlRowField
+    .PivotFields("Quota Description").Orientation = xlColumnField
+    
+    ' Add the individual fields first
+    .PivotFields("Requested").Orientation = xlDataField
+    .PivotFields("Total Remaining").Orientation = xlDataField
+    
+    ' Create the calculated field
+    On Error Resume Next
+    .CalculatedFields.Add "Total Hours", "='Requested'+'Total Remaining'", True
+    If Err.Number = 0 Then
+        ' Add the calculated field to the pivot table
+        .PivotFields("Total Hours").Orientation = xlDataField
+    Else
+        Debug.Print "Error creating calculated field: " & Err.Description
+    End If
+    On Error GoTo 0
+    
+    ' Continue with the rest of your pivot table formatting
+    .RowAxisLayout xlTabularRow
+    .RowGrand = False
+    .ColumnGrand = False
+    .SubtotalHiddenPageItems = False
+End With
+```

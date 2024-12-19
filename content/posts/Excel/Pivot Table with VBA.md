@@ -1269,3 +1269,97 @@ With pivotTable
     .SubtotalHiddenPageItems = False
 End With
 ```
+
+```vb
+Sub CreatePivotTable()
+
+    Dim wsData As Worksheet
+    Dim wsPivot As Worksheet
+    Dim pivotCache As PivotCache
+    Dim pivotTable As PivotTable
+    Dim pivotTable2 As PivotTable
+    Dim pivotRange As Range
+    Dim pivotDestination As Range
+    Dim pSlicersCaches As SlicerCaches
+    Dim sSlicerCache As SlicerCache
+    Dim sSlicer As Slicer
+
+    ' Data sheet and range
+    Set wsData = ThisWorkbook.Worksheets("AC")
+    Set pivotRange = wsData.Range("A1").CurrentRegion
+   
+    Set wsData2 = ThisWorkbook.Worksheets("JIRA Dec")
+    Set pivotRange2 = wsData2.Range("A1").CurrentRegion
+  
+    ' Delete existing sheet if it exists
+    On Error Resume Next
+    ThisWorkbook.Sheets("SP_TEST").Delete
+    On Error GoTo 0
+
+    ' Create a new sheet for the pivot table
+    On Error Resume Next
+    Set wsPivot = ThisWorkbook.Worksheets("SP_TEST")
+    If wsPivot Is Nothing Then
+        Set wsPivot = ThisWorkbook.Worksheets.Add
+        wsPivot.Name = "SP_TEST"
+    End If
+    On Error GoTo 0
+
+    ' Destination for the pivot table
+    Set pivotDestination = wsPivot.Range("A7")
+    Set pivotDestination2 = wsPivot.Range("A55")
+
+    ' Create PivotCache and PivotTables
+    Set pivotCache = ThisWorkbook.PivotCaches.Create(SourceType:=xlDatabase, SourceData:=pivotRange)
+    Set pivotCache2 = ThisWorkbook.PivotCaches.Create(SourceType:=xlDatabase, SourceData:=pivotRange2)
+
+    Set pivotTable = pivotCache.CreatePivotTable(TableDestination:=pivotDestination, TableName:="AC_MyPivotTable")
+    pivotTable.TableStyle2 = "PivotStyleMedium15"
+
+    Set pivotTable2 = pivotCache2.CreatePivotTable(TableDestination:=pivotDestination2, TableName:="JIRA_MyPivotTable2")
+    pivotTable2.TableStyle2 = "PivotStyleMedium15"
+
+    ' Fields for the first pivot table
+    With pivotTable
+        .PivotFields("Function").Orientation = xlRowField
+        .PivotFields("WP").Orientation = xlRowField
+        .AddDataField .PivotFields("ETC JIRA SP1.1"), "ETC JIRA SP1.1", xlMax
+        .AddDataField .PivotFields("Week 1 "), "Week 1", xlSum
+        .AddDataField .PivotFields("Week 2 "), "Week 2", xlSum
+        .AddDataField .PivotFields("AC SP1.1"), "AC SP1.1", xlSum
+
+        ' Add blank column after the main data fields
+        wsPivot.Columns("F:F").Insert Shift:=xlToRight
+        wsPivot.Range("F6").Value = " " ' Add a header for the blank column (optional)
+
+        ' Add additional fields after the blank column
+        .AddDataField .PivotFields("Total Issue SP1.1"), "Total Issue SP1.1", xlSum
+        .AddDataField .PivotFields("Closed SP1.1"), "Closed SP1.1", xlSum
+        .AddDataField .PivotFields("Resolved SP1.1"), "Resolved SP1.1", xlSum
+
+        ' Add another blank column
+        wsPivot.Columns("J:J").Insert Shift:=xlToRight
+        wsPivot.Range("J6").Value = " " ' Add a header for the blank column (optional)
+
+        ' Add remaining fields
+        .AddDataField .PivotFields("Week 3 "), "Week 3", xlSum
+        .AddDataField .PivotFields("Week 4 "), "Week 4", xlSum
+        .AddDataField .PivotFields("AC SP1.2"), "AC SP1.2", xlSum
+    End With
+
+    ' Add blank column for the second pivot table
+    wsPivot.Columns("Z:Z").Insert Shift:=xlToRight
+    wsPivot.Range("Z6").Value = " " ' Add a header for the blank column (optional)
+
+    ' Fields for the second pivot table
+    With pivotTable2
+        .PivotFields("Epic Link").Orientation = xlRowField
+        .AddDataField .PivotFields("EV"), "EV", xlSum
+        .RowAxisLayout xlTabularRow
+    End With
+
+    ' Final formatting and messages
+    MsgBox "AC Dec_Pivot Table created successfully!", vbInformation
+
+End Sub
+```

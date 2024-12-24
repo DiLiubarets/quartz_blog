@@ -134,7 +134,28 @@ The formula will return **`300`**, since both conditions are met in the third r
 ``` excel
   =LOOKUP(B2, $E$2:$F$2)
  ```
+**Understanding the MID and FIND Functions in Excel**
 
+The formula 
+``` excel 
+=MID(Q2, FIND("SP", Q2), 4)
+``` 
+extracts specific text from a cell. Here's how it works:
+
+1. **FIND Function**: 
+```excel
+FIND("SP", Q2)
+``` 
+locates the position of "SP" in cell Q2.
+    
+2. **MID Function**:  
+```excel
+MID(Q2, FIND("SP", Q2), 4)
+```
+extracts 4 characters starting from the position found by the FIND function.
+    
+
+This formula is useful for extracting text that follows a known pattern within a larger string.
 
 ---
 ### **Additional Tips & Tricks:**

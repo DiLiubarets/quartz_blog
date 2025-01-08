@@ -1,3 +1,4 @@
+**JiraRaw_Cleaning**: Something that I do way too much manually.
 ```vb
 Sub JiraRaw_Cleaning()
     Dim ws As Worksheet
@@ -15,17 +16,13 @@ Sub JiraRaw_Cleaning()
         .Shapes.Range(Array("Picture 1")).Delete
         On Error GoTo 0
         .Cells.UnMerge
-
         ' Clear all borders
         .Cells.Borders.LineStyle = xlLineStyleNone
-
         ' Delete the first three rows
         .Rows("1:3").Delete
-
         ' Format the first row
         .Rows(1).Interior.Color = RGB(64, 64, 64)
         .Rows(1).Font.Color = RGB(255, 255, 255)
-
         ' Find and delete rows containing "Generated at"
         Set rng = ws.UsedRange.Find(What:="Generated at", LookIn:=xlValues, LookAt:=xlPart, SearchOrder:=xlByRows, SearchDirection:=xlNext, MatchCase:=False)
         If Not rng Is Nothing Then
@@ -38,7 +35,6 @@ Sub JiraRaw_Cleaning()
                 End If
                 Set rng = ws.UsedRange.FindNext(rng)
             Loop While Not rng Is Nothing And rng.Address <> deleteRange.Cells(1, 1).Address
-
             ' Delete the rows
             deleteRange.EntireRow.Delete
         End If
@@ -50,4 +46,33 @@ Sub JiraRaw_Cleaning()
     End With
 End Sub
 
+```
+DarkMode in Excel
+```vb
+Sub EnableDarkMode()
+    Dim ws As Worksheet
+    For Each ws In ActiveWorkbook.Worksheets
+        ws.Cells.Interior.Color = RGB(43, 43, 43) ' Dark background color
+        ws.Cells.Font.Color = RGB(255, 255, 255) ' White font color
+    Next ws
+End Sub
+
+Sub DisableDarkMode()
+    Dim ws As Worksheet
+    For Each ws In ActiveWorkbook.Worksheets
+        ws.Cells.Interior.ColorIndex = xlNone ' Reset to no fill
+        ws.Cells.Font.ColorIndex = xlAutomatic ' Reset to automatic font color
+    Next ws
+End Sub
+
+```
+AutoFitAll
+```vb
+Sub AutoFitAll()
+    Dim ws As Worksheet
+    For Each ws In ActiveWorkbook.Worksheets
+        ws.UsedRange.Columns.AutoFit
+        ws.UsedRange.Rows.AutoFit
+    Next ws
+End Sub
 ```

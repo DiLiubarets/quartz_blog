@@ -1363,3 +1363,113 @@ Sub CreatePivotTable()
 
 End Sub
 ```
+
+```vb
+Sub CreatePivot_DumpData()
+    On Error Resume Next
+    Dim wsData As Worksheet
+    Dim wsPivot As Worksheet
+    Dim pivotCache As pivotCache
+    Dim pivotTable As pivotTable
+    Dim pivotRange As Range
+    Dim pivotDestination As Range
+    Dim pSlicersCaches As SlicerCaches
+    Dim sSlicerCache1 As SlicerCache
+    Dim sSlicerCache2 As SlicerCache
+    Dim sSlicerCache3 As SlicerCache
+    Dim sSlicer1 As Slicer
+    Dim sSlicer2 As Slicer
+    Dim sSlicer3 As Slicer
+    Dim timelineCache As SlicerCache
+    Dim timeline As Slicer
+    Dim wb As Workbook
+
+    Set wb = ThisWorkbook
+    Set wsData = ThisWorkbook.Worksheets("DataDump")
+    Set pivotRange = wsData.Range("A1").CurrentRegion
+
+    'Create or clear pivot sheet
+    Application.DisplayAlerts = False
+    On Error Resume Next
+    ThisWorkbook.Sheets("PivotTable").Delete
+    On Error GoTo 0
+    Set wsPivot = ThisWorkbook.Sheets.Add
+    wsPivot.Name = "PivotTable"
+    Application.DisplayAlerts = True
+
+    'Create pivot table
+    Set pivotDestination = wsPivot.Range("E10")
+    Set pivotCache = ThisWorkbook.PivotCaches.Create(SourceType:=xlDatabase, SourceData:=pivotRange)
+    Set pivotTable = pivotCache.CreatePivotTable(TableDestination:=pivotDestination, TableName:="MyPivotTable")
+    With pivotTable
+        .PivotFields("WorkCenter").Orientation = xlRowField
+        .PivotFields("FiscalMonth").Orientation = xlColumnField
+        .PivotFields("Value").Orientation = xlDataField
+    End With
+
+    'Create Slicers
+    On Error Resume Next
+    'First Slicer
+    If Err.Number = 0 Then
+        Set sSlicerCache1 = ActiveWorkbook.SlicerCaches.Add2(pivotTable, "Type")
+        If Err.Number = 0 Then
+            Set sSlicer1 = sSlicerCache1.Slicers.Add(wsPivot.Name, , "Type", "Type", 5, 10)
+            With sSlicer1
+                .Width = 150
+                .Height = 58
+                .NumberOfColumns = 2
+                .RowHeight = 20
+            End With
+        Else
+            MsgBox "Error creating first slicer: " & Err.Description
+        End If
+    End If
+
+    'Second Slicer
+    Err.Clear
+    If Err.Number = 0 Then
+        Set sSlicerCache2 = ActiveWorkbook.SlicerCaches.Add2(pivotTable, "Current vs Previous Data")
+        If Err.Number = 0 Then
+            Set sSlicer2 = sSlicerCache2.Slicers.Add(wsPivot.Name, , "Current/Previous Data", "Current vs Previous Data", 68, 10)
+            With sSlicer2
+                .Width = 256
+                .Height = 58
+                .NumberOfColumns = 2
+                .RowHeight = 20
+            End With
+        Else
+            MsgBox "Error creating second slicer: " & Err.Description
+        End If
+    End If
+
+    'Third Slicer
+    Err.Clear
+    If Err.Number = 0 Then
+        Set sSlicerCache3 = ActiveWorkbook.SlicerCaches.Add2(pivotTable, "EAC Type")
+        If Err.Number = 0 Then
+            Set sSlicer3 = sSlicerCache3.Slicers.Add(wsPivot.Name, , "EAC Type", "EAC Type", 130, 10)
+            With sSlicer3
+                .Width = 150
+                .Height = 58
+                .NumberOfColumns = 2
+                .RowHeight = 20
+            End With
+        Else
+            MsgBox "Error creating third slicer: " & Err.Description
+        End If
+    End If
+    On Error GoTo 0
+
+' Add the timeline
+    On Error Resume Next
+    Set timelineCache = ThisWorkbook.SlicerCaches.Add2(pivotTable, "FiscalMonth")
+    If Err.Number = 0 Then
+        Set timeline = timelineCache.Slicers.Add(ws, , "FiscalMonth", "FiscalMonth", 10, 10, 400, 50)
+        With timeline
+            .Top = ws.Range("G2").Top
+            .Left = ws.Range("G2").Left
+        End With
+    End If
+    MsgBox "Pivot Table with Slicers created successfully!", vbInformation
+End Sub
+```

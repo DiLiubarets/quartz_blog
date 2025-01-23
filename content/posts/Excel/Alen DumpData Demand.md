@@ -21,7 +21,12 @@ Sub CreatePivot_DumpData()
     Dim sSlicer4 As Slicer
     Dim timelineSlicer As Slicer
     Dim timelineCache As SlicerCache
-    Dim wb As Workbook
+    Dim ws As Worksheet
+    Dim currentYear As Integer
+    Dim currentMonth As Integer
+    Dim startDate As Date
+    Dim endDate As Date
+    Dim wb As Workbook
     Set wb = ThisWorkbook
     Set wsData = ThisWorkbook.Worksheets("DataDump")
     Set pivotRange = wsData.Range("A1").CurrentRegion
@@ -129,6 +134,26 @@ Sub CreatePivot_DumpData()
         .SlicerItems("ACTUALS").Selected = False
     End With
     On Error GoTo 0
+
+
+    ' Set references to workbook, worksheet, and PivotTable
+    Set wb = ThisWorkbook
+    Set ws = wb.Worksheets("PivotTable")
+    Set pivotTable = ws.PivotTables("MyPivotTable")
+    
+    ' Create the Slicer Cache for Timeline
+    Set timelineCache = wb.SlicerCaches.Add2(pivotTable, "FiscalMonth", , xlTimeline)
+    timelineCache.Slicers.Add ActiveSheet, , "FiscalMonth 1", "FiscalMonth", 10, 200, 575, 108
+
+    ' Set Timeline Slicer to Current Month and Next Month
+    currentYear = Year(Date)
+    currentMonth = Month(Date)
+    startDate = DateSerial(currentYear, currentMonth + 1, 1)
+    endDate = DateSerial(currentYear, 12, 31) - 1
+    With timelineCache.TimelineState
+        .SetFilterDateRange startDate, endDate
+        '.ClearAllFilters
+    End With
     'MsgBox "Pivot Table with Slicers created successfully!", vbInformation
 
 End Sub
@@ -198,7 +223,15 @@ Sub Demand_working_sheet()
     'hide col W&C
     ws.Columns("W").EntireColumn.Hidden = True
     ws.Columns("C").EntireColumn.Hidden = True
-    Module5.ConvertDates
+    
+    'Module5.ConvertDates
+
+    For Each cell In ws.Range("Y1:BH1")
+        If IsDate("1-" & Left(cell.Value, 3) & "-20" & Right(cell.Value, 2)) Then
+            cell.Value = DateValue("1-" & Left(cell.Value, 3) & "-20" & Right(cell.Value, 2))
+            cell.NumberFormat = "mmm-yy"
+        End If
+    Next cell
 End Sub
 ```
 

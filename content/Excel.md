@@ -18,7 +18,7 @@ In today's fast-paced work environment, I’ve realized that mastering Excel sho
 helping:
 [[Alen DumpData Demand]]
 
-Wprking on automating weekly report 
+Working on automating weekly report 
 [[Weekly performance report]]
 
 Daily work:

@@ -12,6 +12,22 @@ In today's fast-paced work environment, I’ve realized that mastering Excel sho
 #### [[Shortcuts for Efficiency]]
 
 
+####  **Latest work with automated work processes
+
+
+helping:
+[[Alen DumpData Demand]]
+
+Wprking on automating weekly report 
+[[Weekly performance report]]
+
+Daily work:
+[[Tasks Automation]]
+
+My cheat sheet for VBA Pivot Table
+[[Pivot Table with VBA]]
+
+
 
 
 

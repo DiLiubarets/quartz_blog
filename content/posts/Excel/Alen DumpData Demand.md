@@ -441,3 +441,67 @@ Sub GetPivotTableValue()
     End If
 End Sub
 ```
+
+Loop through rows
+```vb
+Sub GetPivotDataForAllRowsAndColumns()
+    Dim wsInput As Worksheet
+    Dim wsPivot As Worksheet
+    Dim pt As PivotTable
+    Dim workCenter As String
+    Dim fiscalMonth As Date
+    Dim result As Variant
+    Dim lastRow As Long
+    Dim lastCol As Long
+    Dim currentRow As Long
+    Dim currentCol As Long
+
+    ' Define the sheets
+    Set wsInput = ThisWorkbook.Sheets("InputSheet") ' Replace with the sheet where your data is stored
+    Set wsPivot = ThisWorkbook.Sheets("PivotTableSheet") ' Replace with the sheet containing the pivot table
+
+    ' Define the pivot table
+    Set pt = wsPivot.PivotTables("PivotTable1") ' Replace with the name of your pivot table
+
+    ' Find the last row and last column in the input sheet
+    lastRow = wsInput.Cells(wsInput.Rows.Count, "A").End(xlUp).Row ' Last row in column A (WorkCenter)
+    lastCol = wsInput.Cells(1, wsInput.Columns.Count).End(xlToLeft).Column ' Last column in row 1 (Fiscal Dates)
+
+    ' Loop through each row (starting from row 2, assuming row 1 has headers)
+    For currentRow = 2 To lastRow
+        ' Get the WorkCenter from column A
+        workCenter = Trim(wsInput.Cells(currentRow, 1).Value)
+
+        ' Loop through each fiscal date (starting from column 2, assuming column 1 has WorkCenter)
+        For currentCol = 2 To lastCol
+            ' Get the fiscal date from the header row (row 1)
+            If IsDate(wsInput.Cells(1, currentCol).Value) Then
+                fiscalMonth = DateSerial(Year(wsInput.Cells(1, currentCol).Value), Month(wsInput.Cells(1, currentCol).Value), Day(wsInput.Cells(1, currentCol).Value))
+            Else
+                ' Skip the column if the header is not a valid date
+                MsgBox "Invalid date in column " & currentCol & ". Skipping.", vbExclamation
+                GoTo SkipColumn
+            End If
+
+            ' Retrieve the value from the pivot table
+            On Error Resume Next
+            result = pt.GetPivotData( _
+                DataField:="Sum of Value", _
+                Field1:="WorkCenter", Item1:=workCenter, _
+                Field2:="FiscalMonth", Item2:=fiscalMonth)
+            On Error GoTo 0
+
+            ' Output the result in the corresponding cell
+            If IsError(result) Then
+                wsInput.Cells(currentRow, currentCol).Value = "N/A" ' No data found
+            Else
+                wsInput.Cells(currentRow, currentCol).Value = result ' Output the result
+            End If
+
+SkipColumn:
+        Next currentCol
+    Next currentRow
+
+    MsgBox "Data retrieval complete!", vbInformation
+End Sub
+```

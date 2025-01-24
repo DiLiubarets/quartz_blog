@@ -251,3 +251,49 @@ Sub ConvertDates()
     Next cell
 End Sub
 ```
+
+```vb
+Sub SyncSlicerWithFilter()
+    Dim wsPivot As Worksheet
+    Dim wsData As Worksheet
+    Dim slicerCache As SlicerCache
+    Dim slicerItem As SlicerItem
+    Dim selectedItems As Collection
+    Dim filterCriteria As String
+    Dim i As Long
+    
+    ' Set the worksheets
+    Set wsPivot = ThisWorkbook.Sheets("Sheet1") ' Replace with the actual name of your sheet with the slicer
+    Set wsData = ThisWorkbook.Sheets("Sheet2") ' Replace with the actual name of your sheet with the data
+
+    ' Set the slicer cache (replace "Slicer_Project" with the actual name of your slicer)
+    Set slicerCache = ThisWorkbook.SlicerCaches("Slicer_Project")
+
+    ' Collect selected slicer items
+    Set selectedItems = New Collection
+    For Each slicerItem In slicerCache.SlicerItems
+        If slicerItem.Selected Then
+            selectedItems.Add slicerItem.Name
+        End If
+    Next slicerItem
+
+    ' Build the filter criteria from selected slicer items
+    If selectedItems.Count > 0 Then
+        filterCriteria = ""
+        For i = 1 To selectedItems.Count
+            filterCriteria = filterCriteria & selectedItems(i) & ","
+        Next i
+        ' Remove the trailing comma
+        filterCriteria = Left(filterCriteria, Len(filterCriteria) - 1)
+    Else
+        MsgBox "No slicer items are selected. Please select at least one item in the slicer.", vbExclamation
+        Exit Sub
+    End If
+
+    ' Apply the filter to column D in Sheet2
+    wsData.AutoFilterMode = False ' Clear any existing filters
+    wsData.Range("D:D").AutoFilter Field:=1, Criteria1:=Split(filterCriteria, ","), Operator:=xlFilterValues
+
+    MsgBox "Filter applied successfully based on slicer selection!", vbInformation
+End Sub
+```

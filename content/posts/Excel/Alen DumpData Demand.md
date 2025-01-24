@@ -357,3 +357,33 @@ Sub GetPivotTableValue()
     End If
 End Sub
 ```
+
+Name all pivot fields
+```vb
+Sub ListPivotFieldNames()
+    Dim ws As Worksheet
+    Dim pt As PivotTable
+    Dim pf As PivotField
+    Dim outputSheet As Worksheet
+    Dim outputRow As Long
+    
+    ' Define the worksheet and pivot table
+    Set ws = ThisWorkbook.Sheets("PivotTableSheet") ' Replace with the name of the sheet containing the pivot table
+    Set pt = ws.PivotTables("PivotTable1") ' Replace with the name of your pivot table
+    
+    ' Define where to output the field names
+    Set outputSheet = ThisWorkbook.Sheets("OutputSheet") ' Replace with the name of the sheet where you want the list
+    outputRow = 1 ' Start outputting from row 1 (adjust as needed)
+    
+    ' Clear previous output (optional)
+    outputSheet.Cells.Clear
+    
+    ' Loop through all the pivot fields and list their names
+    For Each pf In pt.PivotFields
+        outputSheet.Cells(outputRow, 1).Value = pf.Name ' Output field name to column A
+        outputRow = outputRow + 1 ' Move to the next row
+    Next pf
+    
+    MsgBox "Pivot field names have been listed in the output sheet.", vbInformation
+End Sub
+```

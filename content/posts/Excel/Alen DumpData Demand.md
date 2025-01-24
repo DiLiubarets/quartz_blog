@@ -317,3 +317,43 @@ Sub ListAllSlicerCaches()
     End If
 End Sub
 ```
+
+Find in pivot table (two arguments)
+```vb
+Sub GetPivotTableValue()
+    Dim wsPivot As Worksheet
+    Dim wsOutput As Worksheet
+    Dim pt As PivotTable
+    Dim projectName As String
+    Dim monthName As String
+    Dim result As Variant
+    
+    ' Define the sheets
+    Set wsPivot = ThisWorkbook.Sheets("PivotTableSheet") ' Replace with the name of the sheet containing the pivot table
+    Set wsOutput = ThisWorkbook.Sheets("OutputSheet") ' Replace with the name of the output sheet
+    
+    ' Define the pivot table
+    Set pt = wsPivot.PivotTables("PivotTable1") ' Replace with the name of your pivot table
+    
+    ' Get the parameters (project name and month) from the user or cells
+    projectName = wsOutput.Range("A1").Value ' Replace A1 with the cell containing the project name
+    monthName = wsOutput.Range("B1").Value ' Replace B1 with the cell containing the month name
+    
+    ' Retrieve the value from the pivot table
+    On Error Resume Next
+    result = pt.GetPivotData( _
+        DataField:=pt.DataFields(1).Name, _
+        PivotTableField1:="Project Name", PivotItem1:=projectName, _
+        PivotTableField2:="Month", PivotItem2:=monthName)
+    On Error GoTo 0
+    
+    ' Check if a value was found
+    If IsError(result) Then
+        MsgBox "No value found for the specified project and month.", vbExclamation
+    Else
+        ' Output the result to a cell or display it
+        wsOutput.Range("C1").Value = result ' Replace C1 with the desired output cell
+        MsgBox "Value found: " & result, vbInformation
+    End If
+End Sub
+```

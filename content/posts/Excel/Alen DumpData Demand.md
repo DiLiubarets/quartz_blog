@@ -297,3 +297,23 @@ Sub SyncSlicerWithFilter()
     MsgBox "Filter applied successfully based on slicer selection!", vbInformation
 End Sub
 ```
+
+View all slicers
+```vb
+Sub ListAllSlicerCaches()
+    Dim slicerCache As SlicerCache
+    Dim msg As String
+    
+    ' Loop through all slicer caches in the workbook
+    For Each slicerCache In ThisWorkbook.SlicerCaches
+        msg = msg & slicerCache.Name & vbNewLine
+    Next slicerCache
+    
+    ' Display the slicer cache names
+    If msg = "" Then
+        MsgBox "No slicers found in this workbook.", vbExclamation
+    Else
+        MsgBox "Slicer Caches in This Workbook:" & vbNewLine & msg, vbInformation
+    End If
+End Sub
+```

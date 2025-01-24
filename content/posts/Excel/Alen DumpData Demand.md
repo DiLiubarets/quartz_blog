@@ -387,3 +387,57 @@ Sub ListPivotFieldNames()
     MsgBox "Pivot field names have been listed in the output sheet.", vbInformation
 End Sub
 ```
+
+Debug code
+```vb
+Sub GetPivotTableValue()
+    Dim wsPivot As Worksheet
+    Dim wsOutput As Worksheet
+    Dim pt As PivotTable
+    Dim projectName As String
+    Dim monthName As String
+    Dim result As Variant
+    
+    ' Define the sheets
+    Set wsPivot = ThisWorkbook.Sheets("PivotTableSheet") ' Replace with the name of the sheet containing the pivot table
+    Set wsOutput = ThisWorkbook.Sheets("OutputSheet") ' Replace with the name of the sheet where input/output is done
+    
+    ' Define the pivot table
+    Set pt = wsPivot.PivotTables("PivotTable1") ' Replace with the name of your pivot table
+    
+    ' Get the parameters (project name and month) from the user or cells
+    projectName = wsOutput.Range("A1").Value ' Replace A1 with the cell containing the project name
+    monthName = wsOutput.Range("B1").Value ' Replace B1 with the cell containing the month name
+    
+    ' Debugging: Check if the fields are populated
+    If Trim(projectName) = "" Or Trim(monthName) = "" Then
+        MsgBox "Please make sure both Project Name (A1) and Month (B1) are filled in.", vbExclamation
+        Exit Sub
+    End If
+    
+    ' Debugging: Check if the pivot table has data fields
+    If pt.DataFields.Count = 0 Then
+        MsgBox "The pivot table does not have any data fields.", vbExclamation
+        Exit Sub
+    End If
+    
+    ' Retrieve the value from the pivot table
+    On Error Resume Next
+    result = pt.GetPivotData( _
+        DataField:=pt.DataFields(1).Name, _
+        Field1:="Project Name", Item1:=projectName, _
+        Field2:="Month", Item2:=monthName)
+    On Error GoTo 0
+    
+    ' Debugging: Check if GetPivotData returned an error
+    If IsError(result) Then
+        MsgBox "No value found for the specified Project Name and Month. Please check your inputs or the pivot table structure.", vbExclamation
+    ElseIf IsEmpty(result) Then
+        MsgBox "The value found is empty. Please check if the combination of Project Name and Month exists in the pivot table.", vbExclamation
+    Else
+        ' Output the result to a cell or display it
+        wsOutput.Range("C1").Value = result ' Replace C1 with the desired output cell
+        MsgBox "Value found: " & result, vbInformation
+    End If
+End Sub
+```

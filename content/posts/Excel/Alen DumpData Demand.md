@@ -567,3 +567,17 @@ Sub GetPivotDataForFilteredRowsAndColumns()
     MsgBox "Data retrieval complete for filtered rows!", vbInformation
 End Sub
 ```
+
+Handle n/a
+```vb
+' Get the WorkCenter from column N (column 14)
+If IsError(wsInput.Cells(currentRow, 14).Value) Then
+    Debug.Print "Skipping row " & currentRow & " because WorkCenter contains an error (#N/A)."
+    GoTo NextRow
+ElseIf wsInput.Cells(currentRow, 14).Value = "" Then
+    Debug.Print "Skipping row " & currentRow & " because WorkCenter is blank."
+    GoTo NextRow
+Else
+    workCenter = Trim(wsInput.Cells(currentRow, 14).Value)
+End If
+```

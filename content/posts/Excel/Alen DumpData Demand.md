@@ -261,15 +261,11 @@ Sub SyncSlicerWithFilter()
     Dim selectedItems As Collection
     Dim filterCriteria As String
     Dim i As Long
-    
-    ' Set the worksheets
-    Set wsPivot = ThisWorkbook.Sheets("Sheet1") ' Replace with the actual name of your sheet with the slicer
-    Set wsData = ThisWorkbook.Sheets("Sheet2") ' Replace with the actual name of your sheet with the data
-
-    ' Set the slicer cache (replace "Slicer_Project" with the actual name of your slicer)
+ 
+    Set wsPivot = ThisWorkbook.Sheets("Sheet1") 
+    Set wsData = ThisWorkbook.Sheets("Sheet2")
     Set slicerCache = ThisWorkbook.SlicerCaches("Slicer_Project")
 
-    ' Collect selected slicer items
     Set selectedItems = New Collection
     For Each slicerItem In slicerCache.SlicerItems
         If slicerItem.Selected Then
@@ -277,21 +273,18 @@ Sub SyncSlicerWithFilter()
         End If
     Next slicerItem
 
-    ' Build the filter criteria from selected slicer items
     If selectedItems.Count > 0 Then
         filterCriteria = ""
         For i = 1 To selectedItems.Count
             filterCriteria = filterCriteria & selectedItems(i) & ","
         Next i
-        ' Remove the trailing comma
         filterCriteria = Left(filterCriteria, Len(filterCriteria) - 1)
     Else
         MsgBox "No slicer items are selected. Please select at least one item in the slicer.", vbExclamation
         Exit Sub
     End If
 
-    ' Apply the filter to column D in Sheet2
-    wsData.AutoFilterMode = False ' Clear any existing filters
+    wsData.AutoFilterMode = False 
     wsData.Range("D:D").AutoFilter Field:=1, Criteria1:=Split(filterCriteria, ","), Operator:=xlFilterValues
 
     MsgBox "Filter applied successfully based on slicer selection!", vbInformation
@@ -303,13 +296,11 @@ View all slicers
 Sub ListAllSlicerCaches()
     Dim slicerCache As SlicerCache
     Dim msg As String
-    
-    ' Loop through all slicer caches in the workbook
+
     For Each slicerCache In ThisWorkbook.SlicerCaches
         msg = msg & slicerCache.Name & vbNewLine
     Next slicerCache
-    
-    ' Display the slicer cache names
+
     If msg = "" Then
         MsgBox "No slicers found in this workbook.", vbExclamation
     Else
@@ -328,31 +319,23 @@ Sub GetPivotTableValue()
     Dim monthName As String
     Dim result As Variant
     
-    ' Define the sheets
-    Set wsPivot = ThisWorkbook.Sheets("PivotTableSheet") ' Replace with the name of the sheet containing the pivot table
-    Set wsOutput = ThisWorkbook.Sheets("OutputSheet") ' Replace with the name of the output sheet
-    
-    ' Define the pivot table
-    Set pt = wsPivot.PivotTables("PivotTable1") ' Replace with the name of your pivot table
-    
-    ' Get the parameters (project name and month) from the user or cells
-    projectName = wsOutput.Range("A1").Value ' Replace A1 with the cell containing the project name
-    monthName = wsOutput.Range("B1").Value ' Replace B1 with the cell containing the month name
-    
-    ' Retrieve the value from the pivot table
+    Set wsPivot = ThisWorkbook.Sheets("PivotTableSheet") 
+    Set wsOutput = ThisWorkbook.Sheets("OutputSheet") 
+    Set pt = wsPivot.PivotTables("PivotTable1") 
+    projectName = wsOutput.Range("A1").Value 
+    monthName = wsOutput.Range("B1").Value 
     On Error Resume Next
     result = pt.GetPivotData( _
         DataField:=pt.DataFields(1).Name, _
         PivotTableField1:="Project Name", PivotItem1:=projectName, _
         PivotTableField2:="Month", PivotItem2:=monthName)
     On Error GoTo 0
-    
-    ' Check if a value was found
+
     If IsError(result) Then
         MsgBox "No value found for the specified project and month.", vbExclamation
     Else
-        ' Output the result to a cell or display it
-        wsOutput.Range("C1").Value = result ' Replace C1 with the desired output cell
+
+        wsOutput.Range("C1").Value = result 
         MsgBox "Value found: " & result, vbInformation
     End If
 End Sub
@@ -367,21 +350,15 @@ Sub ListPivotFieldNames()
     Dim outputSheet As Worksheet
     Dim outputRow As Long
     
-    ' Define the worksheet and pivot table
-    Set ws = ThisWorkbook.Sheets("PivotTableSheet") ' Replace with the name of the sheet containing the pivot table
-    Set pt = ws.PivotTables("PivotTable1") ' Replace with the name of your pivot table
-    
-    ' Define where to output the field names
-    Set outputSheet = ThisWorkbook.Sheets("OutputSheet") ' Replace with the name of the sheet where you want the list
-    outputRow = 1 ' Start outputting from row 1 (adjust as needed)
-    
-    ' Clear previous output (optional)
+    Set ws = ThisWorkbook.Sheets("PivotTableSheet") 
+    Set pt = ws.PivotTables("PivotTable1") 
+    Set outputSheet = ThisWorkbook.Sheets("OutputSheet") 
+    outputRow = 1 
     outputSheet.Cells.Clear
     
-    ' Loop through all the pivot fields and list their names
     For Each pf In pt.PivotFields
-        outputSheet.Cells(outputRow, 1).Value = pf.Name ' Output field name to column A
-        outputRow = outputRow + 1 ' Move to the next row
+        outputSheet.Cells(outputRow, 1).Value = pf.Name 
+        outputRow = outputRow + 1 
     Next pf
     
     MsgBox "Pivot field names have been listed in the output sheet.", vbInformation
@@ -399,44 +376,34 @@ Sub GetPivotTableValue()
     Dim result As Variant
     
     ' Define the sheets
-    Set wsPivot = ThisWorkbook.Sheets("PivotTableSheet") ' Replace with the name of the sheet containing the pivot table
-    Set wsOutput = ThisWorkbook.Sheets("OutputSheet") ' Replace with the name of the sheet where input/output is done
-    
-    ' Define the pivot table
-    Set pt = wsPivot.PivotTables("PivotTable1") ' Replace with the name of your pivot table
-    
-    ' Get the parameters (project name and month) from the user or cells
-    projectName = wsOutput.Range("A1").Value ' Replace A1 with the cell containing the project name
-    monthName = wsOutput.Range("B1").Value ' Replace B1 with the cell containing the month name
-    
-    ' Debugging: Check if the fields are populated
+    Set wsPivot = ThisWorkbook.Sheets("PivotTableSheet")
+    Set wsOutput = ThisWorkbook.Sheets("OutputSheet") 
+    Set pt = wsPivot.PivotTables("PivotTable1") 
+    projectName = wsOutput.Range("A1").Value 
+    monthName = wsOutput.Range("B1").Value 
     If Trim(projectName) = "" Or Trim(monthName) = "" Then
         MsgBox "Please make sure both Project Name (A1) and Month (B1) are filled in.", vbExclamation
         Exit Sub
     End If
-    
-    ' Debugging: Check if the pivot table has data fields
+  
     If pt.DataFields.Count = 0 Then
         MsgBox "The pivot table does not have any data fields.", vbExclamation
         Exit Sub
     End If
-    
-    ' Retrieve the value from the pivot table
+ 
     On Error Resume Next
     result = pt.GetPivotData( _
         DataField:=pt.DataFields(1).Name, _
         Field1:="Project Name", Item1:=projectName, _
         Field2:="Month", Item2:=monthName)
     On Error GoTo 0
-    
-    ' Debugging: Check if GetPivotData returned an error
+
     If IsError(result) Then
         MsgBox "No value found for the specified Project Name and Month. Please check your inputs or the pivot table structure.", vbExclamation
     ElseIf IsEmpty(result) Then
         MsgBox "The value found is empty. Please check if the combination of Project Name and Month exists in the pivot table.", vbExclamation
     Else
-        ' Output the result to a cell or display it
-        wsOutput.Range("C1").Value = result ' Replace C1 with the desired output cell
+        wsOutput.Range("C1").Value = result 
         MsgBox "Value found: " & result, vbInformation
     End If
 End Sub
@@ -456,46 +423,33 @@ Sub GetPivotDataForAllRowsAndColumns()
     Dim currentRow As Long
     Dim currentCol As Long
 
-    ' Define the sheets
-    Set wsInput = ThisWorkbook.Sheets("InputSheet") ' Replace with the sheet where your data is stored
-    Set wsPivot = ThisWorkbook.Sheets("PivotTableSheet") ' Replace with the sheet containing the pivot table
-
-    ' Define the pivot table
-    Set pt = wsPivot.PivotTables("PivotTable1") ' Replace with the name of your pivot table
-
-    ' Find the last row and last column in the input sheet
-    lastRow = wsInput.Cells(wsInput.Rows.Count, "A").End(xlUp).Row ' Last row in column A (WorkCenter)
-    lastCol = wsInput.Cells(1, wsInput.Columns.Count).End(xlToLeft).Column ' Last column in row 1 (Fiscal Dates)
-
-    ' Loop through each row (starting from row 2, assuming row 1 has headers)
+    Set wsInput = ThisWorkbook.Sheets("InputSheet") 
+    Set wsPivot = ThisWorkbook.Sheets("PivotTableSheet") 
+    Set pt = wsPivot.PivotTables("PivotTable1") 
+    lastRow = wsInput.Cells(wsInput.Rows.Count, "A").End(xlUp).Row 
+    lastCol = wsInput.Cells(1, wsInput.Columns.Count).End(xlToLeft).Column 
     For currentRow = 2 To lastRow
-        ' Get the WorkCenter from column A
         workCenter = Trim(wsInput.Cells(currentRow, 1).Value)
 
-        ' Loop through each fiscal date (starting from column 2, assuming column 1 has WorkCenter)
         For currentCol = 2 To lastCol
-            ' Get the fiscal date from the header row (row 1)
             If IsDate(wsInput.Cells(1, currentCol).Value) Then
                 fiscalMonth = DateSerial(Year(wsInput.Cells(1, currentCol).Value), Month(wsInput.Cells(1, currentCol).Value), Day(wsInput.Cells(1, currentCol).Value))
             Else
-                ' Skip the column if the header is not a valid date
+
                 MsgBox "Invalid date in column " & currentCol & ". Skipping.", vbExclamation
                 GoTo SkipColumn
             End If
 
-            ' Retrieve the value from the pivot table
             On Error Resume Next
             result = pt.GetPivotData( _
                 DataField:="Sum of Value", _
                 Field1:="WorkCenter", Item1:=workCenter, _
                 Field2:="FiscalMonth", Item2:=fiscalMonth)
             On Error GoTo 0
-
-            ' Output the result in the corresponding cell
             If IsError(result) Then
-                wsInput.Cells(currentRow, currentCol).Value = "N/A" ' No data found
+                wsInput.Cells(currentRow, currentCol).Value = "N/A" 
             Else
-                wsInput.Cells(currentRow, currentCol).Value = result ' Output the result
+                wsInput.Cells(currentRow, currentCol).Value = result 
             End If
 
 SkipColumn:
@@ -520,44 +474,30 @@ Sub GetPivotDataForFilteredRowsAndColumns()
     Dim currentRow As Long
     Dim currentCol As Long
 
-    ' Define the sheets
-    Set wsInput = ThisWorkbook.Sheets("InputSheet") ' Replace with the sheet where your data is stored
-    Set wsPivot = ThisWorkbook.Sheets("PivotTableSheet") ' Replace with the sheet containing the pivot table
-
-    ' Define the pivot table
-    Set pt = wsPivot.PivotTables("PivotTable1") ' Replace with the name of your pivot table
-
-    ' Find the last row and last column in the input sheet
-    lastRow = wsInput.Cells(wsInput.Rows.Count, "A").End(xlUp).Row ' Last row in column A (WorkCenter)
-    lastCol = wsInput.Cells(1, wsInput.Columns.Count).End(xlToLeft).Column ' Last column in row 1 (Fiscal Dates)
-
-    ' Loop through each row (starting from row 2, assuming row 1 has headers)
+    Set wsInput = ThisWorkbook.Sheets("InputSheet") 
+    Set wsPivot = ThisWorkbook.Sheets("PivotTableSheet") 
+    Set pt = wsPivot.PivotTables("PivotTable1") 
+    lastRow = wsInput.Cells(wsInput.Rows.Count, "A").End(xlUp).Row 
+    lastCol = wsInput.Cells(1, wsInput.Columns.Count).End(xlToLeft).Column 
     For currentRow = 2 To lastRow
-        ' Check if the row is visible
         If Not wsInput.Rows(currentRow).EntireRow.Hidden Then
-            ' Get the WorkCenter from column A
             workCenter = Trim(wsInput.Cells(currentRow, 1).Value)
 
-            ' Loop through each fiscal date (starting from column 2, assuming column 1 has WorkCenter)
             For currentCol = 2 To lastCol
-                ' Check if the header is a valid date
+             
                 If IsDate(wsInput.Cells(1, currentCol).Value) Then
-                    ' Construct the fiscal date
                     fiscalMonth = DateSerial(Year(wsInput.Cells(1, currentCol).Value), Month(wsInput.Cells(1, currentCol).Value), Day(wsInput.Cells(1, currentCol).Value))
 
-                    ' Retrieve the value from the pivot table
                     On Error Resume Next
                     result = pt.GetPivotData( _
                         DataField:="Sum of Value", _
                         Field1:="WorkCenter", Item1:=workCenter, _
                         Field2:="FiscalMonth", Item2:=fiscalMonth)
                     On Error GoTo 0
-
-                    ' Output the result in the corresponding cell
                     If IsError(result) Then
-                        wsInput.Cells(currentRow, currentCol).Value = "N/A" ' No data found
+                        wsInput.Cells(currentRow, currentCol).Value = "N/A" 
                     Else
-                        wsInput.Cells(currentRow, currentCol).Value = result ' Output the result
+                        wsInput.Cells(currentRow, currentCol).Value = result 
                     End If
                     result = Empty
                 End If

@@ -559,6 +559,7 @@ Sub GetPivotDataForFilteredRowsAndColumns()
                     Else
                         wsInput.Cells(currentRow, currentCol).Value = result ' Output the result
                     End If
+                    result = Empty
                 End If
             Next currentCol
         End If

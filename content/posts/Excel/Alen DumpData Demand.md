@@ -522,3 +522,65 @@ Else
     workCenter = Trim(wsInput.Cells(currentRow, 14).Value)
 End If
 ```
+
+Sync with slicer and delete
+```vb
+Sub SyncSlicerWithFilter()
+    Dim wsPivot As Worksheet
+    Dim wsData As Worksheet
+    Dim slicerCache As SlicerCache
+    Dim slicerItem As SlicerItem
+    Dim selectedItems As Collection
+    Dim filterCriteria As String
+    Dim i As Long
+    Dim rng As Range
+    Dim lastRow As Long
+    
+    Application.ScreenUpdating = False
+    
+    Set wsPivot = ThisWorkbook.Sheets("Sheet1")
+    Set wsData = ThisWorkbook.Sheets("Sheet2")
+    Set slicerCache = ThisWorkbook.SlicerCaches("Slicer_Project")
+    
+    'Get last row in the data sheet
+    lastRow = wsData.Cells(wsData.Rows.Count, "D").End(xlUp).Row
+    
+    Set selectedItems = New Collection
+    For Each slicerItem In slicerCache.SlicerItems
+        If slicerItem.Selected Then
+            selectedItems.Add slicerItem.Name
+        End If
+    Next slicerItem
+    
+    If selectedItems.Count > 0 Then
+        filterCriteria = ""
+        For i = 1 To selectedItems.Count
+            filterCriteria = filterCriteria & selectedItems(i) & ","
+        Next i
+        filterCriteria = Left(filterCriteria, Len(filterCriteria) - 1)
+    Else
+        MsgBox "No slicer items are selected. Please select at least one item in the slicer.", vbExclamation
+        Exit Sub
+    End If
+    
+    'Apply filter
+    wsData.AutoFilterMode = False
+    wsData.Range("D1:D" & lastRow).AutoFilter Field:=1, Criteria1:=Split(filterCriteria, ","), Operator:=xlFilterValues
+    
+    'Delete filtered rows
+    On Error Resume Next
+    Set rng = wsData.Range("D2:D" & lastRow).SpecialCells(xlCellTypeVisible)
+    On Error GoTo 0
+    
+    If Not rng Is Nothing Then
+        rng.EntireRow.Delete
+    End If
+    
+    'Turn off filter
+    wsData.AutoFilterMode = False
+    
+    Application.ScreenUpdating = True
+    
+    MsgBox "Rows deleted successfully based on slicer selection!", vbInformation
+End Sub
+```

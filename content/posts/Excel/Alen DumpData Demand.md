@@ -569,22 +569,25 @@ Sub SyncSlicerWithFilter()
     
     'Delete hidden rows (those that don't match the filter)
     On Error Resume Next
-    Set rng = wsData.Range("D2:D" & lastRow).SpecialCells(xlCellTypeVisible)
+    Set rng = wsData.Range("D1:D" & lastRow).SpecialCells(xlCellTypeVisible)
     On Error GoTo 0
     
     If Not rng Is Nothing Then
-        'Store the visible rows' addresses
-        Dim visibleRanges As String
-        visibleRanges = rng.Address
+        'Copy visible rows to a temporary worksheet
+        Dim wsTempSheet As Worksheet
+        Set wsTempSheet = ThisWorkbook.Worksheets.Add
+        rng.EntireRow.Copy wsTempSheet.Range("A1")
         
-        'Turn off filter
-        wsData.AutoFilterMode = False
+        'Clear all rows in original sheet
+        wsData.Range("A2:Z" & lastRow).Clear 'Adjust column range as needed
         
-        'Delete all rows except header and visible rows
-        wsData.Range("D2:D" & lastRow).EntireRow.Delete
+        'Copy data back from temporary sheet
+        wsTempSheet.UsedRange.Copy wsData.Range("A1")
         
-        'Restore the rows that were visible
-        wsData.Range(visibleRanges).EntireRow.UnDelete
+        'Delete temporary sheet
+        Application.DisplayAlerts = False
+        wsTempSheet.Delete
+        Application.DisplayAlerts = True
     End If
     
     'Turn off filter if still on

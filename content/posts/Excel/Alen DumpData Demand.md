@@ -567,20 +567,31 @@ Sub SyncSlicerWithFilter()
     wsData.AutoFilterMode = False
     wsData.Range("D1:D" & lastRow).AutoFilter Field:=1, Criteria1:=Split(filterCriteria, ","), Operator:=xlFilterValues
     
-    'Delete filtered rows
+    'Delete hidden rows (those that don't match the filter)
     On Error Resume Next
     Set rng = wsData.Range("D2:D" & lastRow).SpecialCells(xlCellTypeVisible)
     On Error GoTo 0
     
     If Not rng Is Nothing Then
-        rng.EntireRow.Delete
+        'Store the visible rows' addresses
+        Dim visibleRanges As String
+        visibleRanges = rng.Address
+        
+        'Turn off filter
+        wsData.AutoFilterMode = False
+        
+        'Delete all rows except header and visible rows
+        wsData.Range("D2:D" & lastRow).EntireRow.Delete
+        
+        'Restore the rows that were visible
+        wsData.Range(visibleRanges).EntireRow.UnDelete
     End If
     
-    'Turn off filter
-    wsData.AutoFilterMode = False
+    'Turn off filter if still on
+    If wsData.AutoFilterMode Then wsData.AutoFilterMode = False
     
     Application.ScreenUpdating = True
     
-    MsgBox "Rows deleted successfully based on slicer selection!", vbInformation
+    MsgBox "Rows deleted successfully! Only rows matching slicer selection remain.", vbInformation
 End Sub
 ```

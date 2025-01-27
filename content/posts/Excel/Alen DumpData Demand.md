@@ -525,76 +525,51 @@ End If
 
 Sync with slicer and delete
 ```vb
-Sub SyncSlicerWithFilter()
+Sub DeleteRowsNotMatchingSlicerSelection()
     Dim wsPivot As Worksheet
     Dim wsData As Worksheet
     Dim slicerCache As SlicerCache
     Dim slicerItem As SlicerItem
     Dim selectedItems As Collection
-    Dim filterCriteria As String
-    Dim i As Long
-    Dim rng As Range
+    Dim selectedItemDict As Object
     Dim lastRow As Long
-    
-    Application.ScreenUpdating = False
-    
+    Dim i As Long
+    Dim cell As Range
+
+    ' Set references to the sheets and slicer
     Set wsPivot = ThisWorkbook.Sheets("Sheet1")
     Set wsData = ThisWorkbook.Sheets("Sheet2")
     Set slicerCache = ThisWorkbook.SlicerCaches("Slicer_Project")
-    
-    'Get last row in the data sheet
-    lastRow = wsData.Cells(wsData.Rows.Count, "D").End(xlUp).Row
-    
+
+    ' Collect selected slicer items
     Set selectedItems = New Collection
+    Set selectedItemDict = CreateObject("Scripting.Dictionary") ' Use a dictionary for faster lookups
+
     For Each slicerItem In slicerCache.SlicerItems
         If slicerItem.Selected Then
             selectedItems.Add slicerItem.Name
+            selectedItemDict.Add slicerItem.Name, True
         End If
     Next slicerItem
-    
-    If selectedItems.Count > 0 Then
-        filterCriteria = ""
-        For i = 1 To selectedItems.Count
-            filterCriteria = filterCriteria & selectedItems(i) & ","
-        Next i
-        filterCriteria = Left(filterCriteria, Len(filterCriteria) - 1)
-    Else
+
+    ' Check if there are selected slicer items
+    If selectedItems.Count = 0 Then
         MsgBox "No slicer items are selected. Please select at least one item in the slicer.", vbExclamation
         Exit Sub
     End If
-    
-    'Apply filter
-    wsData.AutoFilterMode = False
-    wsData.Range("D1:D" & lastRow).AutoFilter Field:=1, Criteria1:=Split(filterCriteria, ","), Operator:=xlFilterValues
-    
-    'Delete hidden rows (those that don't match the filter)
-    On Error Resume Next
-    Set rng = wsData.Range("D1:D" & lastRow).SpecialCells(xlCellTypeVisible)
-    On Error GoTo 0
-    
-    If Not rng Is Nothing Then
-        'Copy visible rows to a temporary worksheet
-        Dim wsTempSheet As Worksheet
-        Set wsTempSheet = ThisWorkbook.Worksheets.Add
-        rng.EntireRow.Copy wsTempSheet.Range("A1")
-        
-        'Clear all rows in original sheet
-        wsData.Range("A2:Z" & lastRow).Clear 'Adjust column range as needed
-        
-        'Copy data back from temporary sheet
-        wsTempSheet.UsedRange.Copy wsData.Range("A1")
-        
-        'Delete temporary sheet
-        Application.DisplayAlerts = False
-        wsTempSheet.Delete
-        Application.DisplayAlerts = True
-    End If
-    
-    'Turn off filter if still on
-    If wsData.AutoFilterMode Then wsData.AutoFilterMode = False
-    
+
+    ' Find the last row in the data sheet
+    lastRow = wsData.Cells(wsData.Rows.Count, "D").End(xlUp).Row
+
+    ' Loop through the data and delete rows that don't match the slicer selection
+    Application.ScreenUpdating = False
+    For i = lastRow To 2 Step -1 ' Start from the bottom row to avoid skipping rows
+        If Not selectedItemDict.exists(wsData.Cells(i, "D").Value) Then
+            wsData.Rows(i).Delete
+        End If
+    Next i
     Application.ScreenUpdating = True
-    
-    MsgBox "Rows deleted successfully! Only rows matching slicer selection remain.", vbInformation
+
+    MsgBox "Rows not matching the slicer selection have been deleted successfully!", vbInformation
 End Sub
 ```

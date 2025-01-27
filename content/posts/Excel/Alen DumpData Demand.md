@@ -573,3 +573,60 @@ Sub DeleteRowsNotMatchingSlicerSelection()
     MsgBox "Rows not matching the slicer selection have been deleted successfully!", vbInformation
 End Sub
 ```
+
+Simplifed get pivot data
+```vb
+Sub GetPivotDataForAllRowsAndColumns()
+    Dim wsInput As Worksheet
+    Dim wsPivot As Worksheet
+    Dim pt As PivotTable
+    Dim workCenter As String
+    Dim fiscalMonth As Date
+    Dim result As Variant
+    Dim lastRow As Long
+    Dim lastCol As Long
+    Dim currentRow As Long
+    Dim currentCol As Long
+
+    ' Set references to the input and pivot table sheets
+    Set wsInput = ThisWorkbook.Sheets("InputSheet")
+    Set wsPivot = ThisWorkbook.Sheets("PivotTableSheet")
+    Set pt = wsPivot.PivotTables("PivotTable1")
+
+    ' Determine the last row and column in the input sheet
+    lastRow = wsInput.Cells(wsInput.Rows.Count, "A").End(xlUp).Row
+    lastCol = wsInput.Cells(1, wsInput.Columns.Count).End(xlToLeft).Column
+
+    ' Loop through each row and column to retrieve pivot table data
+    For currentRow = 2 To lastRow
+        workCenter = Trim(wsInput.Cells(currentRow, 1).Value)
+
+        For currentCol = 2 To lastCol
+            If IsDate(wsInput.Cells(1, currentCol).Value) Then
+                fiscalMonth = DateSerial(Year(wsInput.Cells(1, currentCol).Value), _
+                                         Month(wsInput.Cells(1, currentCol).Value), _
+                                         Day(wsInput.Cells(1, currentCol).Value))
+
+                ' Attempt to retrieve data from the pivot table
+                On Error Resume Next
+                result = pt.GetPivotData( _
+                    DataField:="Sum of Value", _
+                    Field1:="WorkCenter", Item1:=workCenter, _
+                    Field2:="FiscalMonth", Item2:=fiscalMonth)
+                On Error GoTo 0
+
+                ' Write the result to the cell or mark it as "N/A" if not found
+                If IsError(result) Then
+                    wsInput.Cells(currentRow, currentCol).Value = "N/A"
+                Else
+                    wsInput.Cells(currentRow, currentCol).Value = result
+                End If
+
+                result = Empty
+            End If
+        Next currentCol
+    Next currentRow
+
+    MsgBox "Data retrieval complete for all rows!", vbInformation
+End Sub
+```

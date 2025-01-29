@@ -145,3 +145,18 @@ Sub StandardizeRowStyles()
     MsgBox "Row styles have been standardized across all sheets!"
 End Sub
 ```
+
+```vb 
+Sub ShowAllSheetNames()
+    Dim ws As Worksheet
+    Dim sheetNames As String
+    
+    ' Loop through all sheets and concatenate their names
+    For Each ws In ThisWorkbook.Sheets
+        sheetNames = sheetNames & ws.Name & vbNewLine
+    Next ws
+    
+    ' Display the list of sheet names
+    MsgBox "The workbook contains the following sheets:" & vbNewLine & sheetNames, vbInformation, "Sheet Names"
+End Sub
+```

@@ -76,3 +76,72 @@ Sub AutoFitAll()
     Next ws
 End Sub
 ```
+
+```vb
+Sub CreateDropdownListFromOtherSheet()
+    Dim sourceSheet As Worksheet
+    Dim targetSheet As Worksheet
+    Dim dropdownRange As Range
+    Dim targetCell As Range
+    
+    ' Set the source sheet (where the dropdown list values are located)
+    Set sourceSheet = ThisWorkbook.Sheets("Sheet2")
+    
+    ' Set the target sheet (where the dropdown will appear)
+    Set targetSheet = ThisWorkbook.Sheets("Sheet1")
+    
+    ' Define the range containing the dropdown list values in the source sheet
+    Set dropdownRange = sourceSheet.Range("A1:A5")
+    
+    ' Define the target cell where the dropdown will appear in the target sheet
+    Set targetCell = targetSheet.Range("B1")
+    
+    ' Clear any existing validation on the target cell
+    targetCell.Validation.Delete
+    
+    ' Add data validation to the target cell
+    With targetCell.Validation
+        .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:=xlBetween, Formula1:="='" & sourceSheet.Name & "'!" & dropdownRange.Address
+        .IgnoreBlank = True
+        .InCellDropdown = True
+        .ShowInput = True
+        .ShowError = True
+    End With
+    
+    MsgBox "Dropdown list created successfully in cell " & targetCell.Address, vbInformation
+End Sub
+```
+
+```vb
+Sub StandardizeRowStyles()
+    Dim ws As Worksheet
+    Dim row As Range
+    
+    ' Loop through all worksheets in the workbook
+    For Each ws In ThisWorkbook.Worksheets
+        ' Loop through all rows in the worksheet
+        For Each row In ws.Rows
+            ' Apply consistent row height
+            row.RowHeight = 20
+            
+            ' Apply consistent font style and size
+            With row.Font
+                .Name = "Calibri" ' Set font name
+                .Size = 12        ' Set font size
+                .Bold = False     ' Set font to not bold
+            End With
+            
+            ' Apply consistent alignment
+            With row
+                .HorizontalAlignment = xlCenter ' Center align horizontally
+                .VerticalAlignment = xlCenter   ' Center align vertically
+            End With
+            
+            ' Optional: Clear any existing conditional formatting or custom styles
+            row.ClearFormats
+        Next row
+    Next ws
+    
+    MsgBox "Row styles have been standardized across all sheets!"
+End Sub
+```

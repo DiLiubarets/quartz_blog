@@ -160,3 +160,38 @@ Sub ShowAllSheetNames()
     MsgBox "The workbook contains the following sheets:" & vbNewLine & sheetNames, vbInformation, "Sheet Names"
 End Sub
 ```
+
+sumifs
+```vb
+Sub CalculateSumIfs()
+
+    Dim ws As Worksheet
+    Dim jiraTable As ListObject
+    Dim systemsColumn As Range
+    Dim storyPointsColumn As Range
+    Dim warReportColumn As Range
+    Dim result As Double
+    Dim criteria As Variant
+    
+    ' Set the worksheet where the data resides
+    Set ws = ThisWorkbook.Worksheets("JiraData_WeeklyPerformance_Table_1")
+    
+    ' Set the table and its columns
+    Set jiraTable = ws.ListObjects("JiraData_WeeklyPerformance_Table_1")
+    Set storyPointsColumn = jiraTable.ListColumns("Story Points").DataBodyRange
+    Set systemsColumn = jiraTable.ListColumns("Systems").DataBodyRange
+
+    ' Set the criteria range from WAR_Report_Data worksheet
+    Set warReportColumn = ThisWorkbook.Worksheets("WAR_Report_Data").Range("B:B")
+    
+    ' Define the criteria (you might need to adjust this based on your logic)
+    criteria = warReportColumn.Cells(1, 1).Value ' Example: using the first value in column B as criteria
+    
+    ' Perform the SUMIFS calculation
+    result = Application.WorksheetFunction.SumIfs(storyPointsColumn, systemsColumn, criteria) * 4
+    
+    ' Output the result (you can adjust where this result is displayed or stored)
+    MsgBox "The calculated result is: " & result
+
+End Sub
+```

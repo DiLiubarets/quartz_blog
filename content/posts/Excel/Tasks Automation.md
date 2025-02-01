@@ -293,3 +293,50 @@ Sub CalculateCountIfsForEachRow()
 
 End Sub
 ```
+
+countIfs for two creteria 
+```vb
+Sub CountIfs_Closed_Tickets()
+
+    Dim wsJira As Worksheet
+    Dim wsWar As Worksheet
+    Dim jiraTable As ListObject
+    Dim systemsColumn As Range
+    Dim statusColumn As Range
+    Dim result As Long
+    Dim lastRow As Long
+    Dim i As Long
+
+    ' Set the worksheets
+    Set wsJira = ThisWorkbook.Worksheets("general_report")
+    Set wsWar = ThisWorkbook.Worksheets("WAR_Report_Data")
+
+    ' Set the table and its columns
+    Set jiraTable = wsJira.ListObjects("JiraData_WeeklyPerformance_Table")
+    Set systemsColumn = jiraTable.ListColumns("Systems").DataBodyRange
+    Set statusColumn = jiraTable.ListColumns("Status").DataBodyRange ' Use the "Status" column from the table
+
+    ' Find the last row in WAR_Report_Data column B
+    lastRow = wsWar.Cells(wsWar.Rows.Count, "B").End(xlUp).Row
+
+    ' Loop through each row in WAR_Report_Data column B
+    For i = 1 To lastRow
+        Dim criteria As Variant
+
+        ' Get the criteria from column B (row i)
+        criteria = wsWar.Cells(i, "B").Value
+
+        ' Perform the COUNTIFS calculation
+        On Error Resume Next ' Handle errors gracefully
+        result = Application.WorksheetFunction.CountIfs(systemsColumn, criteria, statusColumn, "Closed")
+        On Error GoTo 0 ' Turn off error handling
+
+        ' Output the result in column O of WAR_Report_Data (or any other column you choose)
+        wsWar.Cells(i, "O").Value = result
+    Next i
+
+    ' Notify the user that the process is complete
+    MsgBox "CountIfs calculation completed for all rows!"
+
+End Sub
+```

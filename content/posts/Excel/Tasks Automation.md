@@ -195,3 +195,57 @@ Sub CalculateSumIfs()
 
 End Sub
 ```
+
+sumifs per row
+```vb
+Sub CalculateSumIfsForEachRow()
+
+    Dim wsJira As Worksheet
+    Dim wsWarReport As Worksheet
+    Dim jiraTable As ListObject
+    Dim systemsColumn As Range
+    Dim storyPointsColumn As Range
+    Dim criteriaColumn As Range
+    Dim resultColumn As Range
+    Dim lastRow As Long
+    Dim rowIndex As Long
+    Dim criteriaValue As Variant
+    Dim result As Double
+    
+    ' Set the worksheets
+    Set wsJira = ThisWorkbook.Worksheets("JiraData_WeeklyPerformance_Table_1")
+    Set wsWarReport = ThisWorkbook.Worksheets("WAR_Report_Data")
+    
+    ' Set the Jira table and its columns
+    Set jiraTable = wsJira.ListObjects("JiraData_WeeklyPerformance_Table_1")
+    Set storyPointsColumn = jiraTable.ListColumns("Story Points").DataBodyRange
+    Set systemsColumn = jiraTable.ListColumns("Systems").DataBodyRange
+    
+    ' Determine the columns in WAR_Report_Data
+    Set criteriaColumn = wsWarReport.Range("B:B") ' Column B contains the criteria
+    Set resultColumn = wsWarReport.Range("C:C")  ' Column C will store the results (adjust as needed)
+    
+    ' Find the last row in the criteria column
+    lastRow = wsWarReport.Cells(wsWarReport.Rows.Count, criteriaColumn.Column).End(xlUp).Row
+    
+    ' Loop through each row in WAR_Report_Data
+    For rowIndex = 2 To lastRow ' Start at row 2 to skip headers (adjust if no headers)
+        ' Get the criteria value from the criteria column
+        criteriaValue = wsWarReport.Cells(rowIndex, criteriaColumn.Column).Value
+        
+        ' Perform the SUMIFS calculation
+        If Not IsEmpty(criteriaValue) Then
+            result = Application.WorksheetFunction.SumIfs(storyPointsColumn, systemsColumn, criteriaValue) * 4
+        Else
+            result = 0 ' Handle empty criteria
+        End If
+        
+        ' Place the result in the corresponding row of the result column
+        wsWarReport.Cells(rowIndex, resultColumn.Column).Value = result
+    Next rowIndex
+    
+    ' Notify the user that the macro is complete
+    MsgBox "SUMIFS calculations are complete and results are stored in column " & resultColumn.Column, vbInformation
+
+End Sub
+```

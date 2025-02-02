@@ -340,3 +340,54 @@ Sub CountIfs_Closed_Tickets()
 
 End Sub
 ```
+
+picture to display 
+```vb 
+Sub InsertPictureAndDoOtherTasks()
+    Dim ws As Worksheet
+    Dim picPath As String
+    Dim pic As Shape
+    
+    ' Set the worksheet where the picture will be inserted
+    Set ws = ThisWorkbook.Sheets(1) ' Change to your desired sheet
+    
+    ' Provide the full path to the picture file
+    picPath = "C:\Path\To\Your\Picture.jpg" ' Change to the actual path of your picture
+    
+    ' Insert the picture into the worksheet
+    On Error Resume Next
+    Set pic = ws.Shapes.AddPicture(Filename:=picPath, _
+                                   LinkToFile:=msoFalse, _
+                                   SaveWithDocument:=msoCTrue, _
+                                   Left:=100, _
+                                   Top:=100, _
+                                   Width:=-1, _
+                                   Height:=-1)
+    If Err.Number <> 0 Then
+        MsgBox "Error: Unable to insert picture. Please check the file path.", vbCritical
+        Exit Sub
+    End If
+    On Error GoTo 0
+    
+    ' Perform other tasks in the background
+    ws.Range("A1").Value = "Picture inserted!" ' Example: Add a message to cell A1
+    ws.Range("B1").Value = Now ' Example: Insert the current date and time
+    
+    ' Format a cell as an example of background work
+    With ws.Range("A1:B1")
+        .Font.Bold = True
+        .Interior.Color = RGB(200, 230, 255) ' Light blue background
+    End With
+    
+    ' Move the picture to a specific location if needed
+    pic.Left = ws.Range("D5").Left
+    pic.Top = ws.Range("D5").Top
+    
+    ' Resize the picture (optional)
+    pic.LockAspectRatio = msoTrue
+    pic.Width = 150 ' Set the width to 150 points
+    
+    ' Notify the user
+    MsgBox "Picture inserted and tasks completed!", vbInformation
+End Sub
+```

@@ -947,7 +947,7 @@ End Sub
 ```
 
 ```vb
-Sub Find_Extra_Staff_From_Pivot_Copy()
+Sub Find_Extra_Staff_With_All_Values()
     Dim wsPivotCopy As Worksheet
     Dim wsData As Worksheet
     Dim wsExtra As Worksheet
@@ -955,10 +955,12 @@ Sub Find_Extra_Staff_From_Pivot_Copy()
     Dim dataRowLabels As Object
     Dim cell As Range
     Dim lastRow As Long
+    Dim lastCol As Long
     Dim extraRow As Long
     Dim key As Variant
     Dim tbl As ListObject
     Dim tblRange As Range
+    Dim colIndex As Long
     
     ' Set worksheet references
     Set wsPivotCopy = ThisWorkbook.Sheets("Pivot_Copy") ' Sheet with copied PivotTable
@@ -979,11 +981,15 @@ Sub Find_Extra_Staff_From_Pivot_Copy()
     Set pivotRowLabels = CreateObject("Scripting.Dictionary")
     Set dataRowLabels = CreateObject("Scripting.Dictionary")
     
-    ' Get row labels from Pivot_Copy (assuming they are in column A)
+    ' Get last row and last column in Pivot_Copy
     lastRow = wsPivotCopy.Cells(wsPivotCopy.Rows.Count, "A").End(xlUp).Row
+    lastCol = wsPivotCopy.Cells(1, wsPivotCopy.Columns.Count).End(xlToLeft).Column
+    
+    ' Get row labels and their values from Pivot_Copy
     For Each cell In wsPivotCopy.Range("A2:A" & lastRow) ' Assuming data starts from row 2
         If Not pivotRowLabels.exists(cell.Value) Then
-            pivotRowLabels(cell.Value) = cell.Offset(0, 1).Value ' Store corresponding value
+            ' Store entire row as an array
+            pivotRowLabels(cell.Value) = wsPivotCopy.Range(cell, cell.Offset(0, lastCol - 1)).Value
         End If
     Next cell
     
@@ -997,13 +1003,16 @@ Sub Find_Extra_Staff_From_Pivot_Copy()
     
     ' Identify extra row labels (exist in Pivot_Copy but not in column S)
     extraRow = 2
-    wsExtra.Cells(1, 1).Value = "Extra Row Labels in Pivot_Copy"
-    wsExtra.Cells(1, 2).Value = "Corresponding Values"
+    ' Copy headers
+    wsExtra.Range(wsPivotCopy.Cells(1, 1), wsPivotCopy.Cells(1, lastCol)).Copy
+    wsExtra.Range("A1").PasteSpecial Paste:=xlPasteValues
+    Application.CutCopyMode = False
     
+    ' Copy extra row labels and their full row of values
     For Each key In pivotRowLabels.keys
         If Not dataRowLabels.exists(key) Then
-            wsExtra.Cells(extraRow, 1).Value = key
-            wsExtra.Cells(extraRow, 2).Value = pivotRowLabels(key) ' Get corresponding value
+            ' Copy the entire row of values
+            wsExtra.Range(wsExtra.Cells(extraRow, 1), wsExtra.Cells(extraRow, lastCol)).Value = pivotRowLabels(key)
             extraRow = extraRow + 1
         End If
     Next key
@@ -1011,7 +1020,7 @@ Sub Find_Extra_Staff_From_Pivot_Copy()
     ' Convert data into a table
     lastRow = wsExtra.Cells(wsExtra.Rows.Count, 1).End(xlUp).Row
     If lastRow > 1 Then
-        Set tblRange = wsExtra.Range("A1:B" & lastRow)
+        Set tblRange = wsExtra.Range(wsExtra.Cells(1, 1), wsExtra.Cells(lastRow, lastCol))
         Set tbl = wsExtra.ListObjects.Add(xlSrcRange, tblRange, , xlYes)
         tbl.Name = "ExtraTable"
         tbl.TableStyle = "TableStyleMedium9" ' Apply a table style

@@ -947,10 +947,11 @@ End Sub
 ```
 
 ```vb
-Sub Find_Extra_Staff_With_All_Values()
+Sub Remove_Extra_Staff_From_Pivot_Copy()
     Dim wsPivotCopy As Worksheet
     Dim wsData As Worksheet
     Dim wsExtra As Worksheet
+    Dim tbl As ListObject
     Dim pivotRowLabels As Object
     Dim dataRowLabels As Object
     Dim cell As Range
@@ -958,13 +959,23 @@ Sub Find_Extra_Staff_With_All_Values()
     Dim lastCol As Long
     Dim extraRow As Long
     Dim key As Variant
-    Dim tbl As ListObject
-    Dim tblRange As Range
-    Dim colIndex As Long
+    Dim rowIndex As Long
+    Dim rng As Range
+    Dim deleteRows As Range
     
     ' Set worksheet references
     Set wsPivotCopy = ThisWorkbook.Sheets("Pivot_Copy") ' Sheet with copied PivotTable
     Set wsData = ThisWorkbook.Sheets("Demand") ' Demand data source
+    
+    ' Get the table in Pivot_Copy
+    On Error Resume Next
+    Set tbl = wsPivotCopy.ListObjects("CopiedPivotTable") ' Change to actual table name if needed
+    On Error GoTo 0
+    
+    If tbl Is Nothing Then
+        MsgBox "Table 'CopiedPivotTable' not found in Pivot_Copy!", vbExclamation
+        Exit Sub
+    End If
     
     ' Create or clear the "Extra" sheet
     On Error Resume Next
@@ -981,15 +992,13 @@ Sub Find_Extra_Staff_With_All_Values()
     Set pivotRowLabels = CreateObject("Scripting.Dictionary")
     Set dataRowLabels = CreateObject("Scripting.Dictionary")
     
-    ' Get last row and last column in Pivot_Copy
-    lastRow = wsPivotCopy.Cells(wsPivotCopy.Rows.Count, "A").End(xlUp).Row
-    lastCol = wsPivotCopy.Cells(1, wsPivotCopy.Columns.Count).End(xlToLeft).Column
+    ' Get last column in Pivot_Copy
+    lastCol = tbl.Range.Columns.Count
     
-    ' Get row labels and their values from Pivot_Copy
-    For Each cell In wsPivotCopy.Range("A2:A" & lastRow) ' Assuming data starts from row 2
+    ' Get row labels from Pivot_Copy (assuming they are in the first column of the table)
+    For Each cell In tbl.ListColumns(1).DataBodyRange
         If Not pivotRowLabels.exists(cell.Value) Then
-            ' Store entire row as an array
-            pivotRowLabels(cell.Value) = wsPivotCopy.Range(cell, cell.Offset(0, lastCol - 1)).Value
+            pivotRowLabels(cell.Value) = cell.Row ' Store row number
         End If
     Next cell
     
@@ -1001,31 +1010,41 @@ Sub Find_Extra_Staff_With_All_Values()
         End If
     Next cell
     
-    ' Identify extra row labels (exist in Pivot_Copy but not in column S)
+    ' Identify extra row labels and delete from Pivot_Copy
     extraRow = 2
-    ' Copy headers
-    wsExtra.Range(wsPivotCopy.Cells(1, 1), wsPivotCopy.Cells(1, lastCol)).Copy
-    wsExtra.Range("A1").PasteSpecial Paste:=xlPasteValues
-    Application.CutCopyMode = False
+    wsExtra.Range("A1").Value = "Removed Row Labels"
     
-    ' Copy extra row labels and their full row of values
     For Each key In pivotRowLabels.keys
+        rowIndex = pivotRowLabels(key)
+        
+        ' If the label is NOT in column S, delete from Pivot_Copy and store in Extra
         If Not dataRowLabels.exists(key) Then
-            ' Copy the entire row of values
-            wsExtra.Range(wsExtra.Cells(extraRow, 1), wsExtra.Cells(extraRow, lastCol)).Value = pivotRowLabels(key)
+            ' Copy the row to Extra sheet
+            wsExtra.Range(wsExtra.Cells(extraRow, 1), wsExtra.Cells(extraRow, lastCol)).Value = _
+                wsPivotCopy.Range(wsPivotCopy.Cells(rowIndex, 1), wsPivotCopy.Cells(rowIndex, lastCol)).Value
+            
+            ' Mark the row for deletion
+            If deleteRows Is Nothing Then
+                Set deleteRows = wsPivotCopy.Rows(rowIndex)
+            Else
+                Set deleteRows = Union(deleteRows, wsPivotCopy.Rows(rowIndex))
+            End If
+            
             extraRow = extraRow + 1
         End If
     Next key
     
-    ' Convert data into a table
+    ' Delete the marked rows
+    If Not deleteRows Is Nothing Then deleteRows.Delete Shift:=xlUp
+    
+    ' Convert Extra data into a table
     lastRow = wsExtra.Cells(wsExtra.Rows.Count, 1).End(xlUp).Row
     If lastRow > 1 Then
-        Set tblRange = wsExtra.Range(wsExtra.Cells(1, 1), wsExtra.Cells(lastRow, lastCol))
-        Set tbl = wsExtra.ListObjects.Add(xlSrcRange, tblRange, , xlYes)
+        Set tbl = wsExtra.ListObjects.Add(xlSrcRange, wsExtra.Range("A1").CurrentRegion, , xlYes)
         tbl.Name = "ExtraTable"
-        tbl.TableStyle = "TableStyleMedium9" ' Apply a table style
+        tbl.TableStyle = "TableStyleMedium9"
     End If
     
-    MsgBox "Extra row labels with values placed in 'Extra' sheet as a table.", vbInformation
+    MsgBox "Extra staff removed from Pivot_Copy and stored in 'Extra' sheet.", vbInformation
 End Sub
 ```

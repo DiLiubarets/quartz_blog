@@ -960,8 +960,8 @@ Sub Remove_Extra_Staff_From_Pivot_Copy()
     Dim extraRow As Long
     Dim key As Variant
     Dim rowIndex As Long
-    Dim rng As Range
     Dim deleteRows As Range
+    Dim firstDelete As Boolean
     
     ' Set worksheet references
     Set wsPivotCopy = ThisWorkbook.Sheets("Pivot_Copy") ' Sheet with copied PivotTable
@@ -1014,6 +1014,8 @@ Sub Remove_Extra_Staff_From_Pivot_Copy()
     extraRow = 2
     wsExtra.Range("A1").Value = "Removed Row Labels"
     
+    firstDelete = True ' Track first deletion for Union function
+    
     For Each key In pivotRowLabels.keys
         rowIndex = pivotRowLabels(key)
         
@@ -1024,8 +1026,9 @@ Sub Remove_Extra_Staff_From_Pivot_Copy()
                 wsPivotCopy.Range(wsPivotCopy.Cells(rowIndex, 1), wsPivotCopy.Cells(rowIndex, lastCol)).Value
             
             ' Mark the row for deletion
-            If deleteRows Is Nothing Then
+            If firstDelete Then
                 Set deleteRows = wsPivotCopy.Rows(rowIndex)
+                firstDelete = False
             Else
                 Set deleteRows = Union(deleteRows, wsPivotCopy.Rows(rowIndex))
             End If
@@ -1034,7 +1037,7 @@ Sub Remove_Extra_Staff_From_Pivot_Copy()
         End If
     Next key
     
-    ' Delete the marked rows
+    ' Delete the marked rows at once
     If Not deleteRows Is Nothing Then deleteRows.Delete Shift:=xlUp
     
     ' Convert Extra data into a table

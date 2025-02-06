@@ -811,3 +811,76 @@ Sub Find_Extra_Row_Labels()
     MsgBox "Extra row labels identified and placed in 'Extra' sheet.", vbInformation
 End Sub
 ```
+
+```vb
+Sub Find_Extra_Row_Labels_With_Values()
+    Dim wsPivot As Worksheet
+    Dim wsData As Worksheet
+    Dim wsExtra As Worksheet
+    Dim pt As PivotTable
+    Dim pivotRange As Range
+    Dim pivotRowLabels As Object
+    Dim dataRowLabels As Object
+    Dim cell As Range
+    Dim lastRow As Long
+    Dim extraRow As Long
+    Dim key As Variant
+    Dim valueCell As Range
+    
+    ' Set worksheet references
+    Set wsPivot = ThisWorkbook.Sheets("PivotTable") ' Pivot table source
+    Set wsData = ThisWorkbook.Sheets("Demand") ' Demand data source
+    
+    ' Create or clear the "Extra" sheet
+    On Error Resume Next
+    Set wsExtra = ThisWorkbook.Sheets("Extra")
+    If wsExtra Is Nothing Then
+        Set wsExtra = ThisWorkbook.Sheets.Add
+        wsExtra.Name = "Extra"
+    Else
+        wsExtra.Cells.Clear ' Clear previous data
+    End If
+    On Error GoTo 0
+    
+    ' Set PivotTable reference
+    Set pt = wsPivot.PivotTables("MyPivotTable") ' Change to your actual PivotTable name
+    
+    ' Define dictionaries for storing row labels
+    Set pivotRowLabels = CreateObject("Scripting.Dictionary")
+    Set dataRowLabels = CreateObject("Scripting.Dictionary")
+    
+    ' Get PivotTable row labels and their corresponding values
+    Set pivotRange = pt.TableRange1.Columns(1) ' First column of PivotTable (Row Labels)
+    
+    For Each cell In pivotRange.Cells
+        If cell.Row > pt.TableRange1.Row Then ' Avoid header row
+            ' Store row label and corresponding value (assuming value is in the next column)
+            Set valueCell = cell.Offset(0, 1) ' Adjust if values are in a different column
+            pivotRowLabels(cell.Value) = valueCell.Value
+        End If
+    Next cell
+    
+    ' Get unique values from column S in Demand sheet
+    lastRow = wsData.Cells(wsData.Rows.Count, "S").End(xlUp).Row
+    For Each cell In wsData.Range("S2:S" & lastRow) ' Assuming data starts from row 2
+        If Not dataRowLabels.exists(cell.Value) Then
+            dataRowLabels(cell.Value) = True
+        End If
+    Next cell
+    
+    ' Identify extra row labels (exist in PivotTable but not in column S)
+    extraRow = 2
+    wsExtra.Cells(1, 1).Value = "Extra Row Labels in PivotTable"
+    wsExtra.Cells(1, 2).Value = "Corresponding Values"
+    
+    For Each key In pivotRowLabels.keys
+        If Not dataRowLabels.exists(key) Then
+            wsExtra.Cells(extraRow, 1).Value = key
+            wsExtra.Cells(extraRow, 2).Value = pivotRowLabels(key) ' Get corresponding value
+            extraRow = extraRow + 1
+        End If
+    Next key
+    
+    MsgBox "Extra row labels with values placed in 'Extra' sheet.", vbInformation
+End Sub
+```

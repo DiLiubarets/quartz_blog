@@ -394,46 +394,40 @@ End Sub
 
 merge weekly data
 ```vb
-Sub CopyWeeklyData()
+Sub CopyWeeklyData_ExplicitRanges()
     Dim ws As Worksheet
-    Dim tbl1 As ListObject, tbl2 As ListObject
-    Dim rng1 As Range, rng2 As Range
-    Dim cell As Range, foundCell As Range
+    Dim tbl1Range As Range, tbl2Range As Range
+    Dim row1 As Range, row2 As Range
+    Dim foundRow As Range
     Dim chargeNumber As String, employeeName As String
-    Dim rowNum As Long, colNum As Long
+    Dim colNum As Long, lastCol As Long
     
     ' Set the worksheet
     Set ws = ThisWorkbook.Sheets("Sheet1") ' Change "Sheet1" to your actual sheet name
     
-    ' Set the tables
-    Set tbl1 = ws.ListObjects("Table1") ' Change "Table1" to your actual first table name
-    Set tbl2 = ws.ListObjects("Table2") ' Change "Table2" to your actual second table name
+    ' Define the explicit ranges for Table1 and Table2 (Update these ranges accordingly)
+    Set tbl1Range = ws.Range("A2:F10") ' Change "A2:F10" to your actual Table1 range (including data, excluding headers)
+    Set tbl2Range = ws.Range("H2:M10") ' Change "H2:M10" to your actual Table2 range (including data, excluding headers)
     
-    ' Set the data ranges (excluding headers)
-    Set rng1 = tbl1.DataBodyRange
-    Set rng2 = tbl2.DataBodyRange
+    ' Determine the last column for weekly data (Assumes first two columns are Charge Number & Employee Name)
+    lastCol = tbl1Range.Columns.Count ' Assuming both tables have the same number of columns
     
     ' Loop through each row in Table2
-    For Each cell In rng2.Columns(1).Cells ' Assuming "Charge Number" is in the first column
-        rowNum = cell.Row
-        chargeNumber = ws.Cells(rowNum, tbl2.ListColumns("Charge number").Index).Value
-        employeeName = ws.Cells(rowNum, tbl2.ListColumns("Employee name").Index).Value
+    For Each row2 In tbl2Range.Rows
+        chargeNumber = row2.Cells(1, 1).Value ' First column (Charge Number)
+        employeeName = row2.Cells(1, 2).Value ' Second column (Employee Name)
         
-        ' Search for matching Charge Number and Employee Name in Table1
-        For Each foundCell In rng1.Columns(tbl1.ListColumns("Charge number").Index).Cells
-            If foundCell.Value = chargeNumber Then
-                ' Check if Employee Name also matches in the same row
-                If foundCell.Offset(0, tbl1.ListColumns("Employee name").Index - tbl1.ListColumns("Charge number").Index).Value = employeeName Then
-                    ' Copy the weekly data from Table1 to Table2
-                    For colNum = 3 To tbl1.ListColumns.Count ' Assuming weekly data starts from the 3rd column
-                        ws.Cells(rowNum, tbl2.ListColumns(colNum).Index).Value = _
-                            ws.Cells(foundCell.Row, tbl1.ListColumns(colNum).Index).Value
-                    Next colNum
-                    Exit For ' Exit loop once a match is found
-                End If
+        ' Search for a matching row in Table1
+        For Each row1 In tbl1Range.Rows
+            If row1.Cells(1, 1).Value = chargeNumber And row1.Cells(1, 2).Value = employeeName Then
+                ' Match found, copy the weekly data
+                For colNum = 3 To lastCol ' Weekly data columns start from the 3rd column
+                    row2.Cells(1, colNum).Value = row1.Cells(1, colNum).Value
+                Next colNum
+                Exit For ' Exit loop once a match is found
             End If
-        Next foundCell
-    Next cell
+        Next row1
+    Next row2
     
     MsgBox "Weekly data copied successfully!", vbInformation
 End Sub

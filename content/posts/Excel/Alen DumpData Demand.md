@@ -960,8 +960,9 @@ Sub Remove_Extra_Staff_From_Pivot_Copy()
     Dim extraRow As Long
     Dim key As Variant
     Dim rowIndex As Long
-    Dim deleteRows As Range
-    Dim firstDelete As Boolean
+    Dim deleteRows() As Long
+    Dim deleteCount As Long
+    Dim i As Long
     
     ' Set worksheet references
     Set wsPivotCopy = ThisWorkbook.Sheets("Pivot_Copy") ' Sheet with copied PivotTable
@@ -996,6 +997,7 @@ Sub Remove_Extra_Staff_From_Pivot_Copy()
     lastCol = tbl.Range.Columns.Count
     
     ' Get row labels from Pivot_Copy (assuming they are in the first column of the table)
+    deleteCount = 0
     For Each cell In tbl.ListColumns(1).DataBodyRange
         If Not pivotRowLabels.exists(cell.Value) Then
             pivotRowLabels(cell.Value) = cell.Row ' Store row number
@@ -1010,35 +1012,48 @@ Sub Remove_Extra_Staff_From_Pivot_Copy()
         End If
     Next cell
     
-    ' Identify extra row labels and delete from Pivot_Copy
+    ' Identify extra row labels and collect row numbers for deletion
     extraRow = 2
     wsExtra.Range("A1").Value = "Removed Row Labels"
-    
-    firstDelete = True ' Track first deletion for Union function
     
     For Each key In pivotRowLabels.keys
         rowIndex = pivotRowLabels(key)
         
-        ' If the label is NOT in column S, delete from Pivot_Copy and store in Extra
+        ' If the label is NOT in column S, store row number and copy to Extra
         If Not dataRowLabels.exists(key) Then
             ' Copy the row to Extra sheet
             wsExtra.Range(wsExtra.Cells(extraRow, 1), wsExtra.Cells(extraRow, lastCol)).Value = _
                 wsPivotCopy.Range(wsPivotCopy.Cells(rowIndex, 1), wsPivotCopy.Cells(rowIndex, lastCol)).Value
             
-            ' Mark the row for deletion
-            If firstDelete Then
-                Set deleteRows = wsPivotCopy.Rows(rowIndex)
-                firstDelete = False
-            Else
-                Set deleteRows = Union(deleteRows, wsPivotCopy.Rows(rowIndex))
-            End If
+            ' Store row number for deletion
+            ReDim Preserve deleteRows(deleteCount)
+            deleteRows(deleteCount) = rowIndex
+            deleteCount = deleteCount + 1
             
             extraRow = extraRow + 1
         End If
     Next key
     
-    ' Delete the marked rows at once
-    If Not deleteRows Is Nothing Then deleteRows.Delete Shift:=xlUp
+    ' Sort row numbers in descending order (to prevent shifting issues)
+    If deleteCount > 1 Then
+        Dim temp As Long
+        For i = 0 To deleteCount - 2
+            For j = i + 1 To deleteCount - 1
+                If deleteRows(i) < deleteRows(j) Then
+                    temp = deleteRows(i)
+                    deleteRows(i) = deleteRows(j)
+                    deleteRows(j) = temp
+                End If
+            Next j
+        Next i
+    End If
+    
+    ' Delete rows one by one from the bottom up
+    Application.ScreenUpdating = False
+    For i = 0 To deleteCount - 1
+        wsPivotCopy.Rows(deleteRows(i)).Delete Shift:=xlUp
+    Next i
+    Application.ScreenUpdating = True
     
     ' Convert Extra data into a table
     lastRow = wsExtra.Cells(wsExtra.Rows.Count, 1).End(xlUp).Row

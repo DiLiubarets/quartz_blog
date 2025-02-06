@@ -945,3 +945,78 @@ Sub Copy_PivotTable_As_Table()
     MsgBox "PivotTable copied as a table in 'Pivot_Copy' sheet.", vbInformation
 End Sub
 ```
+
+```vb
+Sub Find_Extra_Staff_From_Pivot_Copy()
+    Dim wsPivotCopy As Worksheet
+    Dim wsData As Worksheet
+    Dim wsExtra As Worksheet
+    Dim pivotRowLabels As Object
+    Dim dataRowLabels As Object
+    Dim cell As Range
+    Dim lastRow As Long
+    Dim extraRow As Long
+    Dim key As Variant
+    Dim tbl As ListObject
+    Dim tblRange As Range
+    
+    ' Set worksheet references
+    Set wsPivotCopy = ThisWorkbook.Sheets("Pivot_Copy") ' Sheet with copied PivotTable
+    Set wsData = ThisWorkbook.Sheets("Demand") ' Demand data source
+    
+    ' Create or clear the "Extra" sheet
+    On Error Resume Next
+    Set wsExtra = ThisWorkbook.Sheets("Extra")
+    If wsExtra Is Nothing Then
+        Set wsExtra = ThisWorkbook.Sheets.Add
+        wsExtra.Name = "Extra"
+    Else
+        wsExtra.Cells.Clear ' Clear previous data
+    End If
+    On Error GoTo 0
+    
+    ' Define dictionaries for storing row labels
+    Set pivotRowLabels = CreateObject("Scripting.Dictionary")
+    Set dataRowLabels = CreateObject("Scripting.Dictionary")
+    
+    ' Get row labels from Pivot_Copy (assuming they are in column A)
+    lastRow = wsPivotCopy.Cells(wsPivotCopy.Rows.Count, "A").End(xlUp).Row
+    For Each cell In wsPivotCopy.Range("A2:A" & lastRow) ' Assuming data starts from row 2
+        If Not pivotRowLabels.exists(cell.Value) Then
+            pivotRowLabels(cell.Value) = cell.Offset(0, 1).Value ' Store corresponding value
+        End If
+    Next cell
+    
+    ' Get unique values from column S in Demand sheet
+    lastRow = wsData.Cells(wsData.Rows.Count, "S").End(xlUp).Row
+    For Each cell In wsData.Range("S2:S" & lastRow) ' Assuming data starts from row 2
+        If Not dataRowLabels.exists(cell.Value) Then
+            dataRowLabels(cell.Value) = True
+        End If
+    Next cell
+    
+    ' Identify extra row labels (exist in Pivot_Copy but not in column S)
+    extraRow = 2
+    wsExtra.Cells(1, 1).Value = "Extra Row Labels in Pivot_Copy"
+    wsExtra.Cells(1, 2).Value = "Corresponding Values"
+    
+    For Each key In pivotRowLabels.keys
+        If Not dataRowLabels.exists(key) Then
+            wsExtra.Cells(extraRow, 1).Value = key
+            wsExtra.Cells(extraRow, 2).Value = pivotRowLabels(key) ' Get corresponding value
+            extraRow = extraRow + 1
+        End If
+    Next key
+    
+    ' Convert data into a table
+    lastRow = wsExtra.Cells(wsExtra.Rows.Count, 1).End(xlUp).Row
+    If lastRow > 1 Then
+        Set tblRange = wsExtra.Range("A1:B" & lastRow)
+        Set tbl = wsExtra.ListObjects.Add(xlSrcRange, tblRange, , xlYes)
+        tbl.Name = "ExtraTable"
+        tbl.TableStyle = "TableStyleMedium9" ' Apply a table style
+    End If
+    
+    MsgBox "Extra row labels with values placed in 'Extra' sheet as a table.", vbInformation
+End Sub
+```

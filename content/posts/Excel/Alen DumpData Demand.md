@@ -813,7 +813,7 @@ End Sub
 ```
 
 ```vb
-Sub Find_Extra_Row_Labels_With_Values()
+Sub Find_Extra_Row_Labels_As_Table()
     Dim wsPivot As Worksheet
     Dim wsData As Worksheet
     Dim wsExtra As Worksheet
@@ -826,6 +826,8 @@ Sub Find_Extra_Row_Labels_With_Values()
     Dim extraRow As Long
     Dim key As Variant
     Dim valueCell As Range
+    Dim tbl As ListObject
+    Dim tblRange As Range
     
     ' Set worksheet references
     Set wsPivot = ThisWorkbook.Sheets("PivotTable") ' Pivot table source
@@ -881,6 +883,15 @@ Sub Find_Extra_Row_Labels_With_Values()
         End If
     Next key
     
-    MsgBox "Extra row labels with values placed in 'Extra' sheet.", vbInformation
+    ' Convert data into a table
+    lastRow = wsExtra.Cells(wsExtra.Rows.Count, 1).End(xlUp).Row
+    If lastRow > 1 Then
+        Set tblRange = wsExtra.Range("A1:B" & lastRow)
+        Set tbl = wsExtra.ListObjects.Add(xlSrcRange, tblRange, , xlYes)
+        tbl.Name = "ExtraTable"
+        tbl.TableStyle = "TableStyleMedium9" ' Apply a table style
+    End If
+    
+    MsgBox "Extra row labels with values placed in 'Extra' sheet as a table.", vbInformation
 End Sub
 ```

@@ -1066,3 +1066,84 @@ Sub Remove_Extra_Staff_From_Pivot_Copy()
     MsgBox "Extra staff removed from Pivot_Copy and stored in 'Extra' sheet.", vbInformation
 End Sub
 ```
+
+```vb
+Sub Remove_Matching_Staff_From_Pivot_Copy()
+    Dim wsPivotCopy As Worksheet
+    Dim wsData As Worksheet
+    Dim tbl As ListObject
+    Dim pivotRowLabels As Object
+    Dim dataRowLabels As Object
+    Dim cell As Range
+    Dim lastRow As Long
+    Dim deleteRows() As Long
+    Dim deleteCount As Long
+    Dim i As Long
+    
+    ' Set worksheet references
+    Set wsPivotCopy = ThisWorkbook.Sheets("Pivot_Copy") ' Sheet with copied PivotTable
+    Set wsData = ThisWorkbook.Sheets("Demand") ' Demand data source
+    
+    ' Get the table in Pivot_Copy
+    On Error Resume Next
+    Set tbl = wsPivotCopy.ListObjects("CopiedPivotTable") ' Change to actual table name if needed
+    On Error GoTo 0
+    
+    If tbl Is Nothing Then
+        MsgBox "Table 'CopiedPivotTable' not found in Pivot_Copy!", vbExclamation
+        Exit Sub
+    End If
+    
+    ' Define dictionaries for storing row labels
+    Set pivotRowLabels = CreateObject("Scripting.Dictionary")
+    Set dataRowLabels = CreateObject("Scripting.Dictionary")
+    
+    ' Get row labels from Pivot_Copy (assuming they are in the first column of the table)
+    deleteCount = 0
+    For Each cell In tbl.ListColumns(1).DataBodyRange
+        If Not pivotRowLabels.exists(cell.Value) Then
+            pivotRowLabels(cell.Value) = cell.Row ' Store row number
+        End If
+    Next cell
+    
+    ' Get unique values from column S in Demand sheet
+    lastRow = wsData.Cells(wsData.Rows.Count, "S").End(xlUp).Row
+    For Each cell In wsData.Range("S2:S" & lastRow) ' Assuming data starts from row 2
+        If Not dataRowLabels.exists(cell.Value) Then
+            dataRowLabels(cell.Value) = True
+        End If
+    Next cell
+    
+    ' Identify matching row labels and collect row numbers for deletion
+    For Each key In pivotRowLabels.keys
+        If dataRowLabels.exists(key) Then ' If the row exists in column S, mark for deletion
+            ReDim Preserve deleteRows(deleteCount)
+            deleteRows(deleteCount) = pivotRowLabels(key)
+            deleteCount = deleteCount + 1
+        End If
+    Next key
+    
+    ' Sort row numbers in descending order to prevent shifting issues
+    If deleteCount > 1 Then
+        Dim temp As Long
+        For i = 0 To deleteCount - 2
+            For j = i + 1 To deleteCount - 1
+                If deleteRows(i) < deleteRows(j) Then
+                    temp = deleteRows(i)
+                    deleteRows(i) = deleteRows(j)
+                    deleteRows(j) = temp
+                End If
+            Next j
+        Next i
+    End If
+    
+    ' Delete rows one by one from the bottom up
+    Application.ScreenUpdating = False
+    For i = 0 To deleteCount - 1
+        wsPivotCopy.Rows(deleteRows(i)).Delete Shift:=xlUp
+    Next i
+    Application.ScreenUpdating = True
+    
+    MsgBox "Matching staff removed from Pivot_Copy. Only extra staff remains.", vbInformation
+End Sub
+```

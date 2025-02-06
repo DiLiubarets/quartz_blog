@@ -432,3 +432,54 @@ Sub CopyWeeklyData_ExplicitRanges()
     MsgBox "Weekly data copied successfully!", vbInformation
 End Sub
 ```
+
+fill zeros
+```vb
+Sub CopyWeeklyData_ExplicitRanges()
+    Dim ws As Worksheet
+    Dim tbl1Range As Range, tbl2Range As Range
+    Dim row1 As Range, row2 As Range
+    Dim chargeNumber As String, employeeName As String
+    Dim colNum As Long, lastCol As Long
+    Dim matchFound As Boolean
+    
+    ' Set the worksheet
+    Set ws = ThisWorkbook.Sheets("CombinedData (2)") ' Change to your actual sheet name
+    
+    ' Define the explicit ranges for Table1 and Table2 (Update these ranges accordingly)
+    Set tbl1Range = ws.Range("C2:H26") ' Change to your actual Table1 range (including data, excluding headers)
+    Set tbl2Range = ws.Range("N2:S119") ' Change to your actual Table2 range (including data, excluding headers)
+    
+    ' Determine the last column for weekly data (Assumes first two columns are Charge Number & Employee Name)
+    lastCol = tbl1Range.Columns.Count ' Assuming both tables have the same number of columns
+    
+    ' Loop through each row in Table2
+    For Each row2 In tbl2Range.Rows
+        chargeNumber = row2.Cells(1, 1).Value ' First column (Charge Number)
+        employeeName = row2.Cells(1, 2).Value ' Second column (Employee Name)
+        
+        matchFound = False ' Reset match flag for each row in Table2
+        
+        ' Search for a matching row in Table1
+        For Each row1 In tbl1Range.Rows
+            If row1.Cells(1, 1).Value = chargeNumber And row1.Cells(1, 2).Value = employeeName Then
+                ' Match found, copy the weekly data
+                For colNum = 3 To lastCol ' Weekly data columns start from the 3rd column
+                    row2.Cells(1, colNum).Value = row1.Cells(1, colNum).Value
+                Next colNum
+                matchFound = True ' Set flag to indicate a match was found
+                Exit For ' Exit loop once a match is found
+            End If
+        Next row1
+        
+        ' If no match was found, fill weekly data columns with zeros
+        If Not matchFound Then
+            For colNum = 3 To lastCol
+                row2.Cells(1, colNum).Value = 0
+            Next colNum
+        End If
+    Next row2
+    
+    MsgBox "Weekly data copied successfully! Missing entries filled with zeros.", vbInformation
+End Sub
+```

@@ -895,3 +895,53 @@ Sub Find_Extra_Row_Labels_As_Table()
     MsgBox "Extra row labels with values placed in 'Extra' sheet as a table.", vbInformation
 End Sub
 ```
+
+
+```vb
+Sub Copy_PivotTable_As_Table()
+    Dim wsPivot As Worksheet
+    Dim wsNew As Worksheet
+    Dim pt As PivotTable
+    Dim tblRange As Range
+    Dim tbl As ListObject
+    Dim lastRow As Long, lastCol As Long
+    
+    ' Set the worksheet containing the PivotTable
+    Set wsPivot = ThisWorkbook.Sheets("PivotTable") ' Change to your actual sheet name
+    
+    ' Set PivotTable reference
+    Set pt = wsPivot.PivotTables("MyPivotTable") ' Change to your actual PivotTable name
+    
+    ' Define the PivotTable range
+    Set tblRange = pt.TableRange1 ' This includes the entire PivotTable
+    
+    ' Create or clear the "Pivot_Copy" sheet
+    On Error Resume Next
+    Set wsNew = ThisWorkbook.Sheets("Pivot_Copy")
+    If wsNew Is Nothing Then
+        Set wsNew = ThisWorkbook.Sheets.Add
+        wsNew.Name = "Pivot_Copy"
+    Else
+        wsNew.Cells.Clear ' Clear previous data
+    End If
+    On Error GoTo 0
+    
+    ' Copy PivotTable range as values to the new sheet
+    tblRange.Copy
+    wsNew.Range("A1").PasteSpecial Paste:=xlPasteValues
+    wsNew.Range("A1").PasteSpecial Paste:=xlPasteFormats ' Keep formatting
+    Application.CutCopyMode = False ' Clear clipboard
+    
+    ' Determine the last row and last column
+    lastRow = wsNew.Cells(wsNew.Rows.Count, 1).End(xlUp).Row
+    lastCol = wsNew.Cells(1, wsNew.Columns.Count).End(xlToLeft).Column
+    
+    ' Convert the copied data into a table
+    Set tblRange = wsNew.Range(wsNew.Cells(1, 1), wsNew.Cells(lastRow, lastCol))
+    Set tbl = wsNew.ListObjects.Add(xlSrcRange, tblRange, , xlYes)
+    tbl.Name = "CopiedPivotTable"
+    tbl.TableStyle = "TableStyleMedium9" ' Apply a table style
+    
+    MsgBox "PivotTable copied as a table in 'Pivot_Copy' sheet.", vbInformation
+End Sub
+```

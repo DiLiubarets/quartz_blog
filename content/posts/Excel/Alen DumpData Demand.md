@@ -630,3 +630,114 @@ Sub GetPivotDataForAllRowsAndColumns()
     MsgBox "Data retrieval complete for all rows!", vbInformation
 End Sub
 ```
+
+
+demand 
+```vb
+Sub Demand_working_sheet()
+    Dim wsPivot As Worksheet
+    Dim wsData As Worksheet
+    Dim ws As Worksheet ' Separate variable for looping through sheets
+    Dim cell As Range
+    Dim slicerCache As SlicerCache
+    Dim slicerItem As SlicerItem
+    Dim selectedItems As Collection
+    Dim i As Long
+    Dim filterCriteria As String
+    Dim pt As PivotTable
+    Dim LastRow As Long
+    Dim workCenter As String
+    Dim fiscalMonth As Date
+    Dim result As Variant
+    Dim lastCol As Long
+    Dim currentRow As Long
+    Dim currentCol As Long
+
+    ' Set the worksheet references
+    Set wsPivot = ThisWorkbook.Sheets("PivotTable")
+    Set wsData = ThisWorkbook.Sheets("Demand")
+
+    ' Insert a new column and populate it
+    wsData.Columns("M").Insert Shift:=xlToRight
+    wsData.Cells(1, 13).Value = "NEED TO BE DELETED LATER"
+    LastRow = wsData.Cells(wsData.Rows.Count, "L").End(xlUp).Row
+    wsData.Range("M2:M" & LastRow).Formula = "=MID(L2, 5, LEN(L2) - 4)"
+
+    ' Hide columns W & C
+    wsData.Columns("W").EntireColumn.Hidden = True
+    wsData.Columns("C").EntireColumn.Hidden = True
+
+    ' Convert date formats in range Y1:BH1
+    For Each cell In wsData.Range("Y1:BH1")
+        If IsDate("1-" & Left(cell.Value, 3) & "-20" & Right(cell.Value, 2)) Then
+            cell.Value = DateValue("1-" & Left(cell.Value, 3) & "-20" & Right(cell.Value, 2))
+            cell.NumberFormat = "mmmyy"
+        End If
+    Next cell
+
+    ' Sync slicer with filter
+    Set slicerCache = ThisWorkbook.SlicerCaches("Slicer_Project")
+    Set selectedItems = New Collection
+    For Each slicerItem In slicerCache.SlicerItems
+        If slicerItem.Selected Then
+            selectedItems.Add slicerItem.Name
+        End If
+    Next slicerItem
+
+    ' Build filter criteria
+    If selectedItems.Count > 0 Then
+        filterCriteria = ""
+        For i = 1 To selectedItems.Count
+            filterCriteria = filterCriteria & selectedItems(i) & ","
+        Next i
+        filterCriteria = Left(filterCriteria, Len(filterCriteria) - 1)
+    Else
+        MsgBox "No slicer items are selected. Please select at least one item in the slicer.", vbExclamation
+        Exit Sub
+    End If
+
+    ' Apply filter to column D
+    wsData.Range("D:D").AutoFilter Field:=1, Criteria1:=Split(filterCriteria, ","), Operator:=xlFilterValues
+
+    ' Corrected loop to disable AutoFilter
+    For Each ws In ThisWorkbook.Worksheets
+        If ws.AutoFilterMode Then
+            ws.AutoFilterMode = False
+        End If
+    Next ws
+
+    ' GetPivot_Data
+    Set pt = wsPivot.PivotTables("MyPivotTable")
+    LastRow = wsData.Cells(wsData.Rows.Count, "A").End(xlUp).Row
+    lastCol = wsData.Cells(1, wsData.Columns.Count).End(xlToLeft).Column
+
+    For currentRow = 2 To LastRow
+        If Not IsError(wsData.Cells(currentRow, 14).Value) Then
+            workCenter = Trim(wsData.Cells(currentRow, 14).Value)
+            For currentCol = 2 To lastCol
+                fiscalMonth2 = wsData.Cells(1, currentCol).Value
+                If IsDate(wsData.Cells(1, currentCol).Value) Then
+                    fiscalMonth = DateSerial(Year(fiscalMonth2), Month(fiscalMonth2), Day(fiscalMonth2))
+                    On Error Resume Next
+                    result = pt.GetPivotData( _
+                        DataField:="Sum of Value", _
+                        Field1:="WorkCenter", Item1:=workCenter, _
+                        Field2:="FiscalMonth", Item2:=fiscalMonth)
+                    On Error GoTo 0
+                    If IsError(result) Then
+                        wsData.Cells(currentRow, currentCol).Value = "#N/A"
+                    Else
+                        wsData.Cells(currentRow, currentCol).Value = result
+                    End If
+                    result = Empty
+                End If
+            Next currentCol
+        End If
+    Next currentRow
+
+    ' Find the last row with data in column S
+    LastRow = wsData.Cells(wsData.Rows.Count, "S").End(xlUp).Row
+
+    MsgBox "Demand working sheet updated successfully!", vbInformation
+End Sub
+```

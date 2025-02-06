@@ -394,52 +394,39 @@ End Sub
 
 merge weekly data
 ```vb
-Sub CopyWeeklyData_LimitedSearch()
+Sub CopyWeeklyData_ExplicitRanges()
     Dim ws As Worksheet
     Dim tbl1Range As Range, tbl2Range As Range
     Dim row1 As Range, row2 As Range
+    Dim foundRow As Range
     Dim chargeNumber As String, employeeName As String
     Dim colNum As Long, lastCol As Long
-    Dim searchStartRow As Long, searchRowLimit As Long
-    Dim searchEndRow As Long
-    Dim rowIndex As Long
     
     ' Set the worksheet
-    Set ws = ThisWorkbook.Sheets("Sheet1") ' Change "Sheet1" to your actual sheet name
+    Set ws = ThisWorkbook.Sheets("CombinedData (2)") ' Change "Sheet1" to your actual sheet name
     
     ' Define the explicit ranges for Table1 and Table2 (Update these ranges accordingly)
-    Set tbl1Range = ws.Range("A2:F50") ' Change "A2:F50" to your actual Table1 range (including data, excluding headers)
-    Set tbl2Range = ws.Range("H2:M10") ' Change "H2:M10" to your actual Table2 range (including data, excluding headers)
+    Set tbl1Range = ws.Range("C2:H26") ' Change "A2:F10" to your actual Table1 range (including data, excluding headers)
+    Set tbl2Range = ws.Range("N2:S119") ' Change "H2:M10" to your actual Table2 range (including data, excluding headers)
     
-    ' Define search constraints
-    searchStartRow = 2 ' Change this to the first row in Table1 you want to start searching from
-    searchRowLimit = 10 ' Change this to the maximum number of rows to search
-
     ' Determine the last column for weekly data (Assumes first two columns are Charge Number & Employee Name)
     lastCol = tbl1Range.Columns.Count ' Assuming both tables have the same number of columns
-    
-    ' Calculate the search end row
-    searchEndRow = searchStartRow + searchRowLimit - 1
-    If searchEndRow > tbl1Range.Rows.Count + tbl1Range.Row - 1 Then
-        searchEndRow = tbl1Range.Rows.Count + tbl1Range.Row - 1 ' Prevent exceeding Table1 range
-    End If
     
     ' Loop through each row in Table2
     For Each row2 In tbl2Range.Rows
         chargeNumber = row2.Cells(1, 1).Value ' First column (Charge Number)
         employeeName = row2.Cells(1, 2).Value ' Second column (Employee Name)
         
-        ' Search for a matching row in Table1 within the limited range
-        For rowIndex = searchStartRow To searchEndRow
-            If ws.Cells(rowIndex, tbl1Range.Column).Value = chargeNumber And _
-               ws.Cells(rowIndex, tbl1Range.Column + 1).Value = employeeName Then
+        ' Search for a matching row in Table1
+        For Each row1 In tbl1Range.Rows
+            If row1.Cells(1, 1).Value = chargeNumber And row1.Cells(1, 2).Value = employeeName Then
                 ' Match found, copy the weekly data
                 For colNum = 3 To lastCol ' Weekly data columns start from the 3rd column
-                    row2.Cells(1, colNum).Value = ws.Cells(rowIndex, tbl1Range.Column + colNum - 1).Value
+                    row2.Cells(1, colNum).Value = row1.Cells(1, colNum).Value
                 Next colNum
                 Exit For ' Exit loop once a match is found
             End If
-        Next rowIndex
+        Next row1
     Next row2
     
     MsgBox "Weekly data copied successfully!", vbInformation

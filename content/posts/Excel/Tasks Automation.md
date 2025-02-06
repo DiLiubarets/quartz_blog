@@ -391,3 +391,50 @@ Sub InsertPictureAndDoOtherTasks()
     MsgBox "Picture inserted and tasks completed!", vbInformation
 End Sub
 ```
+
+merge weekly data
+```vb
+Sub CopyWeeklyData()
+    Dim ws As Worksheet
+    Dim tbl1 As ListObject, tbl2 As ListObject
+    Dim rng1 As Range, rng2 As Range
+    Dim cell As Range, foundCell As Range
+    Dim chargeNumber As String, employeeName As String
+    Dim rowNum As Long, colNum As Long
+    
+    ' Set the worksheet
+    Set ws = ThisWorkbook.Sheets("Sheet1") ' Change "Sheet1" to your actual sheet name
+    
+    ' Set the tables
+    Set tbl1 = ws.ListObjects("Table1") ' Change "Table1" to your actual first table name
+    Set tbl2 = ws.ListObjects("Table2") ' Change "Table2" to your actual second table name
+    
+    ' Set the data ranges (excluding headers)
+    Set rng1 = tbl1.DataBodyRange
+    Set rng2 = tbl2.DataBodyRange
+    
+    ' Loop through each row in Table2
+    For Each cell In rng2.Columns(1).Cells ' Assuming "Charge Number" is in the first column
+        rowNum = cell.Row
+        chargeNumber = ws.Cells(rowNum, tbl2.ListColumns("Charge number").Index).Value
+        employeeName = ws.Cells(rowNum, tbl2.ListColumns("Employee name").Index).Value
+        
+        ' Search for matching Charge Number and Employee Name in Table1
+        For Each foundCell In rng1.Columns(tbl1.ListColumns("Charge number").Index).Cells
+            If foundCell.Value = chargeNumber Then
+                ' Check if Employee Name also matches in the same row
+                If foundCell.Offset(0, tbl1.ListColumns("Employee name").Index - tbl1.ListColumns("Charge number").Index).Value = employeeName Then
+                    ' Copy the weekly data from Table1 to Table2
+                    For colNum = 3 To tbl1.ListColumns.Count ' Assuming weekly data starts from the 3rd column
+                        ws.Cells(rowNum, tbl2.ListColumns(colNum).Index).Value = _
+                            ws.Cells(foundCell.Row, tbl1.ListColumns(colNum).Index).Value
+                    Next colNum
+                    Exit For ' Exit loop once a match is found
+                End If
+            End If
+        Next foundCell
+    Next cell
+    
+    MsgBox "Weekly data copied successfully!", vbInformation
+End Sub
+```

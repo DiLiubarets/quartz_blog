@@ -688,3 +688,21 @@ Sub Summary_with_Helios()
     Application.Calculation = xlCalculationAutomatic
 End Sub
 ```
+
+
+```vb
+Dim lastRow As Long
+With wsPivot
+    ' Find the last used row in column J
+    lastRow = .Cells(.Rows.Count, "J").End(xlUp).Row
+
+    ' Clear any existing conditional formatting in column J
+    .Columns("J").FormatConditions.Delete
+
+    ' Apply conditional formatting to column J (J2:JLastRow)
+    With .Range("J2:J" & lastRow).FormatConditions.Add(Type:=xlCellValue, Operator:=xlGreater, Formula1:="18")
+        .Interior.Color = RGB(255, 0, 0) ' Red background
+        .Font.Color = RGB(255, 255, 255) ' White text for better visibility
+    End With
+End With
+```

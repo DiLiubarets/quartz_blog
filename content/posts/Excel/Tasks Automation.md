@@ -485,4 +485,103 @@ End Sub
 ```
 
 
-extra for RTP
+```vb
+Sub Summary_with_Helios()
+    Dim ws As Worksheet, wsCombined As Worksheet, wsPivot As Worksheet
+    Dim rng As Range, combinedLastRow As Long
+    Dim pivotCache As PivotCache, pivotTable As PivotTable
+    Dim sheetNames As Variant
+    Dim i As Integer
+
+    ' Disable screen updating and calculations for better performance
+    Application.ScreenUpdating = False
+    Application.Calculation = xlCalculationManual
+
+    ' List of sheets to combine
+    sheetNames = Array("DMA", "ASP3502A", "ASP400DC", "ASP400CL", "ASP350CS", "Helios", "HD710", "HSD-P4-CORE")
+
+    ' Delete "CombinedData" sheet if it exists
+    On Error Resume Next
+    Set wsCombined = ThisWorkbook.Sheets("CombinedData")
+    If Not wsCombined Is Nothing Then
+        Application.DisplayAlerts = False
+        wsCombined.Delete
+        Application.DisplayAlerts = True
+    End If
+    On Error GoTo 0
+
+    ' Create new "CombinedData" sheet
+    Set wsCombined = ThisWorkbook.Sheets.Add
+    wsCombined.Name = "CombinedData"
+
+    ' Loop through sheets and copy data
+    combinedLastRow = 1
+    For i = LBound(sheetNames) To UBound(sheetNames)
+        Set ws = ThisWorkbook.Sheets(sheetNames(i))
+        Set rng = ws.UsedRange
+
+        ' Copy data, ensuring headers are copied only once
+        If combinedLastRow = 1 Then
+            rng.Copy Destination:=wsCombined.Cells(combinedLastRow, 1)
+        Else
+            rng.Offset(1, 0).Resize(rng.Rows.Count - 1, rng.Columns.Count).Copy _
+                Destination:=wsCombined.Cells(combinedLastRow + 1, 1)
+        End If
+
+        ' Update last row
+        combinedLastRow = wsCombined.Cells(wsCombined.Rows.Count, "A").End(xlUp).Row
+    Next i
+
+    ' Format the header row
+    With wsCombined.Rows(1)
+        .Font.Bold = True
+        .Font.Size = 13
+    End With
+
+    ' Freeze the first three rows
+    wsCombined.Rows("4:4").Select
+    ActiveWindow.FreezePanes = True
+
+    ' Delete "Summary" sheet if it exists
+    On Error Resume Next
+    Set wsPivot = ThisWorkbook.Sheets("Summary")
+    If Not wsPivot Is Nothing Then
+        Application.DisplayAlerts = False
+        wsPivot.Delete
+        Application.DisplayAlerts = True
+    End If
+    On Error GoTo 0
+
+    ' Create new "Summary" sheet
+    Set wsPivot = ThisWorkbook.Sheets.Add
+    wsPivot.Name = "Summary"
+
+    ' Create Pivot Table
+    Set pivotCache = ThisWorkbook.PivotCaches.Create(SourceType:=xlDatabase, SourceData:=wsCombined.UsedRange)
+    Set pivotTable = pivotCache.CreatePivotTable(TableDestination:=wsPivot.Range("B2"), TableName:="CombinedPivotTable")
+
+    ' Configure Pivot Table
+    With pivotTable
+        .PivotFields("Program Name").Orientation = xlColumnField
+        .PivotFields("Assignee").Orientation = xlRowField
+        With .PivotFields("Story Points")
+            .Orientation = xlDataField
+            .Function = xlSum
+            .NumberFormat = "#,##0.00"
+        End With
+        .RowGrand = False
+        .ColumnGrand = False
+        .TableStyle2 = "PivotStyleMedium15"
+    End With
+
+    ' Filter out "Program Name" from Pivot Table
+    With pivotTable.PivotFields("Program Name")
+        .ClearAllFilters
+        .PivotFilters.Add Type:=xlCaptionDoesNotEqual, Value1:="Program Name"
+    End With
+
+    ' Restore screen updating and calculations
+    Application.ScreenUpdating = True
+    Application.Calculation = xlCalculationAutomatic
+End Sub
+```

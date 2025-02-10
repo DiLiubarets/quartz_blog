@@ -706,3 +706,28 @@ With wsPivot
     End With
 End With
 ```
+
+```vb
+Dim pt As PivotTable
+Dim pf As PivotField
+Dim lastRow As Long
+Dim dataRange As Range
+
+' Ensure the Pivot Table is set
+Set pt = wsPivot.PivotTables("CombinedPivotTable")
+
+' Find the last row of the Pivot Table
+lastRow = wsPivot.Cells(wsPivot.Rows.Count, "J").End(xlUp).Row
+
+' Define the data range for column J in the Pivot Table
+Set dataRange = wsPivot.Range("J5:J" & lastRow) ' Adjust starting row if needed
+
+' Clear any existing conditional formatting in column J
+dataRange.FormatConditions.Delete
+
+' Apply conditional formatting: If value > 18, make it red
+With dataRange.FormatConditions.Add(Type:=xlCellValue, Operator:=xlGreater, Formula1:="18")
+    .Interior.Color = RGB(255, 0, 0) ' Red background
+    .Font.Color = RGB(255, 255, 255) ' White text
+End With
+```

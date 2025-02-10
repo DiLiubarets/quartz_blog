@@ -726,3 +726,126 @@ With dataRange.FormatConditions.Add(Type:=xlCellValue, Operator:=xlGreaterEqual,
     .Font.Color = RGB(255, 255, 255) ' White text for better visibility
 End With
 ```
+```vb
+Sub Summary_with_Helios()
+    Dim ws As Worksheet, wsCombined As Worksheet, wsPivot As Worksheet
+    Dim rng As Range, combinedLastRow As Long
+    Dim pivotCache As PivotCache, pivotTable As PivotTable
+    Dim firstSheet As Boolean
+    Dim lastRow As Long
+    Dim dataRange As Range
+
+    ' Disable screen updating and calculations for better performance
+    Application.ScreenUpdating = False
+    Application.Calculation = xlCalculationManual
+
+    ' Delete "CombinedData" sheet if it exists
+    On Error Resume Next
+    Set wsCombined = ThisWorkbook.Sheets("CombinedData")
+    If Not wsCombined Is Nothing Then
+        Application.DisplayAlerts = False
+        wsCombined.Delete
+        Application.DisplayAlerts = True
+    End If
+    On Error GoTo 0
+
+    ' Create new "CombinedData" sheet
+    Set wsCombined = ThisWorkbook.Sheets.Add
+    wsCombined.Name = "CombinedData"
+
+    ' Initialize variables
+    combinedLastRow = 1
+    firstSheet = True
+
+    ' Loop through all sheets in the workbook
+    For Each ws In ThisWorkbook.Sheets
+        ' Skip the "CombinedData" and "Summary" sheets to avoid duplication
+        If ws.Name <> "CombinedData" And ws.Name <> "Summary" Then
+            Set rng = ws.UsedRange
+
+            ' Copy data, ensuring headers are copied only once
+            If firstSheet Then
+                rng.Copy Destination:=wsCombined.Cells(combinedLastRow, 1)
+                firstSheet = False
+            Else
+                rng.Offset(1, 0).Resize(rng.Rows.Count - 1, rng.Columns.Count).Copy _
+                    Destination:=wsCombined.Cells(combinedLastRow + 1, 1)
+            End If
+
+            ' Update last row
+            combinedLastRow = wsCombined.Cells(wsCombined.Rows.Count, "A").End(xlUp).Row
+        End If
+    Next ws
+
+    ' Format the header row
+    With wsCombined.Rows(1)
+        .Font.Bold = True
+        .Font.Size = 13
+    End With
+
+    ' Freeze the first three rows
+    wsCombined.Activate
+    wsCombined.Rows("4:4").Select
+    ActiveWindow.FreezePanes = True
+
+    ' Delete "Summary" sheet if it exists
+    On Error Resume Next
+    Set wsPivot = ThisWorkbook.Sheets("Summary")
+    If Not wsPivot Is Nothing Then
+        Application.DisplayAlerts = False
+        wsPivot.Delete
+        Application.DisplayAlerts = True
+    End If
+    On Error GoTo 0
+
+    ' Create new "Summary" sheet
+    Set wsPivot = ThisWorkbook.Sheets.Add
+    wsPivot.Name = "Summary"
+
+    ' Create Pivot Table
+    Set pivotCache = ThisWorkbook.PivotCaches.Create(SourceType:=xlDatabase, SourceData:=wsCombined.UsedRange)
+    Set pivotTable = pivotCache.CreatePivotTable(TableDestination:=wsPivot.Range("B2"), TableName:="CombinedPivotTable")
+
+    ' Configure Pivot Table
+    With pivotTable
+        .PivotFields("Program Name").Orientation = xlColumnField
+        .PivotFields("Assignee").Orientation = xlRowField
+        With .PivotFields("Story Points")
+            .Orientation = xlDataField
+            .Function = xlSum
+            .NumberFormat = "#,##0.00"
+        End With
+        .RowGrand = False
+        .ColumnGrand = False
+        .TableStyle2 = "PivotStyleMedium15"
+    End With
+
+    ' Filter out "Program Name" from Pivot Table
+    With pivotTable.PivotFields("Program Name")
+        .ClearAllFilters
+        .PivotFilters.Add Type:=xlCaptionDoesNotEqual, Value1:="Program Name"
+    End With
+
+    ' Freeze the first three rows in the Summary sheet
+    wsPivot.Activate
+    wsPivot.Rows("4:4").Select
+    ActiveWindow.FreezePanes = True
+
+    ' Apply Conditional Formatting to Column J in the Pivot Table
+    lastRow = wsPivot.Cells(wsPivot.Rows.Count, "J").End(xlUp).Row ' Find last row dynamically
+    Set dataRange = wsPivot.Range("J5:J" & lastRow) ' Define the range for column J (starting from row 5)
+
+    ' Clear any existing conditional formatting in column J
+    dataRange.FormatConditions.Delete
+
+    ' Apply conditional formatting: If value >= 19, make it red
+    With dataRange.FormatConditions.Add(Type:=xlCellValue, Operator:=xlGreaterEqual, Formula1:="19")
+        .Interior.Color = RGB(255, 0, 0) ' Red background
+        .Font.Color = RGB(255, 255, 255) ' White text for better visibility
+    End With
+
+    ' Restore screen updating and calculations
+    Application.ScreenUpdating = True
+    Application.Calculation = xlCalculationAutomatic
+End Sub
+```

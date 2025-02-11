@@ -1319,3 +1319,57 @@ Sub ApplyConditionalFormattingToGrandTotal(wsPivot As Worksheet)
     End If
 End Sub
 ```
+```vb
+Sub ApplyConditionalFormattingToGrandTotal()
+    Dim wsPivot As Worksheet
+    Dim pivotTable As PivotTable
+    Dim lastCol As Long
+    Dim lastRow As Long
+    Dim grandTotalColumn As Range
+    Dim headerRow As Long
+    Dim cell As Range
+
+    ' Set the Summary sheet (modify if your pivot is on a different sheet)
+    Set wsPivot = ThisWorkbook.Sheets("Summary")
+    
+    ' Find the Pivot Table on the sheet
+    On Error Resume Next
+    Set pivotTable = wsPivot.PivotTables(1) ' Assumes only one pivot table on the sheet
+    On Error GoTo 0
+
+    If pivotTable Is Nothing Then
+        MsgBox "No Pivot Table found on 'Summary' sheet.", vbExclamation
+        Exit Sub
+    End If
+
+    ' Find the last column in the pivot table
+    lastCol = pivotTable.TableRange1.Columns.Count
+    lastRow = pivotTable.TableRange1.Rows.Count
+    headerRow = pivotTable.TableRange1.Row ' Get the row where headers are
+
+    ' Find the "Grand Total" column header dynamically
+    For Each cell In wsPivot.Rows(headerRow).Cells
+        If LCase(Trim(cell.Value)) = "grand total" Then
+            ' Define the range for the Grand Total column (excluding the header)
+            Set grandTotalColumn = wsPivot.Range(cell.Offset(1, 0), wsPivot.Cells(lastRow, cell.Column))
+            Exit For
+        End If
+    Next cell
+
+    ' Apply conditional formatting if the Grand Total column is found
+    If Not grandTotalColumn Is Nothing Then
+        With grandTotalColumn
+            .FormatConditions.Delete ' Remove any existing conditional formatting
+            .FormatConditions.Add Type:=xlCellValue, Operator:=xlGreater, Formula1:="20"
+            .FormatConditions(.FormatConditions.Count).SetFirstPriority
+            With .FormatConditions(1).Interior
+                .PatternColorIndex = xlAutomatic
+                .Color = RGB(255, 0, 0) ' Red color
+                .TintAndShade = 0
+            End With
+        End With
+    Else
+        MsgBox "Grand Total column not found. Conditional formatting not applied.", vbExclamation
+    End If
+End Sub
+```

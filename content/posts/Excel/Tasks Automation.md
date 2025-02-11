@@ -1283,3 +1283,39 @@ Sub Summary_dynamic2()
 
 End Sub
 ```
+
+```vb
+Sub ApplyConditionalFormattingToGrandTotal(wsPivot As Worksheet)
+    Dim grandTotalColumn As Range
+    Dim cell As Range
+    Dim grandTotalFound As Boolean
+
+    grandTotalFound = False
+
+    ' Find the "Grand Total" column in row 4
+    For Each cell In wsPivot.Rows(4).Cells
+        If cell.Value = "Grand Total" Then
+            ' Define the range for the Grand Total column
+            Set grandTotalColumn = wsPivot.Range(cell.Offset(1, 0), wsPivot.Cells(wsPivot.Rows.Count, cell.Column).End(xlUp))
+            grandTotalFound = True
+            Exit For
+        End If
+    Next cell
+
+    ' Apply conditional formatting if the Grand Total column is found
+    If grandTotalFound And Not grandTotalColumn Is Nothing Then
+        With grandTotalColumn
+            .FormatConditions.Delete ' Remove any existing conditional formatting
+            .FormatConditions.Add Type:=xlCellValue, Operator:=xlGreater, Formula1:="20"
+            .FormatConditions(.FormatConditions.Count).SetFirstPriority
+            With .FormatConditions(1).Interior
+                .PatternColorIndex = xlAutomatic
+                .Color = RGB(255, 0, 0) ' Red color
+                .TintAndShade = 0
+            End With
+        End With
+    Else
+        MsgBox "Grand Total column not found. Conditional formatting not applied.", vbExclamation
+    End If
+End Sub
+```

@@ -849,3 +849,22 @@ Sub Summary_with_Helios()
     Application.Calculation = xlCalculationAutomatic
 End Sub
 ```
+```vb
+' Find the last row in column J dynamically
+lastRow = wsPivot.Cells(wsPivot.Rows.Count, "J").End(xlUp).Row
+
+' Ensure the last row is valid (avoid applying formatting to empty Pivot Tables)
+If lastRow < 5 Then Exit Sub
+
+' Define the data range for column J in the Pivot Table (starting from row 5)
+Set dataRange = wsPivot.Range("J5:J" & lastRow)
+
+' Clear any existing conditional formatting in column J
+dataRange.FormatConditions.Delete
+
+' Apply conditional formatting: If value >= 19, make it red
+With dataRange.FormatConditions.Add(Type:=xlCellValue, Operator:=xlGreaterEqual, Formula1:="19")
+    .Interior.Color = RGB(255, 0, 0) ' Red background
+    .Font.Color = RGB(255, 255, 255) ' White text for better visibility
+End With
+```

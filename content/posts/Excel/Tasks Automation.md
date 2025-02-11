@@ -909,3 +909,62 @@ Sub add_Program_Name()
     Next ws
 End Sub
 ```
+
+```vb
+Sub RenameAllSheets()
+    Dim ws As Worksheet
+    Dim newName As String
+    Dim i As Integer
+    Dim isValid As Boolean
+    Dim programCol As Long
+    Dim foundCell As Range
+
+    For Each ws In ThisWorkbook.Sheets
+        ' Skip the sheet named "Instructions"
+        If ws.Name <> "Instructions" Then
+            With ws
+                ' Find the column with the header "Program Name"
+                Set foundCell = .Rows(1).Find(What:="Program Name", LookAt:=xlWhole, MatchCase:=False)
+
+                ' If "Program Name" column is found
+                If Not foundCell Is Nothing Then
+                    programCol = foundCell.Column  ' Get the column number of "Program Name"
+                    newName = .Cells(2, programCol).Value  ' Get the value from row 2 of that column
+
+                    isValid = True
+
+                    ' Check for invalid characters
+                    If InStr(newName, "\") > 0 Or InStr(newName, "/") > 0 Or InStr(newName, "*") > 0 Or _
+                       InStr(newName, "[") > 0 Or InStr(newName, "]") > 0 Or InStr(newName, "?") > 0 Or _
+                       InStr(newName, ":") > 0 Then
+                        isValid = False
+                    End If
+
+                    ' Check for duplicate names
+                    For i = 1 To ThisWorkbook.Sheets.Count
+                        If ThisWorkbook.Sheets(i).Name = newName Then
+                            isValid = False
+                            Exit For
+                        End If
+                    Next i
+
+                    ' Rename the sheet if the new name is valid and unique
+                    If isValid And newName <> "" Then
+                        On Error Resume Next
+                        ws.Name = newName
+                        If Err.Number <> 0 Then
+                            MsgBox "Error renaming sheet to: " & newName & vbCrLf & "Error: " & Err.Description, vbExclamation
+                            Err.Clear
+                        End If
+                        On Error GoTo 0
+                    Else
+                        MsgBox "Invalid or duplicate sheet name: " & newName, vbExclamation
+                    End If
+                Else
+                    MsgBox "Column 'Program Name' not found in sheet: " & ws.Name, vbExclamation
+                End If
+            End With
+        End If
+    Next ws
+End Sub
+```

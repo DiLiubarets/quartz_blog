@@ -1089,3 +1089,43 @@ Sub Summary_dynamic2()
     Application.Calculation = xlCalculationAutomatic
 End Sub
 ```
+
+```vb
+Sub add_Program_Name()
+    Dim ws As Worksheet
+    Dim lastRow As Long
+    Dim i As Long
+    Dim sprintCol As Long
+    Dim programCol As Long
+    Dim foundCell As Range
+
+    For Each ws In ThisWorkbook.Worksheets
+        ' Skip the sheet named "Instructions"
+        If ws.Name <> "Instructions" Then
+            With ws
+                ' Find the column with the header "Sprint"
+                Set foundCell = .Rows(1).Find(What:="Sprint", LookAt:=xlWhole, MatchCase:=False)
+
+                ' If "Sprint" column is found
+                If Not foundCell Is Nothing Then
+                    sprintCol = foundCell.Column  ' Get the column number of "Sprint"
+                    programCol = sprintCol + 1    ' The new column will be inserted after "Sprint"
+
+                    ' Insert a new column to the right of "Sprint"
+                    .Columns(programCol).Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
+
+                    ' Set the header for the new column
+                    .Cells(1, programCol).Value = "Program Name"
+
+                    ' Find the last row in column A
+                    lastRow = .Cells(.Rows.Count, "A").End(xlUp).Row
+
+                    ' Apply the formula dynamically using R1C1 notation
+                    .Range(.Cells(2, programCol), .Cells(lastRow, programCol)).FormulaR1C1 = _
+                        "=IF(ISNUMBER(FIND(""_"", RC" & sprintCol & ")), TEXTBEFORE(RC" & sprintCol & ", ""_""), TEXTBEFORE(RC" & sprintCol & ", "" ""))"
+                End If
+            End With
+        End If
+    Next ws
+End Sub
+```

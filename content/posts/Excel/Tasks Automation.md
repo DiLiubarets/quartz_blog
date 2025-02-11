@@ -868,3 +868,44 @@ With dataRange.FormatConditions.Add(Type:=xlCellValue, Operator:=xlGreaterEqual,
     .Font.Color = RGB(255, 255, 255) ' White text for better visibility
 End With
 ```
+
+```vb
+Sub add_Program_Name()
+    Dim ws As Worksheet
+    Dim lastRow As Long
+    Dim i As Long
+    Dim sprintCol As Long
+    Dim programCol As Long
+    Dim foundCell As Range
+
+    For Each ws In ThisWorkbook.Worksheets
+        ' Skip the sheet named "Instructions"
+        If ws.Name <> "Instructions" Then
+            With ws
+                ' Find the column with the header "Sprint"
+                Set foundCell = .Rows(1).Find(What:="Sprint", LookAt:=xlWhole, MatchCase:=False)
+
+                ' If "Sprint" column is found
+                If Not foundCell Is Nothing Then
+                    sprintCol = foundCell.Column  ' Get the column number of "Sprint"
+                    programCol = sprintCol + 1    ' The new column will be inserted after "Sprint"
+
+                    ' Insert a new column to the right of "Sprint"
+                    .Columns(programCol).Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
+
+                    ' Set the header for the new column
+                    .Cells(1, programCol).Value = "Program Name"
+
+                    ' Find the last row in column A
+                    lastRow = .Cells(.Rows.Count, "A").End(xlUp).Row
+
+                    ' Apply the formula in the new column
+                    For i = 2 To lastRow
+                        .Cells(i, programCol).Formula = "=IF(ISNUMBER(FIND(""_"", N" & i & ")), TEXTBEFORE(N" & i & ", ""_""), TEXTBEFORE(N" & i & ", "" ""))"
+                    Next i
+                End If
+            End With
+        End If
+    Next ws
+End Sub
+```

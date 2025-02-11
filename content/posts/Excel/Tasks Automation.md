@@ -968,3 +968,124 @@ Sub RenameAllSheets()
     Next ws
 End Sub
 ```
+
+```vb
+Sub Summary_dynamic2()
+    Dim ws As Worksheet, wsCombined As Worksheet, wsPivot As Worksheet
+    Dim rng As Range, combinedLastRow As Long
+    Dim pivotCache As PivotCache, pivotTable As PivotTable
+    Dim firstSheet As Boolean
+    Dim lastRow As Long
+    Dim dataRange As Range
+    Dim assigneeCol As Long
+    Dim tier4Col As Long
+    Dim foundCell As Range
+
+    ' Disable screen updating and calculations for better performance
+    Application.ScreenUpdating = False
+    Application.Calculation = xlCalculationManual
+
+    ' Delete "CombinedData" sheet if it exists
+    On Error Resume Next
+    Set wsCombined = ThisWorkbook.Sheets("CombinedData")
+    If Not wsCombined Is Nothing Then
+        Application.DisplayAlerts = False
+        wsCombined.Delete
+        Application.DisplayAlerts = True
+    End If
+    On Error GoTo 0
+
+    ' Create new "CombinedData" sheet
+    Set wsCombined = ThisWorkbook.Sheets.Add
+    wsCombined.Name = "CombinedData"
+
+    combinedLastRow = 1
+    firstSheet = True
+
+    ' Loop through all sheets in the workbook
+    For Each ws In ThisWorkbook.Sheets
+        ' Skip the "Instructions", "CombinedData", and "Summary" sheets to avoid duplication
+        If ws.Name <> "Instructions" And ws.Name <> "CombinedData" And ws.Name <> "Summary" Then
+            Set rng = ws.UsedRange
+            If firstSheet Then
+                wsCombined.Cells(combinedLastRow, 1).Resize(rng.Rows.Count, rng.Columns.Count).Value = rng.Value
+                firstSheet = False
+            Else
+                If rng.Rows.Count > 1 Then
+                    wsCombined.Cells(combinedLastRow + 1, 1).Resize(rng.Rows.Count - 1, rng.Columns.Count).Value = rng.Offset(1, 0).Resize(rng.Rows.Count - 1, rng.Columns.Count).Value
+                End If
+            End If
+            combinedLastRow = wsCombined.Cells(wsCombined.Rows.Count, "A").End(xlUp).Row
+        End If
+    Next ws
+
+    ' Find the "Assignee" column in the "CombinedData" sheet
+    Set foundCell = wsCombined.Rows(1).Find(What:="Assignee", LookAt:=xlWhole, MatchCase:=False)
+
+    If Not foundCell Is Nothing Then
+        assigneeCol = foundCell.Column  ' Get the column number of "Assignee"
+        tier4Col = assigneeCol + 1      ' The new column will be inserted to the right of "Assignee"
+
+        ' Insert a new column to the right of "Assignee"
+        wsCombined.Columns(tier4Col).Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
+
+        ' Set the header for the new column
+        wsCombined.Cells(1, tier4Col).Value = "Tier 4"
+
+        ' Apply the XLOOKUP formula in the new column
+        wsCombined.Range(wsCombined.Cells(2, tier4Col), wsCombined.Cells(combinedLastRow, tier4Col)).Formula = _
+            "=XLOOKUP(" & wsCombined.Cells(2, assigneeCol).Address(False, False) & ",Instructions!W:W,Instructions!AB:AB, ""NON SATCOM"")"
+    Else
+        MsgBox "Column 'Assignee' not found in CombinedData sheet.", vbExclamation
+    End If
+
+    ' Delete "Summary" sheet if it exists
+    On Error Resume Next
+    Set wsPivot = ThisWorkbook.Sheets("Summary")
+    If Not wsPivot Is Nothing Then
+        Application.DisplayAlerts = False
+        wsPivot.Delete
+        Application.DisplayAlerts = True
+    End If
+    On Error GoTo 0
+
+    ' Create new "Summary" sheet
+    Set wsPivot = ThisWorkbook.Sheets.Add
+    wsPivot.Name = "Summary"
+
+    ' Create Pivot Table
+    Set pivotCache = ThisWorkbook.PivotCaches.Create(SourceType:=xlDatabase, SourceData:=wsCombined.UsedRange)
+    Set pivotTable = pivotCache.CreatePivotTable(TableDestination:=wsPivot.Range("B2"), TableName:="CombinedPivotTable")
+
+    With pivotTable
+        .PivotFields("Program Name").Orientation = xlColumnField
+        .PivotFields("Tier 4").Orientation = xlRowField
+        .PivotFields("Assignee").Orientation = xlRowField
+        With .PivotFields("Story Points")
+            .Orientation = xlDataField
+            .Function = xlSum
+            .NumberFormat = "#,##0.00"
+        End With
+        .ColumnGrand = False
+        .RowGrand = True
+        .TableStyle2 = "PivotStyleMedium15"
+        .RowAxisLayout xlTabularRow
+        .RepeatAllLabels xlRepeatLabels
+    End With
+
+    ' Filter out "Program Name" from Pivot Table
+    With pivotTable.PivotFields("Program Name")
+        .ClearAllFilters
+        .PivotFilters.Add Type:=xlCaptionDoesNotEqual, Value1:="Program Name"
+    End With
+
+    ' Freeze the first three rows in the Summary sheet
+    wsPivot.Activate
+    wsPivot.Rows("4:4").Select
+    ActiveWindow.FreezePanes = True
+
+    ' Restore screen updating and calculations
+    Application.ScreenUpdating = True
+    Application.Calculation = xlCalculationAutomatic
+End Sub
+```

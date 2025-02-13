@@ -37,90 +37,86 @@ Sub Test_War_PivotTable()
         .PivotFields("Components").Orientation = xlRowField
 
         ' Add Data Fields
-        With .PivotFields("AC, Week 1&2")
-            .Orientation = xlDataField
-            .Function = xlSum
-            .Caption = "AC, Week 1&2"
-        End With
+        On Error Resume Next
+        .PivotFields("AC, Week 1&2").Orientation = xlDataField
+        .PivotFields("AC, Week 1&2").Function = xlSum
+        .PivotFields("AC, Week 1&2").Caption = "AC, Week 1&2"
 
-        With .PivotFields("AC, Week 3&4")
-            .Orientation = xlDataField
-            .Function = xlSum
-            .Caption = "AC, Week 3&4"
-        End With
+        .PivotFields("AC, Week 3&4").Orientation = xlDataField
+        .PivotFields("AC, Week 3&4").Function = xlSum
+        .PivotFields("AC, Week 3&4").Caption = "AC, Week 3&4"
 
-        With .PivotFields("ETC in hrs")
-            .Orientation = xlDataField
-            .Function = xlMax
-            .Caption = "ETC in hrs"
-        End With
+        .PivotFields("ETC in hrs").Orientation = xlDataField
+        .PivotFields("ETC in hrs").Function = xlMax
+        .PivotFields("ETC in hrs").Caption = "ETC in hrs"
 
-        With .PivotFields("EV in hrs")
-            .Orientation = xlDataField
-            .Function = xlMax
-            .Caption = "EV in hrs"
-        End With
+        .PivotFields("EV in hrs").Orientation = xlDataField
+        .PivotFields("EV in hrs").Function = xlMax
+        .PivotFields("EV in hrs").Caption = "EV in hrs"
 
-        With .PivotFields("Closed Tickets")
-            .Orientation = xlDataField
-            .Function = xlMax
-            .Caption = "Closed Tickets"
-        End With
+        .PivotFields("Closed Tickets").Orientation = xlDataField
+        .PivotFields("Closed Tickets").Function = xlMax
+        .PivotFields("Closed Tickets").Caption = "Closed Tickets"
 
-        With .PivotFields("EV Closed")
-            .Orientation = xlDataField
-            .Function = xlMax
-            .Caption = "EV Closed"
-        End With
+        .PivotFields("EV Closed").Orientation = xlDataField
+        .PivotFields("EV Closed").Function = xlMax
+        .PivotFields("EV Closed").Caption = "EV Closed"
 
-        With .PivotFields("AC Sum Week 1&2")
-            .Orientation = xlDataField
-            .Function = xlMax
-            .Caption = "AC Sum Week 1&2"
-        End With
+        .PivotFields("AC Sum Week 1&2").Orientation = xlDataField
+        .PivotFields("AC Sum Week 1&2").Function = xlMax
+        .PivotFields("AC Sum Week 1&2").Caption = "AC Sum Week 1&2"
 
-        With .PivotFields("AC Sum Week 3&4")
-            .Orientation = xlDataField
-            .Function = xlMax
-            .Caption = "AC Sum Week 3&4"
-        End With
+        .PivotFields("AC Sum Week 3&4").Orientation = xlDataField
+        .PivotFields("AC Sum Week 3&4").Function = xlMax
+        .PivotFields("AC Sum Week 3&4").Caption = "AC Sum Week 3&4"
+        On Error GoTo 0
+
+        ' Refresh Pivot Table before adding calculated fields
+        .PivotCache.Refresh
 
         ' Add Calculated Fields
-        On Error Resume Next ' Prevent errors if the calculated field already exists
-        .CalculatedFields.Add Name:="EV,% Week", Formula:="=IF([EV Closed]=0, 0, [EV Closed]/[ETC in hrs])"
-        .CalculatedFields.Add Name:="EV,%", Formula:="=IF([EV in hrs]=0, 0, [EV in hrs]/[ETC in hrs])"
+        On Error Resume Next
+        .CalculatedFields.Add Name:="EV,% Week 1&2", Formula:="=IF([EV Closed]=0, 0, [EV Closed]/[ETC in hrs])"
+        .CalculatedFields.Add Name:="EV,% Week 3&4", Formula:="=IF([EV in hrs]=0, 0, [EV in hrs]/[ETC in hrs])"
         .CalculatedFields.Add Name:="AC/ETC, Week 1&2", Formula:="=IFERROR(IF([AC Sum Week 1&2]=0, 0, [AC Sum Week 1&2]/[ETC in hrs]), 0)"
         .CalculatedFields.Add Name:="AC/ETC, Week 3&4", Formula:="=IFERROR(IF([AC Sum Week 3&4]=0, 0, [AC Sum Week 3&4]/[ETC in hrs]), 0)"
         On Error GoTo 0
 
-        ' Configure Calculated Fields
-        With .PivotFields("EV,% Week")
-            .Orientation = xlDataField
-            .NumberFormat = "0.00%"
-            .Function = xlSum
-            .Caption = "EV,% Week 1&2"
-        End With
+        ' Refresh Pivot Table again
+        .PivotCache.Refresh
 
-        With .PivotFields("EV,%")
-            .Orientation = xlDataField
-            .NumberFormat = "0.00%"
-            .Function = xlSum
-            .Caption = "EV,% Week 3&4"
-        End With
+        ' Check if the calculated field exists before configuring it
+        Dim pf As PivotField
+        On Error Resume Next
+        Set pf = .PivotFields("EV,% Week 1&2")
+        On Error GoTo 0
 
-        With .PivotFields("AC/ETC, Week 1&2")
-            .Orientation = xlDataField
-            .NumberFormat = "0.00%"
-            .Function = xlSum
-            .Caption = "AC/ETC, Week 1&2"
-        End With
+        If Not pf Is Nothing Then
+            With pf
+                .Orientation = xlDataField
+                .NumberFormat = "0.00%"
+                .Function = xlSum
+                .Caption = "EV,% Week 1&2"
+            End With
+        Else
+            MsgBox "Calculated field 'EV,% Week 1&2' was not created successfully.", vbExclamation, "Error"
+        End If
 
-        With .PivotFields("AC/ETC, Week 3&4")
-            .Orientation = xlDataField
-            .NumberFormat = "0.00%"
-            .Function = xlSum
-            .Caption = "AC/ETC, Week 3&4"
-        End With
+        ' Repeat for other calculated fields
+        On Error Resume Next
+        Set pf = .PivotFields("EV,% Week 3&4")
+        On Error GoTo 0
+
+        If Not pf Is Nothing Then
+            With pf
+                .Orientation = xlDataField
+                .NumberFormat = "0.00%"
+                .Function = xlSum
+                .Caption = "EV,% Week 3&4"
+            End With
+        Else
+            MsgBox "Calculated field 'EV,% Week 3&4' was not created successfully.", vbExclamation, "Error"
+        End If
 
         ' Apply Pivot Table Style
         .TableStyle2 = "PivotStyleDark8"
@@ -131,30 +127,10 @@ Sub Test_War_PivotTable()
 
         ' Set Pivot Table to Tabular Form and Remove Subtotals
         .RowAxisLayout xlTabularRow
-        Dim pf As PivotField
-        For Each pf In .RowFields
-            pf.Subtotals(1) = False
-        Next pf
-
-        ' Apply Filter to Show Only "Hardware", "Software", and "System"
-        With .PivotFields("Components")
-            .ClearAllFilters
-            Dim pi As PivotItem
-            On Error Resume Next ' Prevent errors if an item does not exist
-            .PivotItems("Hardware").Visible = True
-            .PivotItems("Software").Visible = True
-            .PivotItems("System").Visible = True
-            On Error GoTo 0
-
-            ' Hide Other Items
-            For Each pi In .PivotItems
-                If pi.Name <> "Hardware" And pi.Name <> "Software" And pi.Name <> "System" Then
-                    On Error Resume Next
-                    pi.Visible = False
-                    On Error GoTo 0
-                End If
-            Next pi
-        End With
+        Dim pfRow As PivotField
+        For Each pfRow In .RowFields
+            pfRow.Subtotals(1) = False
+        Next pfRow
     End With
 
     ' Autofit Columns

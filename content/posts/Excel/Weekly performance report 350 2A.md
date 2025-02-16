@@ -147,104 +147,106 @@ End Sub
 War to DATA
 ```vb
 Sub WAR_Pivot_To_Data()
+
     Dim wsSource As Worksheet, wsTarget As Worksheet
     Dim pt As PivotTable, newPt As PivotTable
-    Dim tbl As ListObject, dataRange As Range
+    Dim pf As PivotField, dataRange As Range
+    Dim tbl As ListObject, cell As Range
     Dim monthName As String
-    Dim lastRow As Long
-    Dim headerRow As Range
-    Dim col As Range
-    Dim week1ColIndex As Integer, week2ColIndex As Integer
-    Dim week3ColIndex As Integer, week4ColIndex As Integer
-    Dim totalWeek12SPColIndex As Integer, totalWeek34SPColIndex As Integer
-    Dim totalMonthSPColIndex As Integer
-    Dim chargeNumberCol As ListColumn, week5Col As ListColumn
-    Dim empColIndex As Integer
-    Dim i As Long
-    
-    Application.ScreenUpdating = False
-    Application.Calculation = xlCalculationManual
-    Application.DisplayAlerts = False
+    Dim lastRow As Long, i As Integer
 
     ' Get the current month name
     monthName = Format(Date, "mmm")
 
-    ' Set source worksheet and pivot table
+    ' Set source worksheet
     Set wsSource = ThisWorkbook.Sheets("Current Month ETC vs ACWP")
     Set pt = wsSource.PivotTables("PivotTable4")
 
-    ' Delete existing target sheet if it exists
+    ' Delete existing WAR sheet if it exists
+    Application.DisplayAlerts = False
     On Error Resume Next
     ThisWorkbook.Sheets("WAR " & monthName).Delete
     On Error GoTo 0
+    Application.DisplayAlerts = True
 
-    ' Create new target sheet
+    ' Add new WAR sheet
     Set wsTarget = ThisWorkbook.Sheets.Add
     wsTarget.Name = "WAR " & monthName
 
     ' Copy PivotTable data
     pt.TableRange2.Copy
     wsTarget.Range("A1").PasteSpecial Paste:=xlPasteAll
-    Application.CutCopyMode = False
 
     ' Get new pivot table if it exists
     On Error Resume Next
     Set newPt = wsTarget.PivotTables(1)
     On Error GoTo 0
 
-    If newPt Is Nothing Then
-        MsgBox "Error: PivotTable not set in the new worksheet.", vbCritical
-        Exit Sub
+    ' Format PivotTable
+    If Not newPt Is Nothing Then
+        With newPt
+            .RowAxisLayout xlTabularRow
+            .RepeatAllLabels xlRepeatLabels
+            .ShowTableStyleRowStripes = False
+            .ShowTableStyleColumnStripes = False
+            .ColumnGrand = False
+            .RowGrand = False
+            For Each pf In .RowFields
+                pf.Subtotals = Array(False, False, False, False, False, False, False, False, False, False, False, False)
+            Next pf
+        End With
     End If
 
-    ' Format PivotTable
-    With newPt
-        .RowAxisLayout xlTabularRow
-        .RepeatAllLabels xlRepeatLabels
-        .ShowTableStyleRowStripes = False
-        .ShowTableStyleColumnStripes = False
-        .ColumnGrand = False
-        .RowGrand = False
-        Dim pf As PivotField
-        For Each pf In .RowFields
-            pf.Subtotals = Array(False, False, False, False, False, False, False, False, False, False, False, False)
-        Next pf
-    End With
-
-    ' Unmerge all cells
+    ' Unmerge cells
     wsTarget.Cells.UnMerge
+    wsTarget.Columns("A").UnMerge
+    wsTarget.Columns("A:B").UnMerge
+
+    ' Align text to the left
+    wsTarget.Columns("A:C").HorizontalAlignment = xlLeft
 
     ' Freeze panes at row 4
-    wsTarget.Activate
-    wsTarget.Range("A4").Select
+    wsTarget.Rows("4:4").Select
     ActiveWindow.FreezePanes = True
 
-    ' Copy PivotTable data and paste as values
-    Set dataRange = newPt.TableRange2
+    ' Convert PivotTable to values
+    Set dataRange = wsTarget.Range("A1").CurrentRegion
     dataRange.Copy
     dataRange.PasteSpecial Paste:=xlPasteValues
     Application.CutCopyMode = False
 
-    ' Delete first two rows
+    ' Delete the first two rows
     wsTarget.Rows("1:2").Delete
 
     ' Delete unnecessary columns
     wsTarget.Range("D:K,Q:X").Delete
 
-    ' Convert remaining data to a table
+    ' Convert the remaining data to a table
     Set tbl = wsTarget.ListObjects.Add(xlSrcRange, wsTarget.Range("A1").CurrentRegion, , xlYes)
     tbl.Name = "WARDataTable"
     tbl.TableStyle = "TableStyleLight8"
 
     ' Insert columns after "Charge Number"
+    Dim chargeNumberCol As ListColumn
     Set chargeNumberCol = tbl.ListColumns("Charge Number")
-    chargeNumberCol.Range.Offset(0, 1).Resize(, 2).EntireColumn.Insert
+    chargeNumberCol.Range.Offset(0, 1).EntireColumn.Insert
+    chargeNumberCol.Range.Offset(0, 1).EntireColumn.Insert
+
+    ' Name the new columns "WP" and "WP Description"
     chargeNumberCol.Range.Offset(0, 1).Cells(1, 1).Value = "WP"
     chargeNumberCol.Range.Offset(0, 2).Cells(1, 1).Value = "WP Description"
 
     ' Insert columns after "Week 5"
+    Dim week5Col As ListColumn
     Set week5Col = tbl.ListColumns("Week 5 ")
-    week5Col.Range.Offset(0, 1).Resize(, 6).EntireColumn.Insert
+    week5Col.Range.Offset(0, 1).EntireColumn.Insert
+    week5Col.Range.Offset(0, 1).EntireColumn.Insert
+    week5Col.Range.Offset(0, 1).EntireColumn.Insert
+    week5Col.Range.Offset(0, 1).EntireColumn.Insert
+    week5Col.Range.Offset(0, 1).EntireColumn.Insert
+    week5Col.Range.Offset(0, 1).EntireColumn.Insert
+
+    ' Name the new columns
     week5Col.Range.Offset(0, 1).Cells(1, 1).Value = "AC week1-2"
     week5Col.Range.Offset(0, 2).Cells(1, 1).Value = "AC week3-4"
     week5Col.Range.Offset(0, 3).Cells(1, 1).Value = "AC month"
@@ -252,10 +254,16 @@ Sub WAR_Pivot_To_Data()
     week5Col.Range.Offset(0, 5).Cells(1, 1).Value = "EV"
     week5Col.Range.Offset(0, 6).Cells(1, 1).Value = "Notes from PEs"
 
-    ' Get the header row
+    ' Find column indexes dynamically
+    Dim week1ColIndex As Integer, week2ColIndex As Integer
+    Dim week3ColIndex As Integer, week4ColIndex As Integer
+    Dim totalWeek12SPColIndex As Integer, totalWeek34SPColIndex As Integer
+    Dim totalMonthSPColIndex As Integer
+    Dim headerRow As Range
     Set headerRow = wsTarget.Rows(1)
 
-    ' Find column indexes dynamically
+    ' Get column indexes
+    Dim col As Range
     For Each col In headerRow.Cells
         Select Case col.Value
             Case "Week 1 ": week1ColIndex = col.Column
@@ -269,55 +277,28 @@ Sub WAR_Pivot_To_Data()
     Next col
 
     ' Ensure required columns exist
-    If week1ColIndex = 0 Or week2ColIndex = 0 Or totalWeek12SPColIndex = 0 Or _
-       week3ColIndex = 0 Or week4ColIndex = 0 Or totalWeek34SPColIndex = 0 Or _
-       totalMonthSPColIndex = 0 Then
-        MsgBox "Error: Required columns not found.", vbCritical
-        Exit Sub
-    End If
+    If week1ColIndex = 0 Or week2ColIndex = 0 Or totalWeek12SPColIndex = 0 Then Exit Sub
+    If week3ColIndex = 0 Or week4ColIndex = 0 Or totalWeek34SPColIndex = 0 Then Exit Sub
+    If totalMonthSPColIndex = 0 Then Exit Sub
 
     ' Get last row
     lastRow = wsTarget.Cells(Rows.Count, "A").End(xlUp).Row
 
-    ' Apply formulas and convert to values
-    With wsTarget
-        .Range(.Cells(2, totalWeek12SPColIndex), .Cells(lastRow, totalWeek12SPColIndex)).FormulaR1C1 = "=(RC" & week1ColIndex & " + RC" & week2ColIndex & ")"
-        .Range(.Cells(2, totalWeek34SPColIndex), .Cells(lastRow, totalWeek34SPColIndex)).FormulaR1C1 = "=(RC" & week3ColIndex & " + RC" & week4ColIndex & ")"
-        .Range(.Cells(2, totalMonthSPColIndex), .Cells(lastRow, totalMonthSPColIndex)).FormulaR1C1 = "=(RC" & week1ColIndex & " + RC" & week2ColIndex & " + RC" & week3ColIndex & " + RC" & week4ColIndex & ")"
-        .UsedRange.Value = .UsedRange.Value
-    End With
+    ' Insert formulas
+    wsTarget.Range(wsTarget.Cells(2, totalWeek12SPColIndex), wsTarget.Cells(lastRow, totalWeek12SPColIndex)).FormulaR1C1 = "=RC" & week1ColIndex & " + RC" & week2ColIndex
+    wsTarget.Range(wsTarget.Cells(2, totalWeek34SPColIndex), wsTarget.Cells(lastRow, totalWeek34SPColIndex)).FormulaR1C1 = "=RC" & week3ColIndex & " + RC" & week4ColIndex
+    wsTarget.Range(wsTarget.Cells(2, totalMonthSPColIndex), wsTarget.Cells(lastRow, totalMonthSPColIndex)).FormulaR1C1 = "=RC" & week1ColIndex & " + RC" & week2ColIndex & " + RC" & week3ColIndex & " + RC" & week4ColIndex
 
-    ' Call external functions
-    InsertXLOOKUP_WP.InsertXLOOKUP_WP
-    InsertXLOOKUP_WP.InsertXLOOKUP_WP_Description
-    InsertFormula.InsertFormula_ETC
-    InsertFormula.InsertFormula_EV
+    ' Convert formulas to values
+    wsTarget.Range(wsTarget.Cells(2, totalWeek12SPColIndex), wsTarget.Cells(lastRow, totalWeek12SPColIndex)).Value = wsTarget.Range(wsTarget.Cells(2, totalWeek12SPColIndex), wsTarget.Cells(lastRow, totalWeek12SPColIndex)).Value
+    wsTarget.Range(wsTarget.Cells(2, totalWeek34SPColIndex), wsTarget.Cells(lastRow, totalWeek34SPColIndex)).Value = wsTarget.Range(wsTarget.Cells(2, totalWeek34SPColIndex), wsTarget.Cells(lastRow, totalWeek34SPColIndex)).Value
+    wsTarget.Range(wsTarget.Cells(2, totalMonthSPColIndex), wsTarget.Cells(lastRow, totalMonthSPColIndex)).Value = wsTarget.Range(wsTarget.Cells(2, totalMonthSPColIndex), wsTarget.Cells(lastRow, totalMonthSPColIndex)).Value
 
-    ' Ensure the "Employee Name" column exists before deleting rows
-    On Error Resume Next
-    empColIndex = tbl.ListColumns("Employee Name").Index
-    On Error GoTo 0
-
-    If empColIndex = 0 Then
-        MsgBox "Error: 'Employee Name' column not found.", vbCritical
-        Exit Sub
-    End If
-
-    ' Delete rows where "Employee Name" starts with "ETC "
-    For i = tbl.ListRows.Count To 1 Step -1
-        If tbl.ListRows(i).Range.Cells(1, empColIndex).Value Like "ETC *" Then
-            tbl.ListRows(i).Delete
-        End If
-    Next i
-
-    ' Autofit columns
+    ' AutoFit columns
     wsTarget.Columns("A:M").AutoFit
 
-    ' Restore settings
-    Application.ScreenUpdating = True
-    Application.Calculation = xlCalculationAutomatic
-    Application.DisplayAlerts = True
+    ' Success message
+    MsgBox "WAR Pivot to Data process completed successfully!", vbInformation
 
-    MsgBox "Process completed successfully!", vbInformation
 End Sub
 ```

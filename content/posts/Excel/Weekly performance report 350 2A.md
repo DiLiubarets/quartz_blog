@@ -8,7 +8,8 @@ Sub CreatePivotTableAndTotal()
     Dim monthName As String
     Dim lastColumn As Long, lastRow As Long, lastCol As Long
     Dim cell As Range, field As PivotField, pf As PivotField
-
+    Dim totalValue As Double
+    
     ' Get the current month name
     monthName = Format(Date, "mmm")
 
@@ -47,12 +48,12 @@ Sub CreatePivotTableAndTotal()
         ' ✅ Add calculated fields
         .CalculatedFields.Add "EV,%", "=IFERROR(EV/ETC JIRA, 0)"
         .CalculatedFields.Add "AC/ETC week1-2", "=IFERROR('AC week1-2'/'ETC JIRA', 0)"
-        .CalculatedFields.Add "AC/ETC week3-4", "=IFERROR('AC week3-4'/'ETC JIRA', 0)" ' ✅ New field added
+        .CalculatedFields.Add "AC/ETC week3-4", "=IFERROR('AC week3-4'/'ETC JIRA', 0)"
 
         ' Set calculated fields orientation
         .PivotFields("EV,%").Orientation = xlDataField
         .PivotFields("AC/ETC week1-2").Orientation = xlDataField
-        .PivotFields("AC/ETC week3-4").Orientation = xlDataField ' ✅ Display new field
+        .PivotFields("AC/ETC week3-4").Orientation = xlDataField
 
         ' Format PivotTable
         .RowAxisLayout xlTabularRow
@@ -97,7 +98,7 @@ Sub CreatePivotTableAndTotal()
         .Font.Color = RGB(255, 255, 255) ' White font color
     End With
 
-    ' ✅ Adjust total formulas: SUM for numbers, leave percentage fields empty
+    ' ✅ Adjust total formulas: SUM for numbers, leave percentage fields empty, hide zeros
     For Each cell In wsPivot.Range(wsPivot.Cells(3, 3), wsPivot.Cells(3, lastColumn))
         lastRow = wsPivot.Cells(wsPivot.Rows.Count, cell.Column).End(xlUp).Row
         
@@ -108,11 +109,15 @@ Sub CreatePivotTableAndTotal()
         ' Check if column is a percentage field
         Select Case columnHeader
             Case "EV,% ", "AC/ETC week1-2 ", "AC/ETC week3-4 "
-                ' ✅ LEAVE EMPTY (No formula)
+                ' ✅ LEAVE EMPTY (No formula for percentage fields)
                 cell.Value = ""
             Case Else
                 ' ✅ Use SUM for numeric fields
                 cell.Formula = "=SUM(" & wsPivot.Cells(4, cell.Column).Address & ":" & wsPivot.Cells(lastRow, cell.Column).Address & ")"
+                
+                ' ✅ Hide 0 values
+                totalValue = cell.Value
+                If totalValue = 0 Then cell.Value = ""
         End Select
 
         ' Apply formatting

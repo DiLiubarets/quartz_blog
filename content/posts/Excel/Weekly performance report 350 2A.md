@@ -97,10 +97,25 @@ Sub CreatePivotTableAndTotal()
         .Font.Color = RGB(255, 255, 255) ' White font color
     End With
 
-    ' Set total formulas dynamically
+    ' ✅ Adjust total formulas: SUM for numbers, leave percentage fields empty
     For Each cell In wsPivot.Range(wsPivot.Cells(3, 3), wsPivot.Cells(3, lastColumn))
         lastRow = wsPivot.Cells(wsPivot.Rows.Count, cell.Column).End(xlUp).Row
-        cell.Formula = "=SUM(" & wsPivot.Cells(4, cell.Column).Address & ":" & wsPivot.Cells(lastRow, cell.Column).Address & ")"
+        
+        ' Get the column header name
+        Dim columnHeader As String
+        columnHeader = wsPivot.Cells(4, cell.Column).Value
+        
+        ' Check if column is a percentage field
+        Select Case columnHeader
+            Case "EV,% ", "AC/ETC week1-2 ", "AC/ETC week3-4 "
+                ' ✅ LEAVE EMPTY (No formula)
+                cell.Value = ""
+            Case Else
+                ' ✅ Use SUM for numeric fields
+                cell.Formula = "=SUM(" & wsPivot.Cells(4, cell.Column).Address & ":" & wsPivot.Cells(lastRow, cell.Column).Address & ")"
+        End Select
+
+        ' Apply formatting
         cell.Font.Bold = True
         cell.Interior.Color = RGB(0, 0, 0)
         cell.Font.Color = RGB(255, 255, 255)

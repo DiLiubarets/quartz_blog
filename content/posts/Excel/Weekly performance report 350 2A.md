@@ -114,6 +114,9 @@ Sub CreatePivotTableAndTotal()
     wsPivot.Cells(3, lastCol + 1).EntireColumn.PasteSpecial Paste:=xlPasteFormats
     Application.CutCopyMode = False
 
+    ' ✅ AutoFit all columns
+    wsPivot.Cells.EntireColumn.AutoFit
+
     ' Success message
     MsgBox "Pivot Table and Total row created successfully!", vbInformation
 

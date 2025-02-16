@@ -12,6 +12,8 @@ Sub CreatePivotTableAndTotal()
     Dim lastColumn As Long
     Dim lastRow As Long
     Dim cell As Range
+    Dim field As PivotField
+    Dim lastCol As Long
 
     ' Get the current month name
     monthName = Format(Date, "mmm")
@@ -93,6 +95,13 @@ Sub CreatePivotTableAndTotal()
     pivotTable.PivotFields("Sum of EV,%").Caption = "EV,% "
     pivotTable.PivotFields("Sum of AC/ETC week1-2").Caption = "AC/ETC week1-2 " ' Added space at the end
 
+    ' Explicitly set the number format again to ensure it's applied
+    For Each field In pivotTable.DataFields
+        If field.Name = "EV,% " Or field.Name = "AC/ETC week1-2 " Or field.Name = "AC/ETC week3-4 " Then
+            field.NumberFormat = "0.00%"
+        End If
+    Next field
+
     ' Find last column in the pivot table
     lastColumn = wsPivot.Cells(4, wsPivot.Columns.Count).End(xlToLeft).Column ' Adjusted for new starting position
 
@@ -112,6 +121,17 @@ Sub CreatePivotTableAndTotal()
         cell.Interior.Color = RGB(0, 0, 0) ' Black background
         cell.Font.Color = RGB(255, 255, 255) ' White font color
     Next cell
+
+    ' Insert a column named "Notes" after the last column of the pivot table in row 4
+    lastCol = pivotTable.TableRange2.Columns.Count
+    wsPivot.Cells(4, lastCol + 2).EntireColumn.Insert
+    wsPivot.Cells(4, lastCol + 2).Value = "Notes"
+
+    ' Copy the style from the last column of the pivot table to the "Notes" column
+    wsPivot.Cells(3, lastCol).EntireColumn.Copy
+    wsPivot.Cells(3, lastCol + 1).EntireColumn.PasteSpecial Paste:=xlPasteFormats
+
+    Application.CutCopyMode = False
 
     ' Display success message
     MsgBox "Pivot Table and Total row created successfully!", vbInformation

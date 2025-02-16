@@ -34,8 +34,8 @@ Sub CreatePivotTableAndTotal()
     Set wsPivot = ThisWorkbook.Worksheets.Add
     wsPivot.Name = "Report"
 
-    ' Set pivot table destination
-    Set pivotDestination = wsPivot.Range("A3")
+    ' Set pivot table destination (Now starts at B4)
+    Set pivotDestination = wsPivot.Range("B4")
 
     ' Create Pivot Cache
     Set pivotCache = ThisWorkbook.PivotCaches.Create(SourceType:=xlDatabase, SourceData:=pivotRange)
@@ -75,6 +75,7 @@ Sub CreatePivotTableAndTotal()
         .ColumnGrand = False
         .RowGrand = False
         .TableStyle2 = "PivotStyleMedium15"
+        .DisplayFieldCaptions = False ' Hide field captions
     End With
 
     ' Remove subtotals
@@ -90,13 +91,13 @@ Sub CreatePivotTableAndTotal()
     pivotTable.PivotFields("Sum of AC week3-4").Caption = "AC week3-4 "
     pivotTable.PivotFields("Sum of AC month").Caption = "AC month "
     pivotTable.PivotFields("Sum of EV,%").Caption = "EV,% "
-    pivotTable.PivotFields("Sum of AC/ETC week1-2").Caption = "AC/ETC week1-2"
+    pivotTable.PivotFields("Sum of AC/ETC week1-2").Caption = "AC/ETC week1-2 " ' Added space at the end
 
     ' Find last column in the pivot table
-    lastColumn = wsPivot.Cells(3, wsPivot.Columns.Count).End(xlToLeft).Column
+    lastColumn = wsPivot.Cells(4, wsPivot.Columns.Count).End(xlToLeft).Column ' Adjusted for new starting position
 
     ' Set the value and style for the "Total" label
-    With wsPivot.Cells(3, 2)
+    With wsPivot.Cells(4, 2)
         .Value = "Total"
         .Font.Bold = True
         .Interior.Color = RGB(0, 0, 0) ' Black background
@@ -104,7 +105,7 @@ Sub CreatePivotTableAndTotal()
     End With
 
     ' Set the formula and style for the total cells dynamically
-    For Each cell In wsPivot.Range(wsPivot.Cells(3, 3), wsPivot.Cells(3, lastColumn))
+    For Each cell In wsPivot.Range(wsPivot.Cells(4, 3), wsPivot.Cells(4, lastColumn))
         lastRow = wsPivot.Cells(wsPivot.Rows.Count, cell.Column).End(xlUp).Row ' Find the last row with data in the current column
         cell.Formula = "=SUM(" & cell.Offset(3, 0).Address & ":" & wsPivot.Cells(lastRow, cell.Column).Address & ")"
         cell.Font.Bold = True

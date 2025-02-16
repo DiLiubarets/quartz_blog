@@ -44,13 +44,15 @@ Sub CreatePivotTableAndTotal()
         .PivotFields("AC week3-4").Orientation = xlDataField
         .PivotFields("AC month").Orientation = xlDataField
 
-        ' Add calculated fields
+        ' ✅ Add calculated fields
         .CalculatedFields.Add "EV,%", "=IFERROR(EV/ETC JIRA, 0)"
         .CalculatedFields.Add "AC/ETC week1-2", "=IFERROR('AC week1-2'/'ETC JIRA', 0)"
+        .CalculatedFields.Add "AC/ETC week3-4", "=IFERROR('AC week3-4'/'ETC JIRA', 0)" ' ✅ New field added
 
         ' Set calculated fields orientation
         .PivotFields("EV,%").Orientation = xlDataField
         .PivotFields("AC/ETC week1-2").Orientation = xlDataField
+        .PivotFields("AC/ETC week3-4").Orientation = xlDataField ' ✅ Display new field
 
         ' Format PivotTable
         .RowAxisLayout xlTabularRow
@@ -60,15 +62,15 @@ Sub CreatePivotTableAndTotal()
         .RowGrand = False
     End With
 
-    ' ✅ FIX: Disable subtotals only for applicable fields
+    ' ✅ Disable subtotals only for applicable fields
     For Each pf In pivotTable.RowFields
         pf.Subtotals = Array(False, False, False, False, False, False, False, False, False, False, False, False)
     Next pf
 
     ' Rename fields
     Dim fieldNames As Variant, newNames As Variant, i As Integer
-    fieldNames = Array("Sum of ETC JIRA", "Sum of EV", "Sum of AC week1-2", "Sum of AC week3-4", "Sum of AC month", "Sum of EV,%", "Sum of AC/ETC week1-2")
-    newNames = Array("ETC JIRA ", "EV ", "AC week1-2 ", "AC week3-4 ", "AC month ", "EV,% ", "AC/ETC week1-2 ")
+    fieldNames = Array("Sum of ETC JIRA", "Sum of EV", "Sum of AC week1-2", "Sum of AC week3-4", "Sum of AC month", "Sum of EV,%", "Sum of AC/ETC week1-2", "Sum of AC/ETC week3-4")
+    newNames = Array("ETC JIRA ", "EV ", "AC week1-2 ", "AC week3-4 ", "AC month ", "EV,% ", "AC/ETC week1-2 ", "AC/ETC week3-4 ")
 
     For i = LBound(fieldNames) To UBound(fieldNames)
         On Error Resume Next

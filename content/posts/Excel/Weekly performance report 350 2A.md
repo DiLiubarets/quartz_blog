@@ -530,10 +530,10 @@ Sub InsertXLOOKUPFormula()
     ' Find the last row in column A of "War Feb"
     lastRow = wsWarFeb.Cells(wsWarFeb.Rows.Count, "A").End(xlUp).Row
 
-    ' Find the column with the name "Notes from PEs" in "War Feb"
+    ' Find the column with the name "Notes from PEs" in "War Feb" (Row 1)
     Set notesCol = wsWarFeb.Rows(1).Find("Notes from PEs", LookIn:=xlValues, LookAt:=xlWhole)
     
-    ' Find the column with the name "WP" in "War Feb"
+    ' Find the column with the name "WP" in "War Feb" (Row 1)
     Set wpCol = wsWarFeb.Rows(1).Find("WP", LookIn:=xlValues, LookAt:=xlWhole)
 
     ' Find the first column of the pivot table in the "Report" sheet
@@ -543,8 +543,8 @@ Sub InsertXLOOKUPFormula()
         Exit For
     Next pivotTable
 
-    ' Find the column with the name "Notes" in "Report"
-    Set notesReportCol = wsReport.Rows(1).Find("Notes", LookIn:=xlValues, LookAt:=xlWhole)
+    ' Find the column with the name "Notes" in "Report" (Row 4)
+    Set notesReportCol = wsReport.Rows(4).Find("Notes", LookIn:=xlValues, LookAt:=xlWhole)
 
     ' Ensure all necessary columns are found
     If Not notesCol Is Nothing And Not wpCol Is Nothing And firstPivotColNum > 0 And Not notesReportCol Is Nothing Then
@@ -553,7 +553,7 @@ Sub InsertXLOOKUPFormula()
         notesReportColNum = notesReportCol.Column
 
         ' Define the XLOOKUP formula dynamically using R1C1 notation
-        formula = "=XLOOKUP(RC" & wpColNum & ", 'Report'!C" & firstPivotColNum & ", 'Report'!C" & notesReportColNum & ")"
+        formula = "=XLOOKUP(RC" & wpColNum & ", 'Report'!R4C" & firstPivotColNum & ":R1000C" & firstPivotColNum & ", 'Report'!R4C" & notesReportColNum & ":R1000C" & notesReportColNum & ")"
 
         ' Debugging: Print the formula to the Immediate Window
         Debug.Print formula
@@ -561,7 +561,7 @@ Sub InsertXLOOKUPFormula()
         ' Insert the formula into the "Notes from PEs" column in War Feb sheet
         wsWarFeb.Range(wsWarFeb.Cells(2, notesColNum), wsWarFeb.Cells(lastRow, notesColNum)).FormulaR1C1 = formula
     Else
-        MsgBox "Column 'Notes from PEs', 'WP', 'Notes' in Report, or the first column of the pivot table not found.", vbExclamation
+        MsgBox "Column 'Notes from PEs', 'WP', 'Notes' in Report (Row 4), or the first column of the pivot table not found.", vbExclamation
     End If
 
 End Sub

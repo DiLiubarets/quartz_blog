@@ -153,7 +153,7 @@ Sub WAR_Pivot_To_Data()
     Dim pf As PivotField, dataRange As Range
     Dim tbl As ListObject, cell As Range
     Dim monthName As String
-    Dim lastRow As Long, i As Integer
+    Dim lastRow As Long
 
     ' Get the current month name
     monthName = Format(Date, "mmm")
@@ -173,47 +173,27 @@ Sub WAR_Pivot_To_Data()
     Set wsTarget = ThisWorkbook.Sheets.Add
     wsTarget.Name = "WAR " & monthName
 
-    ' Copy PivotTable data
+    ' Copy PivotTable data safely
     pt.TableRange2.Copy
-    wsTarget.Range("A1").PasteSpecial Paste:=xlPasteAll
+    DoEvents ' Allow Excel to process the clipboard
+    wsTarget.Range("A1").PasteSpecial Paste:=xlPasteValues
+    Application.CutCopyMode = False
 
-    ' Get new pivot table if it exists
-    On Error Resume Next
-    Set newPt = wsTarget.PivotTables(1)
-    On Error GoTo 0
-
-    ' Format PivotTable
-    If Not newPt Is Nothing Then
-        With newPt
-            .RowAxisLayout xlTabularRow
-            .RepeatAllLabels xlRepeatLabels
-            .ShowTableStyleRowStripes = False
-            .ShowTableStyleColumnStripes = False
-            .ColumnGrand = False
-            .RowGrand = False
-            For Each pf In .RowFields
-                pf.Subtotals = Array(False, False, False, False, False, False, False, False, False, False, False, False)
-            Next pf
-        End With
+    ' If PasteSpecial fails, use direct assignment
+    If wsTarget.Range("A1").Value = "" Then
+        Dim sourceRange As Range, targetRange As Range
+        Set sourceRange = pt.TableRange2
+        Set targetRange = wsTarget.Range("A1").Resize(sourceRange.Rows.Count, sourceRange.Columns.Count)
+        targetRange.Value = sourceRange.Value
     End If
 
-    ' Unmerge cells
+    ' Unmerge cells and align text
     wsTarget.Cells.UnMerge
-    wsTarget.Columns("A").UnMerge
-    wsTarget.Columns("A:B").UnMerge
-
-    ' Align text to the left
     wsTarget.Columns("A:C").HorizontalAlignment = xlLeft
 
     ' Freeze panes at row 4
     wsTarget.Rows("4:4").Select
     ActiveWindow.FreezePanes = True
-
-    ' Convert PivotTable to values
-    Set dataRange = wsTarget.Range("A1").CurrentRegion
-    dataRange.Copy
-    dataRange.PasteSpecial Paste:=xlPasteValues
-    Application.CutCopyMode = False
 
     ' Delete the first two rows
     wsTarget.Rows("1:2").Delete
@@ -276,7 +256,7 @@ Sub WAR_Pivot_To_Data()
         End Select
     Next col
 
-    ' Ensure required columns exist
+    ' Ensure required columns exist before proceeding
     If week1ColIndex = 0 Or week2ColIndex = 0 Or totalWeek12SPColIndex = 0 Then Exit Sub
     If week3ColIndex = 0 Or week4ColIndex = 0 Or totalWeek34SPColIndex = 0 Then Exit Sub
     If totalMonthSPColIndex = 0 Then Exit Sub

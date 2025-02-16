@@ -7,7 +7,7 @@ Sub CreatePivotTableAndTotal()
     Dim pivotRange As Range, pivotDestination As Range
     Dim monthName As String
     Dim lastColumn As Long, lastRow As Long, lastCol As Long
-    Dim cell As Range, field As PivotField
+    Dim cell As Range, field As PivotField, pf As PivotField
 
     ' Get the current month name
     monthName = Format(Date, "mmm")
@@ -60,9 +60,10 @@ Sub CreatePivotTableAndTotal()
         .RowGrand = False
     End With
 
-    ' Remove subtotals
-    pivotTable.PivotFields("WP").Subtotals = Array(False)
-    pivotTable.PivotFields("WP Description").Subtotals = Array(False)
+    ' ✅ FIX: Disable subtotals only for applicable fields
+    For Each pf In pivotTable.RowFields
+        pf.Subtotals = Array(False, False, False, False, False, False, False, False, False, False, False, False)
+    Next pf
 
     ' Rename fields
     Dim fieldNames As Variant, newNames As Variant, i As Integer

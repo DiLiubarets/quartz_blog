@@ -159,6 +159,8 @@ Sub WAR_Pivot_To_Data()
     Dim totalWeek12SPColIndex As Integer, totalWeek34SPColIndex As Integer
     Dim totalMonthSPColIndex As Integer
     Dim chargeNumberCol As ListColumn, week5Col As ListColumn
+    Dim empColIndex As Integer
+    Dim i As Long
     
     Application.ScreenUpdating = False
     Application.Calculation = xlCalculationManual
@@ -213,7 +215,9 @@ Sub WAR_Pivot_To_Data()
     wsTarget.Cells.UnMerge
 
     ' Freeze panes at row 4
-    wsTarget.Rows(4).FreezePanes = True
+    wsTarget.Activate
+    wsTarget.Range("A4").Select
+    ActiveWindow.FreezePanes = True
 
     ' Copy PivotTable data and paste as values
     Set dataRange = newPt.TableRange2
@@ -289,10 +293,19 @@ Sub WAR_Pivot_To_Data()
     InsertFormula.InsertFormula_ETC
     InsertFormula.InsertFormula_EV
 
-    ' Delete rows where "Employee Name" is "ETC 1" or "ETC 2"
-    Dim i As Long
+    ' Ensure the "Employee Name" column exists before deleting rows
+    On Error Resume Next
+    empColIndex = tbl.ListColumns("Employee Name").Index
+    On Error GoTo 0
+
+    If empColIndex = 0 Then
+        MsgBox "Error: 'Employee Name' column not found.", vbCritical
+        Exit Sub
+    End If
+
+    ' Delete rows where "Employee Name" starts with "ETC "
     For i = tbl.ListRows.Count To 1 Step -1
-        If tbl.ListRows(i).Range.Cells(1, tbl.ListColumns("Employee Name").Index).Value Like "ETC *" Then
+        If tbl.ListRows(i).Range.Cells(1, empColIndex).Value Like "ETC *" Then
             tbl.ListRows(i).Delete
         End If
     Next i

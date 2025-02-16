@@ -566,3 +566,41 @@ Sub InsertXLOOKUPFormula()
 
 End Sub
 ```
+
+```vb
+With pivotTable
+    ' Add row fields (including "Notes from PEs")
+    .PivotFields("WP").Orientation = xlRowField
+    .PivotFields("WP Description").Orientation = xlRowField
+    .PivotFields("Notes from PEs").Orientation = xlRowField
+
+    ' Add data fields
+    .PivotFields("ETC JIRA").Orientation = xlDataField
+    .PivotFields("EV").Orientation = xlDataField
+    .PivotFields("AC week1-2").Orientation = xlDataField
+    .PivotFields("AC week3-4").Orientation = xlDataField
+    .PivotFields("AC month").Orientation = xlDataField
+
+    ' Add calculated fields
+    .CalculatedFields.Add "EV,%", "=IFERROR(EV/ETC JIRA, 0)"
+    .CalculatedFields.Add "AC/ETC week1-2", "=IFERROR('AC week1-2'/'ETC JIRA', 0)"
+    .CalculatedFields.Add "AC/ETC week3-4", "=IFERROR('AC week3-4'/'ETC JIRA', 0)"
+
+    ' Set calculated fields orientation
+    .PivotFields("EV,%").Orientation = xlDataField
+    .PivotFields("AC/ETC week1-2").Orientation = xlDataField
+    .PivotFields("AC/ETC week3-4").Orientation = xlDataField
+
+    ' Force correct row field order
+    .PivotFields("WP").Position = 1
+    .PivotFields("WP Description").Position = 2
+    .PivotFields("Notes from PEs").Position = 3 ' Moves "Notes from PEs" after data fields
+
+    ' Format PivotTable
+    .RowAxisLayout xlTabularRow
+    .TableStyle2 = "PivotStyleMedium15"
+    .DisplayFieldCaptions = False
+    .ColumnGrand = False
+    .RowGrand = False
+End With
+```

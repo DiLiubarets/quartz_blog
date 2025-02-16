@@ -96,18 +96,18 @@ Sub CreatePivotTableAndTotal()
     ' Find last column in the pivot table
     lastColumn = wsPivot.Cells(4, wsPivot.Columns.Count).End(xlToLeft).Column ' Adjusted for new starting position
 
-    ' Set the value and style for the "Total" label
-    With wsPivot.Cells(4, 2)
+    ' Set the value and style for the "Total" label (Now in row 3)
+    With wsPivot.Cells(3, 2)
         .Value = "Total"
         .Font.Bold = True
         .Interior.Color = RGB(0, 0, 0) ' Black background
         .Font.Color = RGB(255, 255, 255) ' White font color
     End With
 
-    ' Set the formula and style for the total cells dynamically
-    For Each cell In wsPivot.Range(wsPivot.Cells(4, 3), wsPivot.Cells(4, lastColumn))
+    ' Set the formula and style for the total cells dynamically (Now in row 3)
+    For Each cell In wsPivot.Range(wsPivot.Cells(3, 3), wsPivot.Cells(3, lastColumn))
         lastRow = wsPivot.Cells(wsPivot.Rows.Count, cell.Column).End(xlUp).Row ' Find the last row with data in the current column
-        cell.Formula = "=SUM(" & cell.Offset(3, 0).Address & ":" & wsPivot.Cells(lastRow, cell.Column).Address & ")"
+        cell.Formula = "=SUM(" & wsPivot.Cells(4, cell.Column).Address & ":" & wsPivot.Cells(lastRow, cell.Column).Address & ")"
         cell.Font.Bold = True
         cell.Interior.Color = RGB(0, 0, 0) ' Black background
         cell.Font.Color = RGB(255, 255, 255) ' White font color

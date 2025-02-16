@@ -507,74 +507,62 @@ End Sub
 
 test for notes 
 ```vb 
-Sub TransferNotesToWAR()
-    Dim wsWAR As Worksheet, wsReport As Worksheet
-    Dim warWPCol As Range, reportWPCol As Range, reportNotesCol As Range, warNotesCol As Range
-    Dim lastRowWAR As Long, lastRowReport As Long
-    Dim i As Long, foundRow As Range
-    Dim WPValue As String
+Sub InsertXLOOKUPFormula()
 
-    ' Get the current month name
-    Dim monthName As String
-    monthName = Format(Date, "mmm")
+    Dim wsWarFeb As Worksheet
+    Dim wsReport As Worksheet
+    Dim lastRow As Long
+    Dim formula As String
+    Dim notesCol As Range
+    Dim wpCol As Range
+    Dim pivotTable As PivotTable
+    Dim firstPivotCol As Range
+    Dim notesColNum As Long
+    Dim wpColNum As Long
+    Dim firstPivotColNum As Long
+    Dim notesReportCol As Range
+    Dim notesReportColNum As Long
 
     ' Set worksheet references
-    Set wsWAR = ThisWorkbook.Sheets("WAR " & monthName)
+    Set wsWarFeb = ThisWorkbook.Sheets("War Feb")
     Set wsReport = ThisWorkbook.Sheets("Report")
 
-    ' Find last row in both sheets
-    lastRowWAR = wsWAR.Cells(Rows.Count, "A").End(xlUp).Row
-    lastRowReport = wsReport.Cells(Rows.Count, "B").End(xlUp).Row
+    ' Find the last row in column A of "War Feb"
+    lastRow = wsWarFeb.Cells(wsWarFeb.Rows.Count, "A").End(xlUp).Row
 
-    ' Find WP and Notes columns dynamically
-    Dim warWPIndex As Integer, warNotesIndex As Integer
-    Dim reportWPIndex As Integer, reportNotesIndex As Integer
-    Dim header As Range
+    ' Find the column with the name "Notes from PEs" in "War Feb"
+    Set notesCol = wsWarFeb.Rows(1).Find("Notes from PEs", LookIn:=xlValues, LookAt:=xlWhole)
+    
+    ' Find the column with the name "WP" in "War Feb"
+    Set wpCol = wsWarFeb.Rows(1).Find("WP", LookIn:=xlValues, LookAt:=xlWhole)
 
-    ' Identify WP and Notes columns in WAR
-    Set header = wsWAR.Rows(1)
-    For Each cell In header.Cells
-        Select Case cell.Value
-            Case "WP"
-                warWPIndex = cell.Column
-            Case "Notes from PEs"
-                warNotesIndex = cell.Column
-        End Select
-    Next cell
+    ' Find the first column of the pivot table in the "Report" sheet
+    For Each pivotTable In wsReport.PivotTables
+        Set firstPivotCol = pivotTable.TableRange1.Columns(1)
+        firstPivotColNum = firstPivotCol.Column
+        Exit For
+    Next pivotTable
 
-    ' Identify WP and Notes columns in Report
-    Set header = wsReport.Rows(4) ' Pivot Table starts at row 4
-    For Each cell In header.Cells
-        Select Case cell.Value
-            Case "WP"
-                reportWPIndex = cell.Column
-            Case "Notes"
-                reportNotesIndex = cell.Column
-        End Select
-    Next cell
+    ' Find the column with the name "Notes" in "Report"
+    Set notesReportCol = wsReport.Rows(1).Find("Notes", LookIn:=xlValues, LookAt:=xlWhole)
 
-    ' Check if columns were found
-    If warWPIndex = 0 Or warNotesIndex = 0 Or reportWPIndex = 0 Or reportNotesIndex = 0 Then
-        MsgBox "Error: Could not find required columns in WAR or Report sheet.", vbCritical
-        Exit Sub
+    ' Ensure all necessary columns are found
+    If Not notesCol Is Nothing And Not wpCol Is Nothing And firstPivotColNum > 0 And Not notesReportCol Is Nothing Then
+        notesColNum = notesCol.Column
+        wpColNum = wpCol.Column
+        notesReportColNum = notesReportCol.Column
+
+        ' Define the XLOOKUP formula dynamically using R1C1 notation
+        formula = "=XLOOKUP(RC" & wpColNum & ", 'Report'!C" & firstPivotColNum & ", 'Report'!C" & notesReportColNum & ")"
+
+        ' Debugging: Print the formula to the Immediate Window
+        Debug.Print formula
+
+        ' Insert the formula into the "Notes from PEs" column in War Feb sheet
+        wsWarFeb.Range(wsWarFeb.Cells(2, notesColNum), wsWarFeb.Cells(lastRow, notesColNum)).FormulaR1C1 = formula
+    Else
+        MsgBox "Column 'Notes from PEs', 'WP', 'Notes' in Report, or the first column of the pivot table not found.", vbExclamation
     End If
-
-    ' Loop through WP values in WAR and find corresponding Notes in Report
-    For i = 2 To lastRowWAR ' Assuming row 1 is the header
-        WPValue = wsWAR.Cells(i, warWPIndex).Value
-        If WPValue <> "" Then
-            ' Search for WPValue in Report sheet
-            Set foundRow = wsReport.Columns(reportWPIndex).Find(WPValue, LookAt:=xlWhole)
-
-            ' If found, copy the corresponding Notes value
-            If Not foundRow Is Nothing Then
-                wsWAR.Cells(i, warNotesIndex).Value = wsReport.Cells(foundRow.Row, reportNotesIndex).Value
-            End If
-        End If
-    Next i
-
-    ' Success message
-    MsgBox "Notes successfully transferred from Report to WAR " & monthName & "!", vbInformation
 
 End Sub
 ```

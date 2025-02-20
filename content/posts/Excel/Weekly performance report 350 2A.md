@@ -604,3 +604,110 @@ With pivotTable
     .RowGrand = False
 End With
 ```
+```vb
+Sub FindDifferences()
+
+    Dim wsWar As Worksheet
+    Dim wsReport As Worksheet
+    Dim currentMonth As String
+    Dim warWPCol As Range
+    Dim reportWPCol As Range
+    Dim acwpWeek1_2Col As Range
+    Dim acwpWeek3_4Col As Range
+    Dim warDescCol As Range
+    Dim cell As Range
+    Dim lastRow As Long
+    Dim differences As String
+    Dim diffCount As Long
+    Dim dict As Object
+    Dim foundCell As Range
+    Dim reportRow As Long
+
+    ' Create a dictionary to store WP values from general_report
+    Set dict = CreateObject("Scripting.Dictionary")
+
+    ' Get the current month
+    currentMonth = Format(Date, "mmm")
+
+    ' Set the worksheets
+    On Error Resume Next
+    Set wsWar = ThisWorkbook.Sheets("WAR " & currentMonth)
+    Set wsReport = ThisWorkbook.Sheets("general_report")
+    On Error GoTo 0
+
+    If wsWar Is Nothing Then
+        MsgBox "Sheet 'WAR " & currentMonth & "' not found.", vbExclamation
+        Exit Sub
+    End If
+
+    If wsReport Is Nothing Then
+        MsgBox "Sheet 'general_report' not found.", vbExclamation
+        Exit Sub
+    End If
+
+    ' Find the relevant columns
+    Set warWPCol = wsWar.Rows(1).Find(What:="WP", LookIn:=xlValues, LookAt:=xlWhole)
+    Set reportWPCol = wsReport.Rows(1).Find(What:="WP", LookIn:=xlValues, LookAt:=xlWhole)
+    Set acwpWeek1_2Col = wsReport.Rows(1).Find(What:="ACWP week 1-2", LookIn:=xlValues, LookAt:=xlWhole)
+    Set acwpWeek3_4Col = wsReport.Rows(1).Find(What:="ACWP week 3-4", LookIn:=xlValues, LookAt:=xlWhole)
+    Set warDescCol = wsWar.Rows(1).Find(What:="WP Description", LookIn:=xlValues, LookAt:=xlWhole)
+
+    If warWPCol Is Nothing Or reportWPCol Is Nothing Or acwpWeek1_2Col Is Nothing Or acwpWeek3_4Col Is Nothing Or warDescCol Is Nothing Then
+        MsgBox "One or more required columns were not found.", vbExclamation
+        Exit Sub
+    End If
+
+    ' Populate the dictionary with WP values from general_report
+    For Each cell In wsReport.Range(reportWPCol.Offset(1, 0), wsReport.Cells(wsReport.Rows.Count, reportWPCol.Column).End(xlUp))
+        If Not IsEmpty(cell.Value) Then
+            dict(cell.Value) = cell.Row ' Store the row number where WP is found
+        End If
+    Next cell
+
+    ' Find the last row in general_report
+    lastRow = wsReport.Cells(wsReport.Rows.Count, reportWPCol.Column).End(xlUp).Row
+
+    ' Initialize the differences string
+    differences = "Differences found:" & vbCrLf
+    diffCount = 0
+
+    ' Loop through each WP in WAR and check if it exists in general_report
+    For Each cell In wsWar.Range(warWPCol.Offset(1, 0), wsWar.Cells(wsWar.Rows.Count, warWPCol.Column).End(xlUp))
+        If Not IsEmpty(cell.Value) Then
+            If Not dict.exists(cell.Value) Then
+                ' WP is missing in general_report, but we need to check ACWP values
+
+                ' Find the corresponding row in wsReport
+                Set foundCell = wsReport.Range(reportWPCol.Offset(1, 0), wsReport.Cells(wsReport.Rows.Count, reportWPCol.Column).End(xlUp)).Find(What:=cell.Value, LookIn:=xlValues, LookAt:=xlWhole)
+
+                If Not foundCell Is Nothing Then
+                    reportRow = foundCell.Row
+                Else
+                    reportRow = 0 ' WP not found in report
+                End If
+
+                ' Check ACWP values only if WP was found in the report
+                If reportRow > 0 Then
+                    If wsReport.Cells(reportRow, acwpWeek1_2Col.Column).Value > 0 Or wsReport.Cells(reportRow, acwpWeek3_4Col.Column).Value > 0 Then
+                        lastRow = lastRow + 1
+                        wsReport.Cells(lastRow, reportWPCol.Column).Value = cell.Value
+                        wsReport.Cells(lastRow, reportWPCol.Column).Interior.Color = RGB(255, 0, 0) ' Highlight in red
+                        wsReport.Cells(lastRow, reportWPCol.Column - 1).Value = wsWar.Cells(cell.Row, warDescCol.Column).Value ' Add description
+
+                        differences = differences & cell.Value & " - " & wsWar.Cells(cell.Row, warDescCol.Column).Value & vbCrLf
+                        diffCount = diffCount + 1
+                    End If
+                End If
+            End If
+        End If
+    Next cell
+
+    ' Display the differences in a message box
+    If diffCount > 0 Then
+        MsgBox differences, vbInformation
+    Else
+        MsgBox "No differences found.", vbInformation
+    End If
+
+End Sub
+```

@@ -1,5 +1,5 @@
 ```vb
-Sub AdjustAndCombineSheets()
+Sub CombineSheets_withCol()
 
     Dim ws As Worksheet
     Dim combinedWs As Worksheet
@@ -24,9 +24,10 @@ Sub AdjustAndCombineSheets()
     Dim newHeaders As Variant
     Dim lastCol As Integer
     Dim i As Integer
-    Dim origEstCol As Range
-    Dim origEstHrsCol As Range
-    Dim origEstHrsColNum As Integer
+    Dim origEstCol As Range, origEstHrsCol As Range
+    Dim remEstCol As Range, remHrsCol As Range
+    Dim timeSpentCol As Range, timeSpentHrsCol As Range
+    Dim origEstHrsColNum As Integer, remHrsColNum As Integer, timeSpentHrsColNum As Integer
 
     ' Define the columns to delete
     columnsToDelete = Array("Issue Links", "Fix Version/s", "ROI($)", "Updated", "Sprint History", "Sprint commitment", _
@@ -51,30 +52,30 @@ Sub AdjustAndCombineSheets()
     nextRow = 1
     firstSheet = True ' Flag to track the first sheet
 
+    ' Loop through all sheets except "Instructions" and "CombinedData"
     For Each ws In ThisWorkbook.Worksheets
         If ws.Name <> "Instructions" And ws.Name <> "CombinedData" Then
-            ' Delete unnecessary rows and format headers
             With ws
                 On Error Resume Next
                 .Shapes.Range(Array("Picture 1")).Delete
                 On Error GoTo 0
                 .Cells.UnMerge
-                .Cells.Borders.LineStyle = xlNone
-                .Rows("1:3").Delete
+                .Cells.Borders.LineStyle = xlNone ' Clear all borders
+                .Rows("1:3").Delete ' Delete the first three rows
                 
                 ' Format the first row
                 .Rows(1).Interior.Color = RGB(64, 64, 64)
                 .Rows(1).Font.Color = RGB(255, 255, 255)
-            End With
 
-            ' Find and delete rows containing "Generated at"
-            Set rng = ws.UsedRange.Find(What:="Generated at", LookIn:=xlValues, LookAt:=xlPart)
-            If Not rng Is Nothing Then
-                Do
-                    rng.EntireRow.Delete
-                    Set rng = ws.UsedRange.FindNext(rng)
-                Loop While Not rng Is Nothing
-            End If
+                ' Find and delete rows containing "Generated at"
+                Set rng = ws.UsedRange.Find(What:="Generated at", LookIn:=xlValues, LookAt:=xlPart)
+                If Not rng Is Nothing Then
+                    Do
+                        rng.EntireRow.Delete
+                        Set rng = ws.UsedRange.FindNext(rng)
+                    Loop While Not rng Is Nothing
+                End If
+            End With
 
             ' Delete specified columns
             For Each colName In columnsToDelete
@@ -82,11 +83,11 @@ Sub AdjustAndCombineSheets()
                 If Not found Is Nothing Then ws.Columns(found.Column).Delete
             Next colName
 
-            ' AutoFit all columns and rows
+            ' AutoFit columns and rows
             ws.Cells.EntireColumn.AutoFit
             ws.Cells.EntireRow.AutoFit
 
-            ' Copy data to the combined sheet
+            ' Copy data to CombinedData sheet
             If firstSheet Then
                 ws.UsedRange.Copy Destination:=combinedWs.Cells(nextRow, 1)
                 firstSheet = False
@@ -105,30 +106,50 @@ Sub AdjustAndCombineSheets()
         combinedWs.Cells(1, lastCol + i + 1).Value = newHeaders(i)
     Next i
 
-    ' Find "Original Estimate" column
+    ' Find relevant columns
     Set origEstCol = combinedWs.Rows(1).Find(What:="Original Estimate", LookIn:=xlValues, LookAt:=xlWhole)
     Set origEstHrsCol = combinedWs.Rows(1).Find(What:="Original Estima hrs", LookIn:=xlValues, LookAt:=xlWhole)
+    Set remEstCol = combinedWs.Rows(1).Find(What:="Remaining Estimate", LookIn:=xlValues, LookAt:=xlWhole)
+    Set remHrsCol = combinedWs.Rows(1).Find(What:="Remaining hrs", LookIn:=xlValues, LookAt:=xlWhole)
+    Set timeSpentCol = combinedWs.Rows(1).Find(What:="Time Spent", LookIn:=xlValues, LookAt:=xlWhole)
+    Set timeSpentHrsCol = combinedWs.Rows(1).Find(What:="Time Spent hrs", LookIn:=xlValues, LookAt:=xlWhole)
+
+    ' Apply formulas if columns are found
+    lastRow = combinedWs.Cells(combinedWs.Rows.Count, 1).End(xlUp).Row
 
     If Not origEstCol Is Nothing And Not origEstHrsCol Is Nothing Then
         origEstHrsColNum = origEstHrsCol.Column
-        lastRow = combinedWs.Cells(combinedWs.Rows.Count, origEstCol.Column).End(xlUp).Row
-
-        ' Apply formula: Original Estimate / 3600
         For i = 2 To lastRow
             combinedWs.Cells(i, origEstHrsColNum).Formula = "=" & combinedWs.Cells(i, origEstCol.Column).Address(False, False) & "/3600"
         Next i
+    End If
 
-        ' Convert formulas to values
+    If Not remEstCol Is Nothing And Not remHrsCol Is Nothing Then
+        remHrsColNum = remHrsCol.Column
         For i = 2 To lastRow
-            combinedWs.Cells(i, origEstHrsColNum).Value = combinedWs.Cells(i, origEstHrsColNum).Value
+            combinedWs.Cells(i, remHrsColNum).Formula = "=" & combinedWs.Cells(i, remEstCol.Column).Address(False, False) & "/3600"
         Next i
     End If
+
+    If Not timeSpentCol Is Nothing And Not timeSpentHrsCol Is Nothing Then
+        timeSpentHrsColNum = timeSpentHrsCol.Column
+        For i = 2 To lastRow
+            combinedWs.Cells(i, timeSpentHrsColNum).Formula = "=" & combinedWs.Cells(i, timeSpentCol.Column).Address(False, False) & "/3600"
+        Next i
+    End If
+
+    ' Convert formulas to values
+    For i = 2 To lastRow
+        If Not origEstHrsCol Is Nothing Then combinedWs.Cells(i, origEstHrsColNum).Value = combinedWs.Cells(i, origEstHrsColNum).Value
+        If Not remHrsCol Is Nothing Then combinedWs.Cells(i, remHrsColNum).Value = combinedWs.Cells(i, remHrsColNum).Value
+        If Not timeSpentHrsCol Is Nothing Then combinedWs.Cells(i, timeSpentHrsColNum).Value = combinedWs.Cells(i, timeSpentHrsColNum).Value
+    Next i
 
     ' AutoFit all columns and rows in the combined sheet
     combinedWs.Cells.EntireColumn.AutoFit
     combinedWs.Cells.EntireRow.AutoFit
 
-    MsgBox "All sheets adjusted, renamed, cleaned, and combined without 'Open' rows. Extra columns added and formulas applied!"
+    MsgBox "All sheets adjusted, renamed, cleaned, and combined without 'Open' rows. Formulas applied and converted to values!"
 
 End Sub
 

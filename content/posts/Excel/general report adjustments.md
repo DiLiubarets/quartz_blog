@@ -21,12 +21,22 @@ Sub AdjustAndCombineSheets()
     Dim statusColNum As Integer
     Dim originalName As String
     Dim counter As Integer
+    Dim newHeaders As Variant
+    Dim lastCol As Integer
+    Dim i As Integer
+    Dim origEstCol As Range
+    Dim origEstHrsCol As Range
+    Dim origEstHrsColNum As Integer
 
     ' Define the columns to delete
     columnsToDelete = Array("Issue Links", "Fix Version/s", "ROI($)", "Updated", "Sprint History", "Sprint commitment", _
                             "Project Status (Date / Comments)", "Last Issue Comment", "Description", "Solution")
 
-    ' Create a new sheet for the combined data
+    ' Define new columns to add in CombinedData
+    newHeaders = Array("Original Estima hrs", "Remaining hrs", "Time Spent hrs", "Original Estima SP", _
+                       "Remaining SP", "Time Spent SP", "EV, SP", "WP")
+
+    ' Create or clear the combined sheet
     On Error Resume Next
     Set combinedWs = ThisWorkbook.Sheets("CombinedData")
     On Error GoTo 0
@@ -43,111 +53,28 @@ Sub AdjustAndCombineSheets()
 
     For Each ws In ThisWorkbook.Worksheets
         If ws.Name <> "Instructions" And ws.Name <> "CombinedData" Then
+            ' Delete unnecessary rows and format headers
             With ws
                 On Error Resume Next
                 .Shapes.Range(Array("Picture 1")).Delete
                 On Error GoTo 0
                 .Cells.UnMerge
-                .Cells.Borders.LineStyle = xlNone ' Clear all borders
-                .Rows("1:3").Delete ' Delete the first three rows
+                .Cells.Borders.LineStyle = xlNone
+                .Rows("1:3").Delete
                 
                 ' Format the first row
                 .Rows(1).Interior.Color = RGB(64, 64, 64)
                 .Rows(1).Font.Color = RGB(255, 255, 255)
-
-                ' Find and delete rows containing "Generated at"
-                Set rng = ws.UsedRange.Find(What:="Generated at", LookIn:=xlValues, LookAt:=xlPart, _
-                                            SearchOrder:=xlByRows, SearchDirection:=xlNext, MatchCase:=False)
-                If Not rng Is Nothing Then
-                    Set deleteRange = rng
-                    Do
-                        If deleteRange Is Nothing Then
-                            Set deleteRange = rng
-                        Else
-                            Set deleteRange = Union(deleteRange, rng)
-                        End If
-                        Set rng = ws.UsedRange.FindNext(rng)
-                    Loop While Not rng Is Nothing And rng.Address <> deleteRange.Cells(1, 1).Address
-                    deleteRange.EntireRow.Delete
-                End If
             End With
 
-            ' Find the column with the header "Sprint"
-            Set sprintCol = ws.Rows(1).Find(What:="Sprint", LookIn:=xlValues, LookAt:=xlWhole)
-
-            If Not sprintCol Is Nothing Then
-                sprintColLetter = Split(sprintCol.Address, "$")(1)
-
-                ' Insert a new column after the Sprint column
-                sprintCol.Offset(0, 1).EntireColumn.Insert Shift:=xlToRight
-                newColLetter = Split(sprintCol.Offset(0, 1).Address, "$")(1)
-                ws.Cells(1, sprintCol.Column + 1).Value = "SP#"
-
-                ' Find the last row in the Sprint column
-                lastRow = ws.Cells(ws.Rows.Count, sprintCol.Column).End(xlUp).Row
-
-                ' Apply the formula to extract sprint number
-                For Each cell In ws.Range(newColLetter & "2:" & newColLetter & lastRow)
-                    cell.Formula = "=MID(" & sprintColLetter & cell.Row & ", FIND(""_"", " & sprintColLetter & cell.Row & ") + 1, " & _
-                                   "FIND(""_"", " & sprintColLetter & cell.Row & ", FIND(""_"", " & sprintColLetter & cell.Row & ") + 1) - " & _
-                                   "FIND(""_"", " & sprintColLetter & cell.Row & ") - 1)"
-                Next cell
-
-                ' Convert formulas to values
-                For Each cell In ws.Range(newColLetter & "2:" & newColLetter & lastRow)
-                    cell.Value = cell.Value
-                Next cell
-
-                ' Rename the sheet based on the value in the "SP#" column
-                On Error Resume Next
-                spName = Trim(CStr(ws.Cells(2, sprintCol.Column + 1).Value))
-                If Err.Number <> 0 Or spName = "" Then spName = "Unknown" ' Assign default name if error occurs
-                On Error GoTo 0
-
-                If spName <> "" Then
-                    originalName = spName
-                    counter = 1
-
-                    ' Ensure unique sheet name
-                    Do While SheetExists(spName)
-                        spName = originalName & "_" & counter
-                        counter = counter + 1
-                    Loop
-
-                    ws.Name = spName
-                Else
-                    ws.Name = "Not Found"
-                End If
+            ' Find and delete rows containing "Generated at"
+            Set rng = ws.UsedRange.Find(What:="Generated at", LookIn:=xlValues, LookAt:=xlPart)
+            If Not rng Is Nothing Then
+                Do
+                    rng.EntireRow.Delete
+                    Set rng = ws.UsedRange.FindNext(rng)
+                Loop While Not rng Is Nothing
             End If
-
-            ' Find the "Status" column
-            Set statusCol = ws.Rows(1).Find(What:="Status", LookIn:=xlValues, LookAt:=xlWhole)
-
-            If Not statusCol Is Nothing Then
-                statusColNum = statusCol.Column
-                lastRow = ws.Cells(ws.Rows.Count, statusColNum).End(xlUp).Row
-
-                ' Loop from bottom to top to delete rows with "Open"
-                For i = lastRow To 2 Step -1
-                    If Trim(LCase(ws.Cells(i, statusColNum).Value)) = "open" Then
-                        ws.Rows(i).Delete
-                    End If
-                Next i
-            End If
-
-            ' Create a table
-            Set rng = ws.UsedRange
-            Set tbl = ws.ListObjects.Add(xlSrcRange, rng, , xlYes)
-            tbl.Name = "JiraData_Table"
-            tbl.TableStyle = "TableStyleLight8"
-
-            ' Apply formatting to the first row
-            With ws.Rows(1)
-                .Interior.Color = RGB(0, 0, 0)
-                .Font.Color = RGB(255, 255, 255)
-                .Font.Size = 11
-                .Font.Name = "Arial"
-            End With
 
             ' Delete specified columns
             For Each colName In columnsToDelete
@@ -172,11 +99,36 @@ Sub AdjustAndCombineSheets()
         End If
     Next ws
 
+    ' Add new columns in CombinedData
+    lastCol = combinedWs.Cells(1, combinedWs.Columns.Count).End(xlToLeft).Column
+    For i = 0 To UBound(newHeaders)
+        combinedWs.Cells(1, lastCol + i + 1).Value = newHeaders(i)
+    Next i
+
+    ' Find "Original Estimate" column
+    Set origEstCol = combinedWs.Rows(1).Find(What:="Original Estimate", LookIn:=xlValues, LookAt:=xlWhole)
+    Set origEstHrsCol = combinedWs.Rows(1).Find(What:="Original Estima hrs", LookIn:=xlValues, LookAt:=xlWhole)
+
+    If Not origEstCol Is Nothing And Not origEstHrsCol Is Nothing Then
+        origEstHrsColNum = origEstHrsCol.Column
+        lastRow = combinedWs.Cells(combinedWs.Rows.Count, origEstCol.Column).End(xlUp).Row
+
+        ' Apply formula: Original Estimate / 3600
+        For i = 2 To lastRow
+            combinedWs.Cells(i, origEstHrsColNum).Formula = "=" & combinedWs.Cells(i, origEstCol.Column).Address(False, False) & "/3600"
+        Next i
+
+        ' Convert formulas to values
+        For i = 2 To lastRow
+            combinedWs.Cells(i, origEstHrsColNum).Value = combinedWs.Cells(i, origEstHrsColNum).Value
+        Next i
+    End If
+
     ' AutoFit all columns and rows in the combined sheet
     combinedWs.Cells.EntireColumn.AutoFit
     combinedWs.Cells.EntireRow.AutoFit
 
-    MsgBox "All sheets adjusted, renamed, cleaned, and combined without 'Open' rows. Everything is AutoFit!"
+    MsgBox "All sheets adjusted, renamed, cleaned, and combined without 'Open' rows. Extra columns added and formulas applied!"
 
 End Sub
 

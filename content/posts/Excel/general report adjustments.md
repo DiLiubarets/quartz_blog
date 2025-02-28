@@ -6,6 +6,7 @@ Sub AdjustAndCombineSheets()
     Dim rng As Range
     Dim deleteRange As Range
     Dim sprintCol As Range
+    Dim statusCol As Range
     Dim lastRow As Long
     Dim cell As Range
     Dim sprintColLetter As String
@@ -17,7 +18,8 @@ Sub AdjustAndCombineSheets()
     Dim spName As String
     Dim tbl As ListObject
     Dim firstSheet As Boolean
-    
+    Dim statusColNum As Integer
+
     ' Define the columns to delete
     columnsToDelete = Array("Issue Links", "Fix Version/s", "ROI($)", "Updated", "Sprint History", "Sprint commitment", _
                             "Project Status (Date / Comments)", "Last Issue Comment", "Description", "Solution")
@@ -95,33 +97,21 @@ Sub AdjustAndCombineSheets()
                 For Each cell In ws.Range(newColLetter & "2:" & newColLetter & lastRow)
                     cell.Value = cell.Value
                 Next cell
+            End If
 
-                ' Rename the sheet based on the value in the "SP#" column
-                Dim originalName As String
-                Dim counter As Integer
+            ' Find the "Status" column
+            Set statusCol = ws.Rows(1).Find(What:="Status", LookIn:=xlValues, LookAt:=xlWhole)
 
-                ' Ensure the value is treated as a string and handle errors
-                On Error Resume Next
-                spName = Trim(CStr(ws.Cells(2, sprintCol.Column + 1).Value))
-                If Err.Number <> 0 Then spName = "Unknown" ' Assign a default name if an error occurs
-                On Error GoTo 0
+            If Not statusCol Is Nothing Then
+                statusColNum = statusCol.Column
+                lastRow = ws.Cells(ws.Rows.Count, statusColNum).End(xlUp).Row
 
-                ' Check if the value is not empty and ensure unique sheet name
-                If spName <> "" Then
-                    originalName = spName
-                    counter = 1
-
-                    ' Check if a sheet with the same name already exists
-                    Do While SheetExists(spName)
-                        spName = originalName & "_" & counter
-                        counter = counter + 1
-                    Loop
-
-                    ' Rename the worksheet
-                    ws.Name = spName
-                Else
-                    ws.Name = "Not Found"
-                End If
+                ' Loop from bottom to top to delete rows with "Open"
+                For i = lastRow To 2 Step -1
+                    If Trim(LCase(ws.Cells(i, statusColNum).Value)) = "open" Then
+                        ws.Rows(i).Delete
+                    End If
+                Next i
             End If
 
             ' Create a table
@@ -163,7 +153,7 @@ Sub AdjustAndCombineSheets()
         End If
     Next ws
 
-    MsgBox "All sheets adjusted, renamed, and combined without duplicate headers!"
+    MsgBox "All sheets adjusted, renamed, and combined without 'Open' rows!"
 
 End Sub
 

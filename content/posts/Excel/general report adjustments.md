@@ -19,6 +19,8 @@ Sub AdjustAndCombineSheets()
     Dim tbl As ListObject
     Dim firstSheet As Boolean
     Dim statusColNum As Integer
+    Dim originalName As String
+    Dim counter As Integer
 
     ' Define the columns to delete
     columnsToDelete = Array("Issue Links", "Fix Version/s", "ROI($)", "Updated", "Sprint History", "Sprint commitment", _
@@ -97,6 +99,27 @@ Sub AdjustAndCombineSheets()
                 For Each cell In ws.Range(newColLetter & "2:" & newColLetter & lastRow)
                     cell.Value = cell.Value
                 Next cell
+
+                ' Rename the sheet based on the value in the "SP#" column
+                On Error Resume Next
+                spName = Trim(CStr(ws.Cells(2, sprintCol.Column + 1).Value))
+                If Err.Number <> 0 Or spName = "" Then spName = "Unknown" ' Assign default name if error occurs
+                On Error GoTo 0
+
+                If spName <> "" Then
+                    originalName = spName
+                    counter = 1
+
+                    ' Ensure unique sheet name
+                    Do While SheetExists(spName)
+                        spName = originalName & "_" & counter
+                        counter = counter + 1
+                    Loop
+
+                    ws.Name = spName
+                Else
+                    ws.Name = "Not Found"
+                End If
             End If
 
             ' Find the "Status" column
@@ -130,21 +153,15 @@ Sub AdjustAndCombineSheets()
 
             ' Delete specified columns
             For Each colName In columnsToDelete
-                ' Find the column with the specified name
                 Set found = ws.Rows(1).Find(What:=colName, LookIn:=xlValues, LookAt:=xlWhole)
-                ' If the column is found, delete it
-                If Not found Is Nothing Then
-                    ws.Columns(found.Column).Delete
-                End If
+                If Not found Is Nothing Then ws.Columns(found.Column).Delete
             Next colName
 
             ' Copy data to the combined sheet
             If firstSheet Then
-                ' Copy with headers for the first sheet
                 ws.UsedRange.Copy Destination:=combinedWs.Cells(nextRow, 1)
                 firstSheet = False
             Else
-                ' Copy without headers for subsequent sheets
                 ws.UsedRange.Offset(1, 0).Resize(ws.UsedRange.Rows.Count - 1, ws.UsedRange.Columns.Count).Copy _
                     Destination:=combinedWs.Cells(nextRow, 1)
             End If

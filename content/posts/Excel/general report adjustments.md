@@ -43,8 +43,6 @@ Sub AdjustAndCombineSheets()
 
     For Each ws In ThisWorkbook.Worksheets
         If ws.Name <> "Instructions" And ws.Name <> "CombinedData" Then
-            ws.Columns.AutoFit
-
             With ws
                 On Error Resume Next
                 .Shapes.Range(Array("Picture 1")).Delete
@@ -157,6 +155,10 @@ Sub AdjustAndCombineSheets()
                 If Not found Is Nothing Then ws.Columns(found.Column).Delete
             Next colName
 
+            ' AutoFit all columns and rows
+            ws.Cells.EntireColumn.AutoFit
+            ws.Cells.EntireRow.AutoFit
+
             ' Copy data to the combined sheet
             If firstSheet Then
                 ws.UsedRange.Copy Destination:=combinedWs.Cells(nextRow, 1)
@@ -170,7 +172,11 @@ Sub AdjustAndCombineSheets()
         End If
     Next ws
 
-    MsgBox "All sheets adjusted, renamed, and combined without 'Open' rows!"
+    ' AutoFit all columns and rows in the combined sheet
+    combinedWs.Cells.EntireColumn.AutoFit
+    combinedWs.Cells.EntireRow.AutoFit
+
+    MsgBox "All sheets adjusted, renamed, cleaned, and combined without 'Open' rows. Everything is AutoFit!"
 
 End Sub
 

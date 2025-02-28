@@ -394,7 +394,6 @@ Sub CombineSheets_withCol()
     Dim ws As Worksheet
     Dim combinedWs As Worksheet
     Dim rng As Range
-    Dim deleteRange As Range
     Dim lastRow As Long
     Dim lastCol As Long
     Dim i As Integer
@@ -404,6 +403,8 @@ Sub CombineSheets_withCol()
     Dim origEstSPCol As Range
     Dim epicLinkCol As Range
     Dim wpCol As Range
+    Dim roiHoursCol As Range
+    Dim evSPCol As Range
 
     ' Define new columns to add in CombinedData
     Dim newHeaders As Variant
@@ -449,6 +450,8 @@ Sub CombineSheets_withCol()
     Set origEstSPCol = combinedWs.Rows(1).Find(What:="Original Estima SP", LookIn:=xlValues, LookAt:=xlWhole)
     Set epicLinkCol = combinedWs.Rows(1).Find(What:="Epic Link", LookIn:=xlValues, LookAt:=xlWhole)
     Set wpCol = combinedWs.Rows(1).Find(What:="WP", LookIn:=xlValues, LookAt:=xlWhole)
+    Set roiHoursCol = combinedWs.Rows(1).Find(What:="ROI (Hours)", LookIn:=xlValues, LookAt:=xlWhole)
+    Set evSPCol = combinedWs.Rows(1).Find(What:="EV, SP", LookIn:=xlValues, LookAt:=xlWhole)
 
     ' Apply formulas if columns are found
     lastRow = combinedWs.Cells(combinedWs.Rows.Count, 1).End(xlUp).Row
@@ -464,6 +467,13 @@ Sub CombineSheets_withCol()
     If Not origEstHrsCol Is Nothing And Not origEstSPCol Is Nothing Then
         For i = 2 To lastRow
             combinedWs.Cells(i, origEstSPCol.Column).Formula = "=" & combinedWs.Cells(i, origEstHrsCol.Column).Address(False, False) & "/4"
+        Next i
+    End If
+
+    ' "EV, SP" Column: Divide "ROI (Hours)" by 4
+    If Not roiHoursCol Is Nothing And Not evSPCol Is Nothing Then
+        For i = 2 To lastRow
+            combinedWs.Cells(i, evSPCol.Column).Formula = "=" & combinedWs.Cells(i, roiHoursCol.Column).Address(False, False) & "/4"
         Next i
     End If
 

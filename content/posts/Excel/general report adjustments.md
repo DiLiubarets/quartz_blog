@@ -95,12 +95,17 @@ Sub AdjustAndCombineSheets()
                 Next cell
 
                 ' Rename the sheet based on the value in the "SP#" column
-                spName = ws.Cells(2, sprintCol.Column + 1).Value
+                Dim originalName As String
+                Dim counter As Integer
+
+                ' Ensure the value is treated as a string and handle errors
+                On Error Resume Next
+                spName = Trim(CStr(ws.Cells(2, sprintCol.Column + 1).Value))
+                If Err.Number <> 0 Then spName = "Unknown" ' Assign a default name if an error occurs
+                On Error GoTo 0
 
                 ' Check if the value is not empty and ensure unique sheet name
                 If spName <> "" Then
-                    Dim originalName As String
-                    Dim counter As Integer
                     originalName = spName
                     counter = 1
 

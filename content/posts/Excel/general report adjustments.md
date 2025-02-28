@@ -16,7 +16,8 @@ Sub AdjustAndCombineSheets()
     Dim nextRow As Long
     Dim spName As String
     Dim tbl As ListObject
-
+    Dim firstSheet As Boolean
+    
     ' Define the columns to delete
     columnsToDelete = Array("Issue Links", "Fix Version/s", "ROI($)", "Updated", "Sprint History", "Sprint commitment", _
                             "Project Status (Date / Comments)", "Last Issue Comment", "Description", "Solution")
@@ -34,6 +35,7 @@ Sub AdjustAndCombineSheets()
     End If
 
     nextRow = 1
+    firstSheet = True ' Flag to track the first sheet
 
     For Each ws In ThisWorkbook.Worksheets
         If ws.Name <> "Instructions" And ws.Name <> "CombinedData" Then
@@ -147,12 +149,21 @@ Sub AdjustAndCombineSheets()
             Next colName
 
             ' Copy data to the combined sheet
-            ws.UsedRange.Copy Destination:=combinedWs.Cells(nextRow, 1)
+            If firstSheet Then
+                ' Copy with headers for the first sheet
+                ws.UsedRange.Copy Destination:=combinedWs.Cells(nextRow, 1)
+                firstSheet = False
+            Else
+                ' Copy without headers for subsequent sheets
+                ws.UsedRange.Offset(1, 0).Resize(ws.UsedRange.Rows.Count - 1, ws.UsedRange.Columns.Count).Copy _
+                    Destination:=combinedWs.Cells(nextRow, 1)
+            End If
+            
             nextRow = combinedWs.Cells(combinedWs.Rows.Count, 1).End(xlUp).Row + 1
         End If
     Next ws
 
-    MsgBox "All sheets adjusted, renamed, and combined except 'Instructions'"
+    MsgBox "All sheets adjusted, renamed, and combined without duplicate headers!"
 
 End Sub
 
